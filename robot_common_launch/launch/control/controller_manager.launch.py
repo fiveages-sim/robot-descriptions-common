@@ -20,8 +20,6 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 from launch.conditions import IfCondition
 from ament_index_python.packages import get_package_share_directory
-from ros_gz_bridge.actions import RosGzBridge
-from ros_gz_sim.actions import GzServer
 
 # Import robot_common_launch utilities
 from robot_common_launch import load_robot_config, get_robot_package_path, get_gz_bridge_config_path, get_gz_image_bridge_topics
@@ -130,6 +128,10 @@ def generate_launch_description():
         nodes.append(robot_state_publisher)
         
         if use_gazebo:
+            # Import Gazebo-related modules only when needed
+            from ros_gz_bridge.actions import RosGzBridge
+            from ros_gz_sim.actions import GzServer
+            
             # 世界文件路径
             world_path = os.path.join(get_package_share_directory(world_package), 'worlds', world + '.sdf')
             

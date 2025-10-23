@@ -125,19 +125,3 @@ common/
     ├── launch/           # Launch files
     └── worlds/           # Simulation world files
 ```
-
-## ROS2 Control Integration
-
-All grippers include ROS2 Control configurations with:
-- Position controllers
-- Effort controllers (where applicable)
-- Hardware interfaces for both simulation and real hardware
-
-## Contributing
-
-If you have additional common components (grippers, hands, sensors) that would benefit the community, please feel free to contribute!
-
-## License
-
-Please refer to individual package licenses. Most components are provided under permissive licenses for research and educational purposes.
-

@@ -86,7 +86,7 @@
 			<child link="${prefix}left_1_link"/>
 			<axis xyz="1 0 0"/>
 			<xacro:if value="${pad == 'soft'}">
-				<limit lower="0.189" upper="1" effort="50" velocity="${PI}"/>
+				<limit lower="0.105" upper="1" effort="50" velocity="${PI}"/>
 			</xacro:if>
 			<xacro:if value="${pad == 'default'}">
 				<limit lower="0" upper="1" effort="50" velocity="${PI}"/>

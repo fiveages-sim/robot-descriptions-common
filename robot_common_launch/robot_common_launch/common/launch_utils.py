@@ -139,7 +139,6 @@ def create_common_launch_arguments():
 def create_visualization_launch_description(
     robot_param_name='robot',
     robot_default_value='go1',
-    robot_description_param='robot',
     xacro_filename='robot.xacro',
     rviz_config_name='urdf.rviz',
     additional_args=None
@@ -150,7 +149,6 @@ def create_visualization_launch_description(
     Args:
         robot_param_name (str): 机器人参数名称
         robot_default_value (str): 机器人默认值
-        robot_description_param (str): 机器人描述参数名称 (用于显示)
         xacro_filename (str): xacro 文件名
         rviz_config_name (str): RViz 配置文件名
         additional_args (list): 额外的参数列表
@@ -184,7 +182,7 @@ def create_visualization_launch_description(
         DeclareLaunchArgument(
             robot_param_name,
             default_value=robot_default_value,
-            description=f'{robot_description_param} name to visualize'
+            description=f'{robot_param_name} name to visualize'
         )
     ]
     

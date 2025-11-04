@@ -3,8 +3,9 @@
 
   <!-- Inspire EG2-4C2夹爪完整接口定义宏 -->
   <xacro:macro name="eg2_4c2_interfaces" params="name">
+    <xacro:arg name="gazebo" default="false"/>
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
-    
+
     <!-- 夹爪主关节接口定义 -->
     <joint name="${prefix}gripper_joint">
       <command_interface name="position"/>
@@ -15,32 +16,34 @@
       <state_interface name="effort"/>
     </joint>
 
-    <!-- Inspire EG2-4C2夹爪的mimic关节接口 -->
-    <joint name="${prefix}left_inner_joint">
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-    <joint name="${prefix}right_inner_joint">
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-    <joint name="${prefix}right_outer_joint">
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-    <joint name="${prefix}left_pad_joint">
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
-    <joint name="${prefix}right_pad_joint">
-      <state_interface name="position"/>
-      <state_interface name="velocity"/>
-      <state_interface name="effort"/>
-    </joint>
+    <xacro:if value="$(arg gazebo)">
+      <!-- Inspire EG2-4C2夹爪的mimic关节接口 (仅在Gazebo模式下启用) -->
+      <joint name="${prefix}left_inner_joint">
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}right_inner_joint">
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}right_outer_joint">
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}left_pad_joint">
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+      <joint name="${prefix}right_pad_joint">
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+    </xacro:if>
   </xacro:macro>
 
 </robot>

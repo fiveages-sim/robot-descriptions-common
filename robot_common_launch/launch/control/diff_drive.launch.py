@@ -50,9 +50,6 @@ def launch_setup(context, *args, **kwargs):
         output='screen',
         parameters=[
             {'use_sim_time': use_sim_time},
-        ],
-        remappings=[
-            ('/diff_drive_controller/cmd_vel', '/cmd_vel')
         ]
     )
 

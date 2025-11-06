@@ -66,6 +66,13 @@ def generate_launch_description():
         description='Hardware type: gz for Gazebo, isaac for Isaac, mock_components for mock'
     )
 
+    # Remappings parameter (optional, format: "from:to;from2:to2")
+    remappings_arg = DeclareLaunchArgument(
+        'remappings',
+        default_value='',
+        description='Topic remappings for ros2_control_node (format: "from1:to1;from2:to2")'
+    )
+
     def launch_setup(context, *args, **kwargs):
         robot_name = context.launch_configurations['robot']
         robot_type = context.launch_configurations['type']
@@ -73,6 +80,7 @@ def generate_launch_description():
         world = context.launch_configurations['world']
         world_package = context.launch_configurations['world_package']
         hardware = context.launch_configurations['hardware']
+        remappings_str = context.launch_configurations.get('remappings', '')
         
         # 根据 hardware 参数自动判断是否使用 Gazebo
         use_gazebo = hardware == 'gz'
@@ -198,6 +206,26 @@ def generate_launch_description():
             # ros2_control_node (仅在非Gazebo模式下)
             _, ros2_controllers_path = load_robot_config(robot_name, "ros2_control", robot_type)
             if ros2_controllers_path is not None:
+                # 默认 remappings
+                default_remappings = [
+                    ("/controller_manager/robot_description", "/robot_description"),
+                ]
+                
+                # 解析传入的 remappings 参数
+                # 格式: "from1:to1;from2:to2"
+                additional_remappings = []
+                if remappings_str and remappings_str.strip():
+                    try:
+                        for remap_pair in remappings_str.split(';'):
+                            if ':' in remap_pair:
+                                from_topic, to_topic = remap_pair.split(':', 1)
+                                additional_remappings.append((from_topic.strip(), to_topic.strip()))
+                    except Exception as e:
+                        print(f"[WARN] Failed to parse remappings '{remappings_str}': {e}")
+                
+                # 合并默认和额外的 remappings
+                all_remappings = default_remappings + additional_remappings
+                
                 ros2_control_node = Node(
                     package="controller_manager",
                     executable="ros2_control_node",
@@ -207,9 +235,7 @@ def generate_launch_description():
                         # Pass robot_type parameter to the controller if specified
                         {'robot_type': robot_type} if robot_type and robot_type.strip() else {}
                     ],
-                    remappings=[
-                        ("/controller_manager/robot_description", "/robot_description"),
-                    ],
+                    remappings=all_remappings,
                     output="screen",
                 )
                 nodes.append(ros2_control_node)
@@ -241,5 +267,6 @@ def generate_launch_description():
         world_arg,
         world_package_arg,
         hardware_arg,
+        remappings_arg,
         OpaqueFunction(function=launch_setup)
     ])

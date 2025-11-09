@@ -75,6 +75,7 @@ def launch_setup(context, *args, **kwargs):
     elif controller_type == 'compliance':
         remappings_list.append('cartesian_compliance_controller/target_frame:target_frame')
         remappings_list.append('cartesian_compliance_controller/target_wrench:target_wrench')
+        remappings_list.append('cartesian_compliance_controller/current_pose:left_current_pose')
     
     # 同时映射其他控制器订阅的话题到通用话题（与simulation.launch.py保持一致）
     # 这些 remappings 用于确保所有控制器都能访问通用话题
@@ -141,6 +142,17 @@ def launch_setup(context, *args, **kwargs):
                 ('/cartesian_compliance_controller/ft_sensor_wrench', '/ft_sensor_wrench')
             ]
         )
+
+    # Force torque sensor broadcaster spawner
+    force_torque_sensor_broadcaster_spawner = Node(
+        package='controller_manager',
+        executable='spawner',
+        arguments=['force_torque_sensor_broadcaster'],
+        output='screen',
+        parameters=[
+            {'use_sim_time': use_sim_time},
+        ],
+    )
 
     # Motion control handle spawner
     # Remap target_frame to unified /target_frame topic
@@ -223,6 +235,7 @@ def launch_setup(context, *args, **kwargs):
     nodes = [
         controller_manager_launch,
         cartesian_controller_spawner,
+        force_torque_sensor_broadcaster_spawner,
     ]
     
     # 添加 motion_control_handle spawner（如果启用）

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<robot name="Junduo_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="type" default="RG75"/>
+
+  <!-- 根据type参数决定使用哪种夹爪 -->
+  <xacro:if value="${'$(arg type)' == 'RG75'}">
+    <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
+    <xacro:RG75-300 name="" />
+  </xacro:if>
+
+  <xacro:if value="${'$(arg type)' == 'RG75-leapmotor'}">
+    <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
+    <xacro:RG75-300 name="" pad="leapmotor"/>
+  </xacro:if>
+</robot>
+

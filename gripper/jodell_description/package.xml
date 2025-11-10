@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<package format="2">
+    <name>jodell_description</name>
+    <version>0.0.0</version>
+    <description>The Jodell RG75-300 gripper description package</description>
+
+    <maintainer email="biao876990970@hotmail.com">Huang Zhenbiao</maintainer>
+    <license>TODO</license>
+
+    <exec_depend>robot_common_launch</exec_depend>
+
+    <export>
+        <build_type>ament_cmake</build_type>
+    </export>
+
+</package>
+

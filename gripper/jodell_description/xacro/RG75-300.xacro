@@ -80,50 +80,49 @@
 			</collision>
 		</link>
 
-		<!-- 左指驱动关节 joint01 -->
-		<joint name="${prefix}left_driver_joint" type="prismatic">
-			<!-- <origin xyz="0.01475 0.030558 0.13525" /> -->
-			<origin xyz="0.01475 0.005263 0.13525"/>
-			<parent link="${prefix}gripper_base"/>
-			<child link="${prefix}left_driver"/>
-			<axis xyz="0 -1 0"/>
-			<limit lower="-3.14" upper="3.14" effort="100" velocity="1"/>
-			<mimic joint="${prefix}gripper_joint" multiplier="-1" offset="0"/>
-		</joint>
+	<!-- 左指驱动关节 joint01（主控制关节）-->
+	<joint name="${prefix}gripper_joint" type="prismatic">
+		<origin xyz="0.01475 0.005263 0.13525"/>
+		<parent link="${prefix}gripper_base"/>
+		<child link="${prefix}left_driver"/>
+		<axis xyz="0 1 0"/>
+		<limit lower="0" upper="0.038372" effort="100" velocity="1"/>
+	</joint>
 
-		<!-- 右指驱动部分 Link02 -->
-		<link name="${prefix}right_driver">
-			<inertial>
-				<origin xyz="0.00622319002372818 -0.00413996361274716 -0.000668369659342583"/>
-				<mass value="0.123532779120439"/>
-				<inertia
-						ixx="3.00327968654647E-05"
-						ixy="1.05131403937946E-06"
-						ixz="-2.19975036835766E-06"
-						iyy="1.54599114445938E-05"
-						iyz="1.15504972051579E-06"
-						izz="2.29781519382362E-05"/>
-			</inertial>
-			<visual>
-				<geometry>
-					<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj" scale="-1 -1 1"/>
-				</geometry>
-			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj" scale="-1 -1 1"/>
-				</geometry>
-			</collision>
-		</link>
+	<!-- 右指驱动部分 Link02 -->
+	<link name="${prefix}right_driver">
+		<inertial>
+			<origin xyz="0.00622319002372818 -0.00413996361274716 -0.000668369659342583"/>
+			<mass value="0.123532779120439"/>
+			<inertia
+					ixx="3.00327968654647E-05"
+					ixy="1.05131403937946E-06"
+					ixz="-2.19975036835766E-06"
+					iyy="1.54599114445938E-05"
+					iyz="1.15504972051579E-06"
+					izz="2.29781519382362E-05"/>
+		</inertial>
+		<visual>
+			<geometry>
+				<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj" scale="-1 -1 1"/>
+			</geometry>
+		</visual>
+		<collision>
+			<geometry>
+				<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj" scale="-1 -1 1"/>
+			</geometry>
+		</collision>
+	</link>
 
-		<!-- 右指驱动关节 joint02（主控制关节）-->
-		<joint name="${prefix}gripper_joint" type="prismatic">
-			<origin xyz="-0.01475 -0.005263 0.13525"/>
-			<parent link="${prefix}gripper_base"/>
-			<child link="${prefix}right_driver"/>
-			<axis xyz="0 -1 0"/>
-			<limit lower="0" upper="0.038372" effort="100" velocity="1"/>
-		</joint>
+	<!-- 右指驱动关节 joint02（mimic关节）-->
+	<joint name="${prefix}right_driver_joint" type="prismatic">
+		<origin xyz="-0.01475 -0.005263 0.13525"/>
+		<parent link="${prefix}gripper_base"/>
+		<child link="${prefix}right_driver"/>
+		<axis xyz="0 1 0"/>
+		<limit lower="-3.14" upper="3.14" effort="100" velocity="1"/>
+		<mimic joint="${prefix}gripper_joint" multiplier="-1" offset="0"/>
+	</joint>
 
 		<xacro:if value="${pad == 'fiveages'}">
 			<link name="${prefix}left_finger_pad">

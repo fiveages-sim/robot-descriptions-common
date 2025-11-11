@@ -1,270 +1,271 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
-	<xacro:macro name="RG75-300" params="name use_flange:=false pad:=fiveages">
-		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
-		<xacro:property name="PI" value="3.1415926535897931"/>
-
-		<xacro:if value="${use_flange}">
-			<link name="${prefix}flange">
-				<inertial>
-					<origin xyz="-0.0315000000000112 -0.00999999999998802 -0.00845704061855646"/>
-					<mass value="0.231482541056423"/>
-					<inertia
-							ixx="8.42942451200237E-05"
-							ixy="7.75340663997673E-11"
-							ixz="-3.82089316861811E-20"
-							iyy="0.000122599240652233"
-							iyz="-2.25716161618225E-17"
-							izz="0.000197323026436857"/>
-				</inertial>
-				<visual>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/flange.obj"/>
-					</geometry>
-				</visual>
-			</link>
-			<joint name="${prefix}flange_joint" type="fixed">
-				<parent link="${prefix}flange"/>
-				<child link="${prefix}gripper_base"/>
-			</joint>
-		</xacro:if>
+    <xacro:macro name="RG75-300" params="name use_flange:=false pad:=fiveages">
+        <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+        <xacro:property name="PI" value="3.1415926535897931"/>
 
 
-		<!-- 基座 Base Link -->
-		<link name="${prefix}gripper_base">
-			<inertial>
-				<origin xyz="2.54466221427663E-08 -7.0698058304508E-05 0.0686943290848626"/>
-				<mass value="4.07984857937805"/>
-				<inertia
-						ixx="0.00511388736254833"
-						ixy="4.54018976326608E-09"
-						ixz="-3.96561604585672E-09"
-						iyy="0.00444919757530844"
-						iyz="-4.13652271091887E-06"
-						izz="0.00308172994787423"/>
-			</inertial>
-			<visual>
-				<geometry>
-					<mesh filename="file://$(find jodell_description)/meshes/RG75-300/base.obj"/>
-				</geometry>
-			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find jodell_description)/meshes/RG75-300/base.obj"/>
-				</geometry>
-			</collision>
-		</link>
+        <link name="${prefix}gripper_base">
+            <inertial>
+                <origin xyz="2.54466221427663E-08 -7.0698058304508E-05 0.0686943290848626"/>
+                <mass value="4.07984857937805"/>
+                <inertia
+                        ixx="0.00511388736254833"
+                        ixy="4.54018976326608E-09"
+                        ixz="-3.96561604585672E-09"
+                        iyy="0.00444919757530844"
+                        iyz="-4.13652271091887E-06"
+                        izz="0.00308172994787423"/>
+            </inertial>
+            <visual>
+                <geometry>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/base.obj"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/base.obj"/>
+                </geometry>
+            </collision>
+        </link>
 
-		<!-- 左指驱动部分 Link01 -->
-		<link name="${prefix}left_driver">
-			<inertial>
-				<origin xyz="-0.00622314924233969 -0.0138600974249246 -0.000918462021462396"/>
-				<mass value="0.123532229208125"/>
-				<inertia
-						ixx="3.00326941194395E-05"
-						ixy="1.0513030272751E-06"
-						ixz="2.19974996044126E-06"
-						iyy="1.54597887695067E-05"
-						iyz="-1.15504521212325E-06"
-						izz="2.29781145700794E-05"/>
-			</inertial>
-			<visual>
-				<geometry>
-					<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj"/>
-				</geometry>
-			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj"/>
-				</geometry>
-			</collision>
-		</link>
+        <xacro:if value="${use_flange}">
+            <link name="${prefix}flange">
+                <inertial>
+                    <origin xyz="-0.0315000000000112 -0.00999999999998802 -0.00845704061855646"/>
+                    <mass value="0.231482541056423"/>
+                    <inertia
+                            ixx="8.42942451200237E-05"
+                            ixy="7.75340663997673E-11"
+                            ixz="-3.82089316861811E-20"
+                            iyy="0.000122599240652233"
+                            iyz="-2.25716161618225E-17"
+                            izz="0.000197323026436857"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/flange.obj"/>
+                    </geometry>
+                </visual>
+                <collision>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/flange.obj"/>
+                    </geometry>
+                </collision>
 
-	<!-- 左指驱动关节 joint01（主控制关节）-->
-	<joint name="${prefix}gripper_joint" type="prismatic">
-		<origin xyz="0.01475 0.005263 0.13525"/>
-		<parent link="${prefix}gripper_base"/>
-		<child link="${prefix}left_driver"/>
-		<axis xyz="0 1 0"/>
-		<limit lower="0" upper="0.038372" effort="100" velocity="1"/>
-	</joint>
+            </link>
+            <joint name="${prefix}flange_joint" type="fixed">
+                <parent link="${prefix}flange"/>
+                <child link="${prefix}gripper_base"/>
+            </joint>
+        </xacro:if>
 
-	<!-- 右指驱动部分 Link02 -->
-	<link name="${prefix}right_driver">
-		<inertial>
-			<origin xyz="0.00622319002372818 -0.00413996361274716 -0.000668369659342583"/>
-			<mass value="0.123532779120439"/>
-			<inertia
-					ixx="3.00327968654647E-05"
-					ixy="1.05131403937946E-06"
-					ixz="-2.19975036835766E-06"
-					iyy="1.54599114445938E-05"
-					iyz="1.15504972051579E-06"
-					izz="2.29781519382362E-05"/>
-		</inertial>
-		<visual>
-			<geometry>
-				<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj" scale="-1 -1 1"/>
-			</geometry>
-		</visual>
-		<collision>
-			<geometry>
-				<mesh filename="file://$(find jodell_description)/meshes/RG75-300/finger.obj" scale="-1 -1 1"/>
-			</geometry>
-		</collision>
-	</link>
+        <link name="${prefix}left_finger">
+            <inertial>
+                <origin xyz="-0.00622314924233969 -0.0138600974249246 -0.000918462021462396"/>
+                <mass value="0.123532229208125"/>
+                <inertia
+                        ixx="3.00326941194395E-05"
+                        ixy="1.0513030272751E-06"
+                        ixz="2.19974996044126E-06"
+                        iyy="1.54597887695067E-05"
+                        iyz="-1.15504521212325E-06"
+                        izz="2.29781145700794E-05"/>
+            </inertial>
+            <visual>
+                <geometry>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj"/>
+                </geometry>
+            </collision>
+        </link>
 
-	<!-- 右指驱动关节 joint02（mimic关节）-->
-	<joint name="${prefix}right_driver_joint" type="prismatic">
-		<origin xyz="-0.01475 -0.005263 0.13525"/>
-		<parent link="${prefix}gripper_base"/>
-		<child link="${prefix}right_driver"/>
-		<axis xyz="0 1 0"/>
-		<limit lower="-3.14" upper="3.14" effort="100" velocity="1"/>
-		<mimic joint="${prefix}gripper_joint" multiplier="-1" offset="0"/>
-	</joint>
+        <joint name="${prefix}gripper_joint" type="prismatic">
+            <origin xyz="0.01475 0.005263 0.13525"/>
+            <parent link="${prefix}gripper_base"/>
+            <child link="${prefix}left_finger"/>
+            <axis xyz="0 1 0"/>
+            <limit lower="0" upper="0.038372" effort="100" velocity="1"/>
+        </joint>
 
-		<xacro:if value="${pad == 'fiveages'}">
-			<link name="${prefix}left_finger_pad">
-				<inertial>
-					<origin xyz="0.000284583617113476 -0.00740966548408983 0.0204352405718595"/>
-					<mass value="0.350279784811955"/>
-					<inertia
-							ixx="0.000196691566499367"
-							ixy="-3.01529396660506E-06"
-							ixz="1.35955466451588E-05"
-							iyy="0.000230888163863478"
-							iyz="3.07941291676901E-07"
-							izz="4.76329717082118E-05"/>
-				</inertial>
-				<visual>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-fiveages.obj"/>
-					</geometry>
-				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-fiveages.obj"/>
-					</geometry>
-				</collision>
-			</link>
+        <link name="${prefix}right_finger">
+            <inertial>
+                <origin xyz="0.00622319002372818 -0.00413996361274716 -0.000668369659342583"/>
+                <mass value="0.123532779120439"/>
+                <inertia
+                        ixx="3.00327968654647E-05"
+                        ixy="1.05131403937946E-06"
+                        ixz="-2.19975036835766E-06"
+                        iyy="1.54599114445938E-05"
+                        iyz="1.15504972051579E-06"
+                        izz="2.29781519382362E-05"/>
+            </inertial>
+            <visual>
+                <geometry>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj" scale="-1 -1 1"/>
+                </geometry>
+            </visual>
+            <collision>
+                <geometry>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj" scale="-1 -1 1"/>
+                </geometry>
+            </collision>
+        </link>
 
-			<!-- 左指 Pad 固定关节 -->
-			<joint name="${prefix}left_finger_pad_joint" type="fixed">
-				<origin xyz="-0.014715 0.011478 0.0315"/>
-				<parent link="${prefix}left_driver"/>
-				<child link="${prefix}left_finger_pad"/>
-			</joint>
+        <joint name="${prefix}right_finger_joint" type="prismatic">
+            <origin xyz="-0.01475 -0.005263 0.13525"/>
+            <parent link="${prefix}gripper_base"/>
+            <child link="${prefix}right_finger"/>
+            <axis xyz="0 -1 0"/>
+            <limit lower="-3.14" upper="3.14" effort="100" velocity="1"/>
+            <mimic joint="${prefix}gripper_joint" multiplier="1" offset="0"/>
+        </joint>
 
-			<link name="${prefix}right_finger_pad">
-				<inertial>
-					<origin xyz="0.000309321271569241 0.00740834021099002 0.0204930694442338"/>
-					<mass value="0.350981042267061"/>
-					<inertia
-							ixx="0.00019735746263116"
-							ixy="3.01509157777033E-06"
-							ixz="1.33304141566164E-05"
-							iyy="0.000231659584295031"
-							iyz="-3.08438472630807E-07"
-							izz="4.77458337099618E-05"/>
-				</inertial>
-				<visual>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-fiveages.obj" scale="1 -1 1"/>
-					</geometry>
-				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-fiveages.obj" scale="1 -1 1"/>
-					</geometry>
-				</collision>
-			</link>
+        <xacro:if value="${pad == 'fiveages'}">
+            <link name="${prefix}left_finger_pad">
+                <inertial>
+                    <origin xyz="0.000284583617113476 -0.00740966548408983 0.0204352405718595"/>
+                    <mass value="0.350279784811955"/>
+                    <inertia
+                            ixx="0.000196691566499367"
+                            ixy="-3.01529396660506E-06"
+                            ixz="1.35955466451588E-05"
+                            iyy="0.000230888163863478"
+                            iyz="3.07941291676901E-07"
+                            izz="4.76329717082118E-05"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"/>
+                    </geometry>
+                </visual>
+                <collision>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"/>
+                    </geometry>
+                </collision>
+            </link>
 
-			<!-- 右指 Pad 固定关节 -->
-			<joint name="${prefix}right_finger_pad_joint" type="fixed">
-				<origin xyz="0.014785 -0.011478 0.03175"/>
-				<parent link="${prefix}right_driver"/>
-				<child link="${prefix}right_finger_pad"/>
-			</joint>
+            <joint name="${prefix}left_finger_pad_joint" type="fixed">
+                <origin xyz="-0.014715 0.011478 0.0315"/>
+                <parent link="${prefix}left_finger"/>
+                <child link="${prefix}left_finger_pad"/>
+            </joint>
 
-			<link name="${prefix}eef"/>
-			<joint name="${prefix}eef_joint" type="fixed">
-				<parent link="${prefix}gripper_base"/>
-				<child link="${prefix}eef"/>
-				<origin xyz="0 0 0.22"/>
-			</joint>
-		</xacro:if>
+            <link name="${prefix}right_finger_pad">
+                <inertial>
+                    <origin xyz="0.000309321271569241 0.00740834021099002 0.0204930694442338"/>
+                    <mass value="0.350981042267061"/>
+                    <inertia
+                            ixx="0.00019735746263116"
+                            ixy="3.01509157777033E-06"
+                            ixz="1.33304141566164E-05"
+                            iyy="0.000231659584295031"
+                            iyz="-3.08438472630807E-07"
+                            izz="4.77458337099618E-05"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"
+                              scale="1 -1 1"/>
+                    </geometry>
+                </visual>
+                <collision>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"
+                              scale="1 -1 1"/>
+                    </geometry>
+                </collision>
+            </link>
 
-		<xacro:if value="${pad == 'leapmotor'}">
-			<link name="${prefix}left_finger_pad">
-				<inertial>
-					<origin xyz="-0.0273621671052904 -0.0115571775561825 0.131965151776638"/>
-					<mass value="0.971848511966183"/>
-					<inertia
-							ixx="0.00567329523505055"
-							ixy="-1.46176859453297E-08"
-							ixz="0.00209826432464484"
-							iyy="0.00798991806803702"
-							iyz="-1.72430069472743E-06"
-							izz="0.00233523656275322"/>
-				</inertial>
-				<visual>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-leapmotor.obj"/>
-					</geometry>
-				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-leapmotor.obj"/>
-					</geometry>
-				</collision>
-			</link>
+            <joint name="${prefix}right_finger_pad_joint" type="fixed">
+                <origin xyz="0.014785 -0.011478 0.03175"/>
+                <parent link="${prefix}right_finger"/>
+                <child link="${prefix}right_finger_pad"/>
+            </joint>
 
-			<!-- 左指 Pad 固定关节 -->
-			<joint name="${prefix}left_finger_pad_joint" type="fixed">
-				<origin xyz="-0.02225 0.01245 0.0607500000000101"/>
-				<parent link="${prefix}left_driver"/>
-				<child link="${prefix}left_finger_pad"/>
-			</joint>
+            <link name="${prefix}eef"/>
+            <joint name="${prefix}eef_joint" type="fixed">
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}eef"/>
+                <origin xyz="0 0 0.22"/>
+            </joint>
+        </xacro:if>
 
-			<link name="${prefix}right_finger_pad">
-				<inertial>
-					<origin xyz="-0.0273648226249448 0.0115580703720554 0.131965151776598"/>
-					<mass value="0.971848511966211"/>
-					<inertia
-							ixx="0.00567329523505061"
-							ixy="-1.46176859456687E-08"
-							ixz="0.00209826432464498"
-							iyy="0.00798991806803724"
-							iyz="1.87585284859872E-06"
-							izz="0.0023352365627534"/>
-				</inertial>
-				<visual>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-leapmotor.obj" scale="1 -1 1"/>
-					</geometry>
-				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find jodell_description)/meshes/RG75-300/pad-leapmotor.obj" scale="1 -1 1"/>
-					</geometry>
-				</collision>
-			</link>
+        <xacro:if value="${pad == 'leapmotor'}">
+            <link name="${prefix}left_finger_pad">
+                <inertial>
+                    <origin xyz="-0.0273621671052904 -0.0115571775561825 0.131965151776638"/>
+                    <mass value="0.971848511966183"/>
+                    <inertia
+                            ixx="0.00567329523505055"
+                            ixy="-1.46176859453297E-08"
+                            ixz="0.00209826432464484"
+                            iyy="0.00798991806803702"
+                            iyz="-1.72430069472743E-06"
+                            izz="0.00233523656275322"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"/>
+                    </geometry>
+                </visual>
+                <collision>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"/>
+                    </geometry>
+                </collision>
+            </link>
 
-			<!-- 右指 Pad 固定关节 -->
-			<joint name="${prefix}right_finger_pad_joint" type="fixed">
-				<origin xyz="0.00724999999998532 -0.01245 0.0607500000000101"/>
-				<parent link="${prefix}right_driver"/>
-				<child link="${prefix}right_finger_pad"/>
-			</joint>
+            <joint name="${prefix}left_finger_pad_joint" type="fixed">
+                <origin xyz="-0.02225 0.01245 0.0607500000000101"/>
+                <parent link="${prefix}left_finger"/>
+                <child link="${prefix}left_finger_pad"/>
+            </joint>
 
-			<link name="${prefix}eef"/>
-			<joint name="${prefix}eef_joint" type="fixed">
-				<parent link="${prefix}gripper_base"/>
-				<child link="${prefix}eef"/>
-				<origin xyz="-0.2 0 0.42525" rpy="0 ${PI/2} ${PI}"/>
-			</joint>
-		</xacro:if>
+            <link name="${prefix}right_finger_pad">
+                <inertial>
+                    <origin xyz="-0.0273648226249448 0.0115580703720554 0.131965151776598"/>
+                    <mass value="0.971848511966211"/>
+                    <inertia
+                            ixx="0.00567329523505061"
+                            ixy="-1.46176859456687E-08"
+                            ixz="0.00209826432464498"
+                            iyy="0.00798991806803724"
+                            iyz="1.87585284859872E-06"
+                            izz="0.0023352365627534"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"
+                              scale="1 -1 1"/>
+                    </geometry>
+                </visual>
+                <collision>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"
+                              scale="1 -1 1"/>
+                    </geometry>
+                </collision>
+            </link>
 
-	</xacro:macro>
+            <joint name="${prefix}right_finger_pad_joint" type="fixed">
+                <origin xyz="0.00724999999998532 -0.01245 0.0607500000000101"/>
+                <parent link="${prefix}right_finger"/>
+                <child link="${prefix}right_finger_pad"/>
+            </joint>
+
+            <link name="${prefix}eef"/>
+            <joint name="${prefix}eef_joint" type="fixed">
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}eef"/>
+                <origin xyz="-0.2 0 0.42525" rpy="0 ${PI/2} ${PI}"/>
+            </joint>
+        </xacro:if>
+
+    </xacro:macro>
 </robot>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <!-- Junduo RG75-300 夹爪完整接口定义宏 -->
+  <!-- Junduo RG75 夹爪完整接口定义宏 -->
   <xacro:macro name="rg75_interfaces" params="name">
     <xacro:arg name="gazebo" default="false"/>
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="LinkerHand_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:arg name="type" default="o7"/>
+	<xacro:arg name="direction" default="1"/>
+
+	<xacro:include filename="$(find linkerhand_description)/xacro/o7.xacro"/>
+
+	<!-- 创建手部 (direction=1 为左手, direction=-1 为右手) -->
+	<xacro:LinkerHandO7 name="" direction="$(arg direction)"/>
+
+</robot>

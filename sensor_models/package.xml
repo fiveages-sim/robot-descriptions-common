@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>camera_models</name>
+  <name>sensor_models</name>
   <version>0.0.0</version>
-  <description>The common visualize config files for robots</description>
+  <description>The common sensor model files for robots</description>
 
   <license>BSD-3</license>
 

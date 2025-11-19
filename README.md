@@ -1,6 +1,6 @@
 # Robot Descriptions - Common Components
 
-This repository contains shared robot description files including grippers, dexterous hands, camera models, and common launch utilities for ROS2 robots.
+This repository contains shared robot description files including grippers, dexterous hands, sensor models, and common launch utilities for ROS2 robots.
 
 ## Overview
 
@@ -41,14 +41,17 @@ Features:
 - Individual finger joint control
 - High-quality visual meshes
 
-### Camera Models
+### Sensor Models
 
-Located in `camera_models/` directory:
+Located in `sensor_models/` directory:
 
 Includes URDF descriptions and meshes for:
 - Intel RealSense D405
+- Intel RealSense D435
+- Orbbec Dabai
+- Livox Mid-360
 
-These camera models can be easily integrated into robot descriptions for simulation and visualization.
+These sensor models can be easily integrated into robot descriptions for simulation and visualization.
 
 ### Common Launch Files
 
@@ -116,7 +119,7 @@ ros2 launch robot_common_launch navigation_slam.launch.py
 
 ```
 common/
-├── camera_models/          # Camera URDF models
+├── sensor_models/          # Sensor URDF models
 ├── dexhands/              # Dexterous hand descriptions
 │   ├── brainco_description/
 │   ├── linkerhand_description/

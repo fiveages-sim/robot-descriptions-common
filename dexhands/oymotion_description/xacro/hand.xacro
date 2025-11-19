@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="OyMotion_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:arg name="type" default="rohand_gen2"/>
+	<xacro:arg name="direction" default="1"/>
+
+	<xacro:if value="${'$(arg type)' == 'rohand_gen2'}">
+		<xacro:include filename="$(find oymotion_description)/xacro/rohand_gen2.xacro"/>
+		<!-- 创建手部 (direction=1 为左手, direction=-1 为右手) -->
+		<xacro:RoHandGen2 name="" direction="$(arg direction)"/>
+	</xacro:if>
+
+</robot>

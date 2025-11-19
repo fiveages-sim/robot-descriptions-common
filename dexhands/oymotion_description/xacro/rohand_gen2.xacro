@@ -1,0 +1,844 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:macro name="RoHandGen2" params="name direction:=1 use_flange:=false fixed_joints:=false">
+		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
+		<xacro:property name="mesh_dir" value="${direction == 1 and 'meshes_l' or 'meshes_r'}"/>
+
+		<!-- ========================================== -->
+		<!-- 手掌基座 (Hand Base) -->
+		<!-- ========================================== -->
+		<link name="${prefix}hand_base">
+			<inertial>
+				<origin
+						xyz="${direction == 1 and -0.0598893430300278 or -0.0601501237613002} ${direction*0.00158270648081169} -0.000121136868490832"/>
+				<mass value="${direction == 1 and 0.0556275033895707 or 0.0567346930426757}"/>
+				<inertia ixx="${direction == 1 and 2.49950041605433E-05 or 2.52815486560786E-05}"
+								 ixy="${direction*1.27338810372926E-06}"
+								 ixz="1.27175531802948E-06"
+								 iyy="${direction == 1 and 3.31543651634603E-05 or 3.34458829784634E-05}"
+								 iyz="${direction*4.65327956822343E-07}"
+								 izz="${direction == 1 and 5.13224795287908E-05 or 5.18881189962893E-05}"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/base.obj" scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/base.obj" scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<!-- ========================================== -->
+		<!-- 食指部分 (Index Finger - IF) -->
+		<!-- ========================================== -->
+		<link name="${prefix}if_slider_link">
+			<inertial>
+				<origin
+						xyz="-0.0138798261687736 ${direction*-1.63409975148521E-06} 1.56270413966333E-06"/>
+				<mass value="0.000489121771249986"/>
+				<inertia ixx="4.370139384762E-09"
+								 ixy="${direction*7.06571113144488E-12}"
+								 ixz="-1.07232864031138E-11"
+								 iyy="3.84653443316186E-08"
+								 iyz="${direction*7.09192685575601E-11}"
+								 izz="3.92709222469408E-08"/>
+			</inertial>
+			<visual>
+				<origin rpy="${direction*-0.07854} 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}if_slider_link" type="prismatic">
+			<origin xyz="-0.074388 ${direction*0.026652} -0.009751" rpy="0 0 ${direction*-0.083036}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}if_slider_link"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="0" upper="0.019" effort="0" velocity="0"/>
+			<mimic joint="${prefix}index_joint" multiplier="0.01319444444" offset="0"/>
+		</joint>
+
+		<link name="${prefix}if_slider_abpart_link">
+			<inertial>
+				<origin
+						xyz="-0.0105388475535051 -0.00349917028494312 -0.000539137690977614"/>
+				<mass value="0.000420484116155222"/>
+				<inertia ixx="1.76368054774551E-09"
+								 ixy="1.07634598493537E-14"
+								 ixz="-7.09975808646362E-10"
+								 iyy="5.75814101151068E-09"
+								 iyz="4.93512397675637E-15"
+								 izz="6.21834665938993E-09"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider_abpart.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}if_slider_abpart_link" type="fixed">
+			<origin xyz="-0.029 0.0034859 ${direction*-0.00030434}" rpy="${direction*-0.087248} -0.0072243 0.0006319"/>
+			<parent link="${prefix}if_slider_link"/>
+			<child link="${prefix}if_slider_abpart_link"/>
+			<axis xyz="0 1 0"/>
+		</joint>
+
+		<link name="${prefix}if_proximal_link">
+			<inertial>
+				<origin
+						xyz="-0.0175140448638131 -0.00710044451763348 -0.0021340861272751"/>
+				<mass value="0.00193519028805872"/>
+				<inertia ixx="1.03940233353317E-07"
+								 ixy="-1.03365620758552E-11"
+								 ixz="1.27422660090348E-08"
+								 iyy="2.32561269712758E-07"
+								 iyz="-1.62211930568835E-12"
+								 izz="2.36271452872982E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}index_joint" type="revolute">
+			<origin xyz="-0.1124 ${direction*0.037665} -0.0018024"
+							rpy="${direction*-0.087248} -0.0072243 ${direction*-0.082404}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}if_proximal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+		</joint>
+
+		<link name="${prefix}if_distal_link">
+			<inertial>
+				<origin
+						xyz="-0.0216633283077257 -0.00711560309930698 -0.00711907576465214"/>
+				<mass value="0.00606060335159451"/>
+				<inertia ixx="2.69279757341436E-07"
+								 ixy="-6.25072148244773E-10"
+								 ixz="-3.49035523733027E-07"
+								 iyy="1.14783910667898E-06"
+								 iyz="-8.57695095976865E-11"
+								 izz="1.03262931906131E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}if_distal_link" type="revolute">
+			<origin xyz="-0.035842 0 -0.0023622"/>
+			<parent link="${prefix}if_proximal_link"/>
+			<child link="${prefix}if_distal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="-0.378" upper="1.19" effort="100" velocity="1"/>
+			<mimic joint="${prefix}index_joint" multiplier="1.08" offset="0.10472"/>
+		</joint>
+
+		<link name="${prefix}if_connecting_link">
+			<inertial>
+				<origin
+						xyz="-0.0151010853330651 -0.00440000674510219 -0.00767252595733173"/>
+				<mass value="0.000200341201168535"/>
+				<inertia ixx="4.93599937155989E-09"
+								 ixy="2.50110659785052E-22"
+								 ixz="-9.91569202916332E-09"
+								 iyy="2.67058367602193E-08"
+								 iyz="8.72055160784029E-22"
+								 izz="2.17912071167841E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_connecting.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}if_connecting_link" type="revolute">
+			<origin xyz="-0.11999 ${direction*0.035982} 0.0028163"
+							rpy="${direction*-0.087248} -0.0072243 ${direction*-0.082404}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}if_connecting_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+			<mimic joint="${prefix}index_joint" multiplier="1" offset="0"/>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 中指部分 (Middle Finger - MF) -->
+		<!-- ========================================== -->
+		<link name="${prefix}mf_slider_link">
+			<inertial>
+				<origin
+						xyz="-0.013879738947006 ${direction*-1.74897052737655E-06} 1.40815508845385E-06"/>
+				<mass value="0.000489119216361822"/>
+				<inertia ixx="4.37013728212438E-09"
+								 ixy="${direction*8.09553980810116E-12}"
+								 ixz="-1.01030547668162E-11"
+								 iyy="3.84584635162927E-08"
+								 iyz="${direction*-4.54664355226095E-14}"
+								 izz="3.92763952727526E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}mf_slider_link" type="prismatic">
+			<origin xyz="-0.076966 ${direction*0.010074} -0.0054828" rpy="0 -4.7445E-05 ${direction*-0.013233}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}mf_slider_link"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="0" upper="0.019" effort="0" velocity="0"/>
+			<mimic joint="${prefix}middle_joint" multiplier="0.01319444444" offset="0"/>
+		</joint>
+
+		<link name="${prefix}mf_slider_abpart_link">
+			<inertial>
+				<origin
+						xyz="-0.0105343614474077 -0.00349998169282451 -0.000626801144449402"/>
+				<mass value="0.000420507611933596"/>
+				<inertia ixx="1.77591171959881E-09"
+								 ixy="2.18465118929228E-14"
+								 ixz="-7.46901101885596E-10"
+								 iyy="5.75823388134478E-09"
+								 iyz="${direction*-4.72877750426105E-15}"
+								 izz="6.2064243581891E-09"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider_abpart.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}mf_slider_abpart_link" type="fixed">
+			<origin xyz="-0.029 0.0034992 0" rpy="${direction*-5.1711E-05} 4.6769E-05 0"/>
+			<parent link="${prefix}mf_slider_link"/>
+			<child link="${prefix}mf_slider_abpart_link"/>
+			<axis xyz="0 1 0"/>
+			<limit lower="-1.57" upper="1.57" effort="100" velocity="1"/>
+		</joint>
+
+		<link name="${prefix}mf_proximal_link">
+			<inertial>
+				<origin
+						xyz="-0.0195726069209327 -0.00709993798307246 -0.0025925009808324"/>
+				<mass value="0.00237722144967564"/>
+				<inertia ixx="1.38350918039604E-07"
+								 ixy="3.97589496119107E-12"
+								 ixz="1.62917114105389E-08"
+								 iyy="3.62213150878017E-07"
+								 iyz="-4.71018831231994E-13"
+								 izz="3.53062757955048E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/middle_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/middle_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}middle_joint" type="revolute">
+			<origin xyz="-0.11567 ${direction*0.017687} 0.0031149" rpy="${direction*-5.1083E-05} 0 ${direction*-0.013233}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}mf_proximal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+		</joint>
+
+		<link name="${prefix}mf_distal_link">
+			<inertial>
+				<origin
+						xyz="-0.0222974016366708 -0.00711558403314083 -0.00477681256742756"/>
+				<mass value="0.00606061622476954"/>
+				<inertia ixx="2.04134343687428E-07"
+								 ixy="-6.30322389240146E-10"
+								 ixz="-2.6048594906679E-07"
+								 iyy="1.1478347378536E-06"
+								 iyz="-2.06612639823312E-11"
+								 izz="1.09777031784971E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}mf_distal_link" type="revolute">
+			<origin xyz="-0.040918 0 -0.0027058"/>
+			<parent link="${prefix}mf_proximal_link"/>
+			<child link="${prefix}mf_distal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="-0.378" upper="1.19" effort="100" velocity="1"/>
+			<mimic joint="${prefix}middle_joint" multiplier="1.14" offset="0"/>
+		</joint>
+
+		<link name="${prefix}mf_connecting_link">
+			<inertial>
+				<origin
+						xyz="-0.0178219448735733 -0.00440000679587479 -0.00781642890952098"/>
+				<mass value="0.000215108931947231"/>
+				<inertia ixx="5.12266479684199E-09"
+								 ixy="${direction*-2.30231599132434E-16}"
+								 ixz="-1.23169151647663E-08"
+								 iyy="3.73207495269829E-08"
+								 iyz="${direction*-1.76315646093205E-17}"
+								 izz="3.22210301621937E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/middle_connecting.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}mf_connecting_link" type="revolute">
+			<origin xyz="-0.12312 ${direction*0.015086} 0.0075148" rpy="${direction*-5.1083E-05} 0 ${direction*-0.013233}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}mf_connecting_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+			<mimic joint="${prefix}middle_joint" multiplier="1" offset="0"/>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 无名指部分 (Ring Finger - RF) -->
+		<!-- ========================================== -->
+		<link name="${prefix}rf_slider_link">
+			<inertial>
+				<origin
+						xyz="-0.0138798258009711 ${direction*-1.7630856294637E-06} 1.41436010220319E-06"/>
+				<mass value="0.000489121716234798"/>
+				<inertia ixx="4.37013924272089E-09"
+								 ixy="${direction*7.98341349100753E-12}"
+								 ixz="-1.00637162967002E-11"
+								 iyy="3.84591429779013E-08"
+								 iyz="${direction*-2.39260015530946E-14}"
+								 izz="3.92771122673803E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}rf_slider_link" type="prismatic">
+			<origin xyz="-0.074491 ${direction*-0.0072514} -0.0062279" rpy="0 -9.51E-05 ${direction*0.056583}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}rf_slider_link"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="0" upper="0.019" effort="0" velocity="0"/>
+			<mimic joint="${prefix}ring_joint" multiplier="0.01319444444" offset="0"/>
+		</joint>
+
+		<link name="${prefix}rf_slider_abpart_link">
+			<inertial>
+				<origin
+						xyz="-0.0105346161828967 -0.0034991714039278 -0.000616604082522784"/>
+				<mass value="0.000420484347510521"/>
+				<inertia ixx="1.7743695373506E-09"
+								 ixy="${direction*-6.61128484560698E-16}"
+								 ixz="-7.4264758660374E-10"
+								 iyy="5.75818415756346E-09"
+								 iyz="${direction*9.7586839459254E-16}"
+								 izz="6.20770251900989E-09"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider_abpart.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}rf_slider_abpart_link" type="fixed">
+			<origin xyz="-0.029 0.0034992 0" rpy="${direction*-7.4035E-05} 9.9598E-05 0"/>
+			<parent link="${prefix}rf_slider_link"/>
+			<child link="${prefix}rf_slider_abpart_link"/>
+			<axis xyz="0 1 0"/>
+		</joint>
+
+		<link name="${prefix}rf_proximal_link">
+			<inertial>
+				<origin
+						xyz="-0.0174979508864504 -0.00710049013135008 -0.00226277263902305"/>
+				<mass value="0.00193520497103009"/>
+				<inertia ixx="1.0376023209322E-07"
+								 ixy="-1.1368612880424E-11"
+								 ixz="1.17683465238561E-08"
+								 iyy="2.32563708976524E-07"
+								 iyz="-1.57696849032522E-12"
+								 izz="2.36453950760326E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}ring_joint" type="revolute">
+			<origin xyz="-0.11363 ${direction*-0.0023572} 0.0023678" rpy="${direction*-7.9422E-05} 0 ${direction*0.056583}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}rf_proximal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+		</joint>
+
+		<link name="${prefix}rf_distal_link">
+			<inertial>
+				<origin
+						xyz="-0.0216092529376596 -0.00711576465854113 -0.00727779172773769"/>
+				<mass value="0.00606025074073705"/>
+				<inertia ixx="2.74441581152407E-07"
+								 ixy="-6.40779910908579E-10"
+								 ixz="-3.5457449251434E-07"
+								 iyy="1.1477310762233E-06"
+								 iyz="-9.97795177845929E-11"
+								 izz="1.02735601486271E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}rf_distal_link" type="revolute">
+			<origin xyz="-0.035824 0 -0.0026256"/>
+			<parent link="${prefix}rf_proximal_link"/>
+			<child link="${prefix}rf_distal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="-0.378" upper="1.19" effort="100" velocity="1"/>
+			<mimic joint="${prefix}ring_joint" multiplier="1.09" offset="0.10472"/>
+		</joint>
+
+		<link name="${prefix}rf_connecting_link">
+			<inertial>
+				<origin
+						xyz="-0.0150442736302722 -0.00440000674510205 -0.00778333243154511"/>
+				<mass value="0.000200341201168546"/>
+				<inertia ixx="5.0826943515327E-09"
+								 ixy="2.23047888569839E-22"
+								 ixz="-1.00385259556707E-08"
+								 iyy="2.67058367602199E-08"
+								 iyz="9.08104059425163E-22"
+								 izz="2.1644512136812E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_connecting.obj" scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}rf_connecting_link" type="revolute">
+			<origin xyz="-0.12089 ${direction*-0.0054721} 0.0067674" rpy="${direction*-7.9422E-05} 0 ${direction*0.056583}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}rf_connecting_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+			<mimic joint="${prefix}ring_joint" multiplier="1" offset="0"/>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 小指部分 (Little Finger - LF) -->
+		<!-- ========================================== -->
+		<link name="${prefix}lf_slider_link">
+			<inertial>
+				<origin
+						xyz="-0.0138798068165006 ${direction*-1.85254072257446E-06} 1.26050045467369E-06"/>
+				<mass value="0.00048912103124811"/>
+				<inertia ixx="4.37013150544609E-09"
+								 ixy="${direction*9.05564429262533E-12}"
+								 ixz="-9.28329150450517E-12"
+								 iyy="3.84652401870241E-08"
+								 iyz="${direction*-7.11168129144E-11}"
+								 izz="3.92707496534642E-08"/>
+			</inertial>
+			<visual>
+				<origin rpy="${direction*0.07854} 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}lf_slider_link" type="prismatic">
+			<origin xyz="-0.070738 ${direction*-0.024172} -0.0087474" rpy="-1.1295E-05 -9.4916E-05 ${direction*0.11844}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}lf_slider_link"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="0" upper="0.019" effort="0" velocity="0"/>
+			<mimic joint="${prefix}pinky_joint" multiplier="0.01319444444" offset="0"/>
+		</joint>
+
+		<link name="${prefix}lf_slider_abpart_link">
+			<inertial>
+				<origin
+						xyz="-0.0105336696920708 -0.00349998175696256 -0.000638311411829177"/>
+				<mass value="0.000420507370337398"/>
+				<inertia ixx="1.77754956303901E-09"
+								 ixy="2.25303455182354E-14"
+								 ixz="-7.51740050800551E-10"
+								 iyy="5.75823858697269E-09"
+								 iyz="${direction*-5.19212425720909E-15}"
+								 izz="6.20478922060532E-09"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/index_slider_abpart.obj"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}lf_slider_abpart_link" type="fixed">
+			<origin xyz="-0.029 0.0034858 ${direction*0.00030556}"
+							rpy="${direction*0.087277} -0.010237 ${direction*-0.0008957}"/>
+			<parent link="${prefix}lf_slider_link"/>
+			<child link="${prefix}lf_slider_abpart_link"/>
+			<axis xyz="0 1 0"/>
+		</joint>
+
+		<link name="${prefix}lf_proximal_link">
+			<inertial>
+				<origin
+						xyz="-0.0157992124712836 -0.00709938848171213 -0.00218594586460848"/>
+				<mass value="0.00177911361510511"/>
+				<inertia ixx="9.43847455168695E-08"
+								 ixy="2.11914214317114E-12"
+								 ixz="3.98041900431446E-09"
+								 iyy="1.765512506167E-07"
+								 iyz="-3.47889342713738E-12"
+								 izz="1.82140773801916E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/little_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/little_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}pinky_joint" type="revolute">
+			<origin xyz="-0.11021 ${direction*-0.022502} 0.0004348"
+							rpy="${direction*0.087265} -0.010332 ${direction*0.11755}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}lf_proximal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+		</joint>
+
+		<link name="${prefix}lf_distal_link">
+			<inertial>
+				<origin
+						xyz="${direction == 1 and -0.014792352133053 or -0.0162417803445297} -0.00711194111579797 -0.00576926656969271"/>
+				<mass value="${direction == 1 and 0.00364905952774006 or 0.00177085221629863}"/>
+				<inertia ixx="${direction == 1 and 1.16405281165586E-07 or 7.15021227777549E-08}"
+								 ixy="-1.0930283880972E-10"
+								 ixz="${direction == 1 and -1.05538072627637E-07 or -5.21268230323306E-08}"
+								 iyy="${direction == 1 and 3.22371236250377E-07 or 1.52542059538213E-07}"
+								 iyz="-2.53838436165125E-11"
+								 izz="${direction == 1 and 2.9014250264879E-07 or 1.31932840690477E-07}"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/little_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/little_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}lf_distal_link" type="revolute">
+			<origin xyz="-0.03178 0 -0.0031085"/>
+			<parent link="${prefix}lf_proximal_link"/>
+			<child link="${prefix}lf_distal_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="-0.378" upper="1.19" effort="100" velocity="1"/>
+			<mimic joint="${prefix}pinky_joint" multiplier="1.09" offset="0"/>
+		</joint>
+
+		<link name="${prefix}lf_connecting_link">
+			<inertial>
+				<origin
+						xyz="-0.0134290613154075 -0.0044000864327523 -0.0072173089037906"/>
+				<mass value="0.000176992753343061"/>
+				<inertia ixx="4.55971472140014E-09"
+								 ixy="${direction*-5.2063910976824E-23}"
+								 ixz="-7.95367282498553E-09"
+								 iyy="1.94958291708418E-08"
+								 iyz="${direction*-9.45053849841834E-23}"
+								 izz="1.49549936764649E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/little_connecting.obj" scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+		</link>
+
+		<joint name="${prefix}lf_connecting_link" type="revolute">
+			<origin xyz="-0.11722 ${direction*-0.02643} 0.0045821"
+							rpy="${direction*0.087265} -0.010332 ${direction*0.11755}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}lf_connecting_link"/>
+			<axis xyz="0 -1 0"/>
+			<limit lower="0" upper="1.44" effort="100" velocity="1"/>
+			<mimic joint="${prefix}pinky_joint" multiplier="1" offset="0"/>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 拇指部分 (Thumb - TH) -->
+		<!-- ========================================== -->
+		<link name="${prefix}th_root_link">
+			<inertial>
+				<origin
+						xyz="-0.0191622399793213  ${direction*0.00595074380964034} -0.00194553122846729 "/>
+				<mass value="${direction == 1 and 0.00219012478679673 or 0.00217787514894826}"/>
+				<inertia ixx="1.85863297233334E-07"
+								 ixy="${direction*8.44488625640815E-08}"
+								 ixz="${direction*-7.43973909695847E-09}"
+								 iyy="2.00161108988447E-07"
+								 iyz="${direction*1.02685220338149E-08}"
+								 izz="2.31189836973949E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_root.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_root.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}thumb_joint1" type="revolute">
+			<origin xyz="-0.025192 ${direction*0.019558} -0.022233"
+							rpy="0 -0.21841 ${direction*-0.013249}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}th_root_link"/>
+			<axis xyz="${direction*-1} 0 0"/>
+			<limit lower="0" upper="1.57" effort="0" velocity="0"/>
+		</joint>
+
+		<link name="${prefix}th_proximal_link">
+			<inertial>
+				<origin
+						xyz="${direction * -0.0192347391372184} ${direction*0.0121170679670023} ${direction * 0.00894555366415514}"/>
+				<mass value="0.00544482144605495"/>
+				<inertia ixx="6.87367810540996E-07"
+								 ixy="${direction*6.84841509366104E-07}"
+								 ixz="${direction*5.96242841042312E-10}"
+								 iyy="1.61931504318991E-06"
+								 iyz="${direction*-4.13444178095852E-10}"
+								 izz="2.1994454397351E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_proximal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}thumb_joint2" type="revolute">
+			<origin
+					xyz="-0.028155 ${direction*0.021344}  -0.011022"/>
+			<parent link="${prefix}th_root_link"/>
+			<child link="${prefix}th_proximal_link"/>
+			<axis xyz="0 0 ${direction}"/>
+			<limit lower="0" upper="0.7763" effort="100" velocity="1"/>
+		</joint>
+
+		<link name="${prefix}th_slider_link">
+			<inertial>
+				<origin
+						xyz="${direction*0.0101621251236571} ${direction*-0.0012655961330878} 5.17607787882332E-05"/>
+				<mass value="0.00096692626401777"/>
+				<inertia ixx="2.47243327370719E-08"
+								 ixy="${direction*-1.4622472700325E-09}"
+								 ixz="${direction*5.97173083984643E-11}"
+								 iyy="7.8541343112514E-08"
+								 iyz="${direction*-7.4277598975741E-10}"
+								 izz="6.04989680057413E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_slider.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_slider.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}th_slider_link" type="prismatic">
+			<origin xyz="-0.0038117 ${direction*0.0056317} 0.00895"
+							rpy="0 0 ${direction*2.4643}"/>
+			<parent link="${prefix}th_proximal_link"/>
+			<child link="${prefix}th_slider_link"/>
+			<axis xyz="1 0 0"/>
+			<limit lower="0" upper="0.01" effort="0" velocity="0"/>
+			<mimic joint="${prefix}thumb_joint2" multiplier="0.0128" offset="0"/>
+		</joint>
+
+		<link name="${prefix}th_connecting_link">
+			<inertial>
+				<origin xyz="${direction * 0.00413462447739064 } ${direction*0.00236786600962768} -0.00403967505861522"/>
+				<mass value="${direction == 1 and 0.000337394683077766 or 0.00033738169009293}"/>
+				<inertia ixx="${direction == 1 and 2.88091081371191E-09 or 2.86122244570305E-09}"
+								 ixy="${direction == 1 and -1.3743817786895E-09 or -4.92246058191517E-14}"
+								 ixz="${direction == 1 and 1.96126283402737E-14 or 1.35882549942877E-09}"
+								 iyy="${direction == 1 and 5.03160357084915E-09 or 5.07966846789053E-09}"
+								 iyz="${direction == 1 and -4.9896915156034E-15 or 2.77065232715016E-14}"
+								 izz="${direction == 1 and 5.0799913183601E-09 or 5.05091504791671E-09}"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_connecting.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_connecting.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}th_connecting_link" type="revolute">
+			<origin xyz="0.0333 0.0003242 0.00399"
+							rpy="0 0 ${direction * 0.67687} "/>
+			<parent link="${prefix}th_slider_link"/>
+			<child link="${prefix}th_connecting_link"/>
+			<axis xyz="0 0 ${direction}"/>
+			<limit lower="-3.14" upper="3.14" effort="100" velocity="1"/>
+			<mimic joint="${prefix}thumb_joint2" multiplier="0.45" offset="0"/>
+		</joint>
+
+		<link name="${prefix}th_distal_link">
+			<inertial>
+				<origin
+						xyz="${direction * 0.00342833391243533 } ${direction*0.0104884707396525} ${direction * -0.00696970588984302}"/>
+				<mass value="${direction == 1 and 0.00398421921008986 or 0.00247307051858648}"/>
+				<inertia ixx="${direction == 1 and 2.1176714290296E-07 or 1.08745224763208E-07}"
+								 ixy="${direction == 1 and -3.63382572920753E-08 or 3.25118901423986E-12}"
+								 ixz="${direction == 1 and -5.79449501160711E-12 or 2.99814543781151E-08}"
+								 iyy="${direction == 1 and 2.30043683188489E-07 or 1.24259628567107E-07}"
+								 iyz="${direction == 1 and 1.08342174820893E-11 or -1.49461582877226E-12}"
+								 izz="${direction == 1 and 2.14387495065774E-07 or 1.42175287381468E-07}"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find oymotion_description)/meshes/rohand_gen2/thumb_distal.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}th_distal_link" type="revolute">
+			<origin xyz="-0.046968 ${direction * 0.023498 }  0.002 "/>
+			<parent link="${prefix}th_proximal_link"/>
+			<child link="${prefix}th_distal_link"/>
+			<axis xyz="0 0 ${direction}"/>
+			<limit lower="0" upper="0.7763" effort="100" velocity="1"/>
+			<mimic joint="${prefix}thumb_joint2" multiplier="1" offset="0"/>
+		</joint>
+
+	</xacro:macro>
+
+</robot>
+

@@ -17,6 +17,7 @@ Located in `gripper/` directory:
 | [ChangingTek](gripper/changingtek_description) | AG2F90-C<br>AG2F120S | Yes     | <img src="gripper/.images/tek_ag2f90c.png" width="150"> <img src="gripper/.images/tek_ag2f120s.png" width="150">                                                                                                   |
 | [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                                                                                                                              |
 | [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                                                                                                                             |
+| [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">                                                                                                                                                             |
 
 Each gripper package includes:
 - URDF/Xacro files for robot description
@@ -28,9 +29,11 @@ Each gripper package includes:
 
 Located in `dexhands/` directory:
 
-| Brand                                   | Model | Repaint | Images                                                                                                                           |
-|-----------------------------------------|-------|---------|----------------------------------------------------------------------------------------------------------------------------------|
-| [BrainCo](dexhands/brainco_description) | REVO2 | Yes     | <img src="dexhands/.images/brainco_revo2_left.png" width="150"> <img src="dexhands/.images/brainco_revo2_right.png" width="150"> |
+| Brand                                      | Model        | Repaint | Images                                                                                                                                                                                                              |
+|--------------------------------------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [BrainCo](dexhands/brainco_description)    | REVO2        | Yes     | <img src="dexhands/.images/brainco_revo2_left.png" width="150"> <img src="dexhands/.images/brainco_revo2_right.png" width="150">                                                                                   |
+| [LinkerHand](dexhands/linkerhand_description) | O7           | Yes     | <img src="dexhands/.images/linkerhand_o7.png" width="150">                                                                                                                                                         |
+| [OyMotion](dexhands/oymotion_description)  | RoHand Gen2  | Yes     | <img src="dexhands/.images/rohand_gen2.png" width="150">                                                                                                                                                           |
 
 Features:
 - Full kinematic chain definition
@@ -115,10 +118,13 @@ ros2 launch robot_common_launch navigation_slam.launch.py
 common/
 ├── camera_models/          # Camera URDF models
 ├── dexhands/              # Dexterous hand descriptions
-│   └── brainco_description/
+│   ├── brainco_description/
+│   ├── linkerhand_description/
+│   └── oymotion_description/
 ├── gripper/               # Gripper descriptions
 │   ├── changingtek_description/
 │   ├── inspire_description/
+│   ├── jodell_description/
 │   └── robotiq_description/
 └── robot_common_launch/   # Common launch files and utilities
     ├── config/           # Configuration files (RViz, Nav2, etc.)

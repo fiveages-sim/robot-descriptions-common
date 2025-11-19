@@ -16,6 +16,7 @@ colcon build --packages-up-to jodell_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch gripper.launch.py gripper:=jodell
   ```
+  ![RG75](../.images/jodell_rg75.png)
 
 * RG75-300 Gripper (带指套)
   ```bash

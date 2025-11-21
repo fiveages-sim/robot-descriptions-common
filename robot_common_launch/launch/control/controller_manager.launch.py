@@ -226,15 +226,33 @@ def generate_launch_description():
                 # 合并默认和额外的 remappings
                 all_remappings = default_remappings + additional_remappings
                 
+                # 利用load_robot_config已经处理过的结果来判断
+                # load_robot_config已经处理了回退逻辑，返回的路径就是最终使用的配置文件路径
+                # 如果返回的路径文件名是 {robot_type}.yaml，说明使用了type-specific配置
+                # 否则，说明回退到了默认配置（ros2_controllers.yaml）
+                config_filename = os.path.basename(ros2_controllers_path)
+                expected_type_specific_filename = f"{robot_type}.yaml" if robot_type and robot_type.strip() else None
+                is_type_specific_config = (expected_type_specific_filename and 
+                                          config_filename == expected_type_specific_filename)
+                
+                # 构建参数列表
+                node_parameters = [
+                    ros2_controllers_path,
+                    {'use_sim_time': use_sim_time},
+                ]
+                
+                # 只有在回退到默认配置文件时才传递launch参数中的robot_type
+                # 这样可以让type-specific配置文件中的robot_type生效（如rg75.yaml中的dual_rg75）
+                if not is_type_specific_config and robot_type and robot_type.strip():
+                    node_parameters.append({'robot_type': robot_type})
+                    print(f"[INFO] Using launch arg robot_type '{robot_type}' (fallback to default config)")
+                else:
+                    print(f"[INFO] Using robot_type from config file '{config_filename}'")
+                
                 ros2_control_node = Node(
                     package="controller_manager",
                     executable="ros2_control_node",
-                    parameters=[
-                        ros2_controllers_path,
-                        {'use_sim_time': use_sim_time},
-                        # Pass robot_type parameter to the controller if specified
-                        {'robot_type': robot_type} if robot_type and robot_type.strip() else {}
-                    ],
+                    parameters=node_parameters,
                     remappings=all_remappings,
                     output="screen",
                 )

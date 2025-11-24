@@ -38,7 +38,8 @@ from ament_index_python.packages import get_package_share_directory
 # Import robot_common_launch utilities for automatic hand controller detection
 from robot_common_launch import (
     detect_controllers,
-    create_controller_spawners
+    create_controller_spawners,
+    get_ros2_control_robot_description
 )
 
 
@@ -176,8 +177,13 @@ def launch_setup(context, *args, **kwargs):
     hand_controller_spawners = []
     
     if enable_gripper:
+        # Get ros2_control robot_description to verify joints exist in xacro
+        # This uses the same logic as controller_manager.launch.py
+        robot_description = get_ros2_control_robot_description(robot_name, robot_type, hardware)
+        
         # Detect controllers matching hand/gripper patterns
-        detected_controllers = detect_controllers(robot_name, robot_type, ['hand', 'gripper'])
+        # Pass robot_description to verify joints exist in xacro
+        detected_controllers = detect_controllers(robot_name, robot_type, ['hand', 'gripper'], robot_description=robot_description)
         
         # Filter out motion_control_handle (it's not a gripper controller)
         # motion_control_handle is an interactive marker handle for RViz drag-and-drop control

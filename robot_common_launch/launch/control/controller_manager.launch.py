@@ -22,8 +22,13 @@ from launch.conditions import IfCondition
 from ament_index_python.packages import get_package_share_directory
 
 # Import robot_common_launch utilities
-from robot_common_launch import load_robot_config, get_robot_package_path, get_gz_bridge_config_path, get_gz_image_bridge_topics
-import xacro
+from robot_common_launch import (
+    load_robot_config, 
+    get_robot_package_path, 
+    get_gz_bridge_config_path, 
+    get_gz_image_bridge_topics,
+    get_ros2_control_robot_description
+)
 
 
 def generate_launch_description():
@@ -86,37 +91,16 @@ def generate_launch_description():
         use_gazebo = hardware == 'gz'
         
         # 生成机器人描述
-        robot_pkg_path = get_robot_package_path(robot_name)
-        if robot_pkg_path is None:
-            print(f"[ERROR] Cannot create robot description without package path for robot '{robot_name}'")
-            return []
-        
-        # 构建 xacro mappings
-        mappings = {
-            'ros2_control_hardware_type': hardware,
-        }
-        if robot_type and robot_type.strip():
-            mappings["type"] = robot_type
-        
-        # 如果是 Gazebo 模式，添加 gazebo 映射
+        # 如果是 Gazebo 模式，打印信息
         if use_gazebo:
-            mappings['gazebo'] = 'true'
             print(f"[INFO] Gazebo mode enabled")
         
-        # 处理 xacro 文件
-        robot_description_file_path = os.path.join(
-            robot_pkg_path,
-            "xacro",
-            "ros2_control",
-            "robot.xacro"
-        )
+        # 生成 ros2_control robot_description（使用统一的函数，带缓存机制）
+        robot_description = get_ros2_control_robot_description(robot_name, robot_type, hardware)
         
-        robot_description_config = xacro.process_file(
-            robot_description_file_path,
-            mappings=mappings
-        )
-        
-        robot_description = robot_description_config.toxml()
+        if robot_description is None:
+            print(f"[ERROR] Failed to generate robot_description for '{robot_name}'")
+            return []
         
         nodes = []
         
@@ -204,7 +188,7 @@ def generate_launch_description():
             nodes.append(gz_spawn_entity)
         else:
             # ros2_control_node (仅在非Gazebo模式下)
-            _, ros2_controllers_path = load_robot_config(robot_name, "ros2_control", robot_type)
+            ros2_controllers_config, ros2_controllers_path = load_robot_config(robot_name, "ros2_control", robot_type)
             if ros2_controllers_path is not None:
                 # 默认 remappings
                 default_remappings = [
@@ -228,12 +212,21 @@ def generate_launch_description():
                 
                 # 利用load_robot_config已经处理过的结果来判断
                 # load_robot_config已经处理了回退逻辑，返回的路径就是最终使用的配置文件路径
-                # 如果返回的路径文件名是 {robot_type}.yaml，说明使用了type-specific配置
-                # 否则，说明回退到了默认配置（ros2_controllers.yaml）
+                # 只要不是默认配置文件名（ros2_controllers.yaml），就说明使用了type-specific配置
+                # 这包括完整匹配（如ccs_left_rg75.yaml）和渐进匹配（如ccs_left.yaml或ccs.yaml）
                 config_filename = os.path.basename(ros2_controllers_path)
-                expected_type_specific_filename = f"{robot_type}.yaml" if robot_type and robot_type.strip() else None
-                is_type_specific_config = (expected_type_specific_filename and 
-                                          config_filename == expected_type_specific_filename)
+                default_config_filename = "ros2_controllers.yaml"
+                is_type_specific_config = (config_filename != default_config_filename)
+                
+                # 检查配置文件中是否存在robot_type
+                config_has_robot_type = False
+                if ros2_controllers_config is not None:
+                    try:
+                        # 检查ocs2_arm_controller的ros__parameters中是否有robot_type
+                        config_robot_type = ros2_controllers_config.get('ocs2_arm_controller', {}).get('ros__parameters', {}).get('robot_type')
+                        config_has_robot_type = (config_robot_type is not None)
+                    except Exception:
+                        pass
                 
                 # 构建参数列表
                 node_parameters = [
@@ -241,12 +234,22 @@ def generate_launch_description():
                     {'use_sim_time': use_sim_time},
                 ]
                 
-                # 只有在回退到默认配置文件时才传递launch参数中的robot_type
-                # 这样可以让type-specific配置文件中的robot_type生效（如rg75.yaml中的dual_rg75）
-                if not is_type_specific_config and robot_type and robot_type.strip():
-                    node_parameters.append({'robot_type': robot_type})
-                    print(f"[INFO] Using launch arg robot_type '{robot_type}' (fallback to default config)")
+                # 决定是否传递launch参数中的robot_type
+                # 1. 如果使用默认配置，传递launch参数中的robot_type
+                # 2. 如果使用type-specific配置但配置文件中没有robot_type，传递launch参数中的robot_type
+                # 3. 如果使用type-specific配置且配置文件中有robot_type，不传递launch参数（使用配置文件中的值）
+                if not is_type_specific_config:
+                    # 使用默认配置，需要传递launch参数中的robot_type
+                    if robot_type and robot_type.strip():
+                        node_parameters.append({'robot_type': robot_type})
+                        print(f"[INFO] Using launch arg robot_type '{robot_type}' (fallback to default config)")
+                elif not config_has_robot_type:
+                    # 使用type-specific配置但配置文件中没有robot_type，传递launch参数中的robot_type
+                    if robot_type and robot_type.strip():
+                        node_parameters.append({'robot_type': robot_type})
+                        print(f"[INFO] Using launch arg robot_type '{robot_type}' (type-specific config '{config_filename}' has no robot_type)")
                 else:
+                    # 使用type-specific配置且配置文件中有robot_type，使用配置文件中的值
                     print(f"[INFO] Using robot_type from config file '{config_filename}'")
                 
                 ros2_control_node = Node(

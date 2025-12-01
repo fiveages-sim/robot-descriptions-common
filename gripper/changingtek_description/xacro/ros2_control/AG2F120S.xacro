@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<!-- AG2F120S夹爪完整接口定义宏 - 参考fiveages w1的arm_interfaces设计 -->
 	<xacro:macro name="ag2f120s_interfaces" params="name">
 		<xacro:arg name="gazebo" default="false"/>
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>

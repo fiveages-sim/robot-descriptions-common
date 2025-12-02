@@ -110,6 +110,35 @@ def create_visualization_nodes(robot_description, rviz_config_file):
     ]
 
 
+def is_rmw_zenoh():
+    """
+    检测当前使用的ROS2中间件是否为rmw_zenoh_cpp
+    
+    Returns:
+        bool: 如果使用rmw_zenoh_cpp则返回True，否则返回False
+    """
+    rmw_implementation = os.environ.get('RMW_IMPLEMENTATION', '')
+    return rmw_implementation == 'rmw_zenoh_cpp'
+
+
+def create_rmw_zenohd_node():
+    """
+    创建rmw_zenohd节点（当使用rmw_zenoh_cpp中间件时）
+    
+    Returns:
+        Node: rmw_zenohd节点对象，如果不需要则返回None
+    """
+    if not is_rmw_zenoh():
+        return None
+    
+    return Node(
+        package='rmw_zenoh_cpp',
+        executable='rmw_zenohd',
+        name='rmw_zenohd',
+        output='screen',
+    )
+
+
 def create_common_launch_arguments():
     """
     创建通用的 launch 参数
@@ -175,7 +204,14 @@ def create_visualization_launch_description(
         )
         
         # 创建可视化节点
-        return create_visualization_nodes(robot_description, rviz_config_file)
+        nodes = create_visualization_nodes(robot_description, rviz_config_file)
+        
+        # 如果使用rmw_zenoh_cpp，自动添加rmw_zenohd节点
+        rmw_zenohd_node = create_rmw_zenohd_node()
+        if rmw_zenohd_node is not None:
+            nodes.insert(0, rmw_zenohd_node)  # 将rmw_zenohd放在最前面，确保先启动
+        
+        return nodes
 
     # 构建参数列表
     args = [

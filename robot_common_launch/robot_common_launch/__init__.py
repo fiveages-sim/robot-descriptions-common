@@ -8,7 +8,9 @@ from .common.launch_utils import (
     get_default_type_from_xacro,
     create_visualization_nodes,
     create_common_launch_arguments,
-    create_visualization_launch_description
+    create_visualization_launch_description,
+    is_rmw_zenoh,
+    create_rmw_zenohd_node
 )
 
 __all__ = [
@@ -26,5 +28,7 @@ __all__ = [
     'get_default_type_from_xacro',
     'create_visualization_nodes',
     'create_common_launch_arguments',
-    'create_visualization_launch_description'
+    'create_visualization_launch_description',
+    'is_rmw_zenoh',
+    'create_rmw_zenohd_node'
 ]

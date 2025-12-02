@@ -27,7 +27,8 @@ from robot_common_launch import (
     get_robot_package_path, 
     get_gz_bridge_config_path, 
     get_gz_image_bridge_topics,
-    get_ros2_control_robot_description
+    get_ros2_control_robot_description,
+    create_rmw_zenohd_node
 )
 
 
@@ -103,6 +104,11 @@ def generate_launch_description():
             return []
         
         nodes = []
+        
+        # 如果使用rmw_zenoh_cpp，自动添加rmw_zenohd节点
+        rmw_zenohd_node = create_rmw_zenohd_node()
+        if rmw_zenohd_node is not None:
+            nodes.append(rmw_zenohd_node)  # 将rmw_zenohd放在最前面，确保先启动
         
         # Robot State Publisher (总是需要)
         robot_state_publisher = Node(

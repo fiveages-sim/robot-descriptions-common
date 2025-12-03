@@ -72,12 +72,20 @@ def generate_launch_description():
         description='Hardware type: gz for Gazebo, isaac for Isaac, mock_components for mock'
     )
 
+    ctrl_mode_arg = DeclareLaunchArgument(
+        "ctrl_mode",
+        default_value="2",
+        description="2 for position ctrl, 3 for joint impedance, 4 for cartesian ctrl"
+    )
+
     # Remappings parameter (optional, format: "from:to;from2:to2")
     remappings_arg = DeclareLaunchArgument(
         'remappings',
         default_value='',
         description='Topic remappings for ros2_control_node (format: "from1:to1;from2:to2")'
     )
+
+    
 
     def launch_setup(context, *args, **kwargs):
         robot_name = context.launch_configurations['robot']
@@ -87,12 +95,26 @@ def generate_launch_description():
         world_package = context.launch_configurations['world_package']
         hardware = context.launch_configurations['hardware']
         remappings_str = context.launch_configurations.get('remappings', '')
+        ctrl_mode = context.launch_configurations.get('ctrl_mode', '')
         
         # 根据 hardware 参数自动判断是否使用 Gazebo
         use_gazebo = hardware == 'gz'
         
         # 生成机器人描述
-        # 如果是 Gazebo 模式，打印信息
+        robot_pkg_path = get_robot_package_path(robot_name)
+        if robot_pkg_path is None:
+            print(f"[ERROR] Cannot create robot description without package path for robot '{robot_name}'")
+            return []
+        
+        # 构建 xacro mappings
+        mappings = {
+            'ros2_control_hardware_type': hardware,
+            'ctrl_mode': ctrl_mode
+        }
+        if robot_type and robot_type.strip():
+            mappings["type"] = robot_type
+        
+        # 如果是 Gazebo 模式，添加 gazebo 映射
         if use_gazebo:
             print(f"[INFO] Gazebo mode enabled")
         

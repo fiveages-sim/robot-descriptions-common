@@ -2,16 +2,16 @@
 
 This package contains the URDF and related files for the LinkerHand DexHands. Origin files could be found at [LinkerHand](https://github.com/linker-bot/linkerhand-urdf).
 
-## Build
+## 1. Build
 
 ```bash
 cd ~/ros2_ws
 colcon build --packages-up-to linkerhand_description --symlink-install
 ```
 
-## Visualize the DexHands
+## 2. Visualize the DexHands
 
-### O7 DexHands
+### 2.1 O7 DexHands
 * Left Hand
   ```bash
   # left hand
@@ -26,3 +26,10 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=linkerhand direction:=-1
   ```
+  
+## 3. ROS2 Control Demo
+### 3.1 Mock Component Simulation
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch basic_joint_controller hand.launch.py
+```

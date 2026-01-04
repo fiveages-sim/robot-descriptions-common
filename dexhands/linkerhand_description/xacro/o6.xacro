@@ -1,0 +1,482 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:macro name="LinkerHandO6" params="name direction:=1 use_flange:=false fixed_joints:=false">
+		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
+
+		<xacro:if value="${use_flange}">
+			<link name="${prefix}flange">
+				<inertial>
+					<origin xyz="-0.000388 0.002345 0.0"/>
+					<mass value="0.114"/>
+					<inertia
+							ixx="0.000040105"
+							ixy="0.000000214"
+							ixz="0.0"
+							iyy="0.000085776"
+							iyz="0.0"
+							izz="0.000054044"/>
+				</inertial>
+				<visual>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/flange.obj"/>
+					</geometry>
+				</visual>
+
+				<visual>
+					<geometry>
+						<mesh filename="file://$(find linkerhand_description)/meshes/o6/flange.obj"/>
+					</geometry>
+				</visual>
+			</link>
+			<joint name="${prefix}flange_joint" type="fixed">
+				<origin xyz="0 0 0.0262" rpy="0 0 -1.5708"/>
+				<parent link="${prefix}flange"/>
+				<child link="${prefix}hand_base"/>
+			</joint>
+		</xacro:if>
+
+		<!-- ========================================== -->
+		<!-- 手掌基座 (Hand Base) -->
+		<!-- ========================================== -->
+		<link name="${prefix}hand_base">
+			<inertial>
+				<origin
+						xyz="${direction == 1 and -0.00157788568070457 or -0.00160320773490556} ${direction*-0.00034876725935859} ${direction == 1 and 0.0538452219801211 or 0.0538002704027215}"
+				/>
+				<mass value="0.0672935238166485"/>
+				<inertia ixx="5.22525212160954E-05"
+								 ixy="3.06955729584715E-07"
+								 ixz="${direction*-3.90341166950521E-07}"
+								 iyy="3.33522349207724E-05"
+								 iyz="${direction*-7.76680063574627E-07}"
+								 izz="2.28469461105385E-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/hand_base.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/hand_base.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<!-- ========================================== -->
+		<!-- 拇指部分 (Thumb) -->
+		<!-- ========================================== -->
+		<link name="${prefix}thumb_metacarpals_base2">
+			<inertial>
+				<origin
+						xyz="0.00162800681276937 ${direction*-0.0027668017246415} -0.00184234438641236"
+				/>
+				<mass value="0.00138588296544333"/>
+				<inertia ixx="5.26292160685909E-08"
+								 ixy="-3.92888681640568E-09"
+								 ixz="${direction*-2.43767371295222E-09}"
+								 iyy="4.82620491570326E-08"
+								 iyz="3.71869784206147E-09"
+								 izz="2.88550286112821E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/thumb_metacarpals_base.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/thumb_metacarpals_base.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}thumb_joint1" type="${joint_type}">
+			<origin xyz="0.011508 ${direction*-0.022975} 0.032794"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}thumb_metacarpals_base2"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 ${direction*1}"/>
+				<limit lower="0" upper="${direction == 1 and 1.3 or 1.36}" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<link name="${prefix}thumb_metacarpals">
+			<inertial>
+				<origin
+						xyz="4.24816204999817E-05 ${direction*-1.74183907812875E-05} 0.0228341640631254"
+				/>
+				<mass value="0.0123381586619931"/>
+				<inertia ixx="1.10292537368909E-06"
+								 ixy="-5.99642232777877E-10"
+								 ixz="${direction*-1.14233573940545E-07}"
+								 iyy="1.76757772551884E-06"
+								 iyz="-4.03963570823777E-10"
+								 izz="9.36347792411098E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/thumb_metacarpals.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/thumb_metacarpals.obj"
+								scale="1 ${direction} 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}thumb_joint2" type="${joint_type}">
+			<origin xyz="0.0061649 ${direction*-0.010678} -0.004891" rpy="0 -1.1529 ${direction*2.0944}"/>
+			<parent link="${prefix}thumb_metacarpals_base2"/>
+			<child link="${prefix}thumb_metacarpals"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="0.58" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<link name="${prefix}thumb_distal">
+			<inertial>
+				<origin
+						xyz="-0.00413725702921841 ${direction*-5.90704520436747E-08} 0.023011401589736"
+				/>
+				<mass value="0.00763332957284057"/>
+				<inertia ixx="1.3057487813702E-06"
+								 ixy="0.0"
+								 ixz="${direction*-7.19551697268541E-08}"
+								 iyy="1.2248908905341E-06"
+								 iyz="0.0"
+								 izz="2.77271910592615E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/thumb_distal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/thumb_distal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}thumb_ip" type="${joint_type}">
+			<origin xyz="0.0037776 0 0.045368"/>
+			<parent link="${prefix}thumb_metacarpals"/>
+			<child link="${prefix}thumb_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.08" effort="100" velocity="1"/>
+				<mimic joint="${prefix}thumb_joint2" multiplier="1.86" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 食指部分 (Index Finger) -->
+		<!-- ========================================== -->
+		<link name="${prefix}index_proximal">
+			<inertial>
+				<origin
+						xyz="-0.00208656556336452 ${direction*2.53838713251686E-06} 0.0172734941980264"
+				/>
+				<mass value="0.00253174651934627"/>
+				<inertia ixx="2.65988714157799E-07"
+								 ixy="-1.67174578825824E-11"
+								 ixz="${direction*-4.31047725546034E-08}"
+								 iyy="2.72914069166233E-07"
+								 iyz="${direction*1.8756709532167E-10}"
+								 izz="8.56017305636748E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}index_joint" type="${joint_type}">
+			<origin xyz="0.0024758 ${direction*-0.02419} 0.098779" rpy="${direction*0.05236} 0 0"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}index_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.60" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<link name="${prefix}index_distal">
+			<inertial>
+				<origin
+						xyz="0.00658986616416549 ${direction*5.13855642059191E-06} 0.0194393600039178"
+				/>
+				<mass value="0.00376951085886838"/>
+				<inertia ixx="3.22347106085043E-07"
+								 ixy="1.3801788663582E-11"
+								 ixz="${direction*1.14352857317951E-07}"
+								 iyy="3.65328133721509E-07"
+								 iyz="${direction*-2.11505011705634E-10}"
+								 izz="1.24287996386442E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}index_dip" type="${joint_type}">
+			<origin xyz="-0.0052516 0 0.036625"/>
+			<parent link="${prefix}index_proximal"/>
+			<child link="${prefix}index_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.43" effort="100" velocity="1"/>
+				<mimic joint="${prefix}index_joint" multiplier="0.89" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 中指部分 (Middle Finger) -->
+		<!-- ========================================== -->
+		<link name="${prefix}middle_proximal">
+			<inertial>
+				<origin
+						xyz="-0.00208660654138235 ${direction*2.56918180119303E-06} 0.0172735011723351"
+				/>
+				<mass value="0.00253177375206983"/>
+				<inertia ixx="2.65989021304483E-07"
+								 ixy="-1.69816046635662E-11"
+								 ixz="${direction*-4.31046683215273E-08}"
+								 iyy="2.72914402745606E-07"
+								 iyz="${direction*1.87484652324395E-10}"
+								 izz="8.5602213431865E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}middle_joint" type="${joint_type}">
+			<origin xyz="0.00052576 ${direction*-0.00634} 0.1027"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}middle_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.60" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<link name="${prefix}middle_distal">
+			<inertial>
+				<origin
+						xyz="0.00658986516319194 ${direction*5.10862924271716E-06} 0.0194393315699782"
+				/>
+				<mass value="0.00376952789210256"/>
+				<inertia ixx="3.22348591068053E-07"
+								 ixy="1.37122394856588E-11"
+								 ixz="${direction*1.1435291391668E-07}"
+								 iyy="3.65329535087755E-07"
+								 iyz="${direction*-2.10453810291991E-10}"
+								 izz="1.24288425862546E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}middle_dip" type="${joint_type}">
+			<origin xyz="-0.0052516 0 0.036625"/>
+			<parent link="${prefix}middle_proximal"/>
+			<child link="${prefix}middle_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.43" effort="100" velocity="1"/>
+				<mimic joint="${prefix}middle_joint" multiplier="0.89" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 无名指部分 (Ring Finger) -->
+		<!-- ========================================== -->
+		<link name="${prefix}ring_proximal">
+			<inertial>
+				<origin
+						xyz="-0.00208667931345812 ${direction*2.63000419462034E-06} 0.0172734926448377"
+				/>
+				<mass value="0.00253182223645066"/>
+				<inertia ixx="2.65989756076584E-07"
+								 ixy="-1.74912952703656E-11"
+								 ixz="${direction*-4.31043325594253E-08}"
+								 iyy="2.7291510093393E-07"
+								 iyz="${direction*1.87158326740895E-10}"
+								 izz="8.56031522765909E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}ring_joint" type="${joint_type}">
+			<origin xyz="0.0010258 ${direction*0.011135} 0.098767" rpy="${direction*-0.05236} 0 0"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}ring_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.60" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<link name="${prefix}ring_distal">
+			<inertial>
+				<origin
+						xyz="0.00658986648895491 ${direction*5.05883528165163E-06} 0.019439397215532"
+				/>
+				<mass value="0.00376949588316609"/>
+				<inertia ixx="3.2234524157181E-07"
+								 ixy="1.35766976056011E-11"
+								 ixz="${direction*1.14353011012842E-07}"
+								 iyy="3.65326570102147E-07"
+								 iyz="${direction*-2.08672149138738E-10}"
+								 izz="1.24287770218135E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}ring_dip" type="${joint_type}">
+			<origin xyz="-0.0052516 0 0.036625"/>
+			<parent link="${prefix}ring_proximal"/>
+			<child link="${prefix}ring_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.43" effort="100" velocity="1"/>
+				<mimic joint="${prefix}ring_joint" multiplier="0.89" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<!-- ========================================== -->
+		<!-- 小指部分 (Pinky Finger) -->
+		<!-- ========================================== -->
+		<link name="${prefix}pinky_proximal">
+			<inertial>
+				<origin
+						xyz="-0.00208673599799501 ${direction*2.68062251165824E-06} 0.0172734848131236"
+				/>
+				<mass value="0.00253185993162408"/>
+				<inertia ixx="2.6599033687183E-07"
+								 ixy="-1.79030790016555E-11"
+								 ixz="${direction*-4.31040829565781E-08}"
+								 iyy="2.72915617381577E-07"
+								 iyz="${direction*1.86906787420486E-10}"
+								 izz="8.56039175034871E-08"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_proximal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}pinky_joint" type="${joint_type}">
+			<origin xyz="0.0024758 ${direction*0.028372} 0.092741" rpy="${direction*-0.087266} 0 0"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}pinky_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.60" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<link name="${prefix}pinky_distal">
+			<inertial>
+				<origin
+						xyz="0.00658987588903027 ${direction*5.03087534178825E-06} 0.0194394491065091"
+				/>
+				<mass value="0.00376948071276134"/>
+				<inertia ixx="3.22343583730488E-07"
+								 ixy="1.35768173270357E-11"
+								 ixz="${direction*1.14353289593012E-07}"
+								 iyy="3.65325180884183E-07"
+								 iyz="${direction*-2.0744198062439E-10}"
+								 izz="1.24287567374229E-07"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find linkerhand_description)/meshes/o6/index_distal.obj"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}pinky_dip" type="${joint_type}">
+			<origin xyz="-0.0052516 0 0.036625"/>
+			<parent link="${prefix}pinky_proximal"/>
+			<child link="${prefix}pinky_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 1 0"/>
+				<limit lower="0" upper="1.43" effort="100" velocity="1"/>
+				<mimic joint="${prefix}pinky_joint" multiplier="0.89" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+	</xacro:macro>
+
+</robot>
+

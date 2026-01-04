@@ -5,8 +5,14 @@
 	<xacro:arg name="direction" default="1"/>
 
 	<xacro:include filename="$(find linkerhand_description)/xacro/o7.xacro"/>
+	<xacro:include filename="$(find linkerhand_description)/xacro/o6.xacro"/>
 
 	<!-- 创建手部 (direction=1 为左手, direction=-1 为右手) -->
-	<xacro:LinkerHandO7 name="" direction="$(arg direction)"/>
+	<xacro:if value="${'$(arg type)' == 'o7'}">
+		<xacro:LinkerHandO7 name="" direction="$(arg direction)"/>
+	</xacro:if>
+	<xacro:if value="${'$(arg type)' == 'o6'}">
+		<xacro:LinkerHandO6 name="" direction="$(arg direction)"/>
+	</xacro:if>
 
 </robot>

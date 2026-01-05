@@ -27,9 +27,19 @@
                 <param name="initialize_commands_from_state">true</param>
             </xacro:if>
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
-                <!-- TODO: 需要创建 linkerhand 的 ros2_control 硬件插件 -->
-                <!-- <plugin>linkerhand_ros2_control/LinkerHandHardware</plugin> -->
-                <plugin>mock_components/GenericSystem</plugin>
+                <!-- Modbus ROS2 Control hardware interface for O7 dexterous hand -->
+                <plugin>modbus_ros2_control/DexterousHandHardware</plugin>
+                <!-- Serial port for Modbus communication (can be overridden via xacro arg) -->
+                <xacro:arg name="serial_port" default="/dev/ttyUSB0"/>
+                <param name="serial_port">$(arg serial_port)</param>
+                <!-- Hand side: left or right (determined by direction parameter) -->
+                <!-- direction=1 means left hand, direction=-1 means right hand -->
+                <xacro:if value="${'$(arg direction)' == '1'}">
+                    <param name="hand_side">left</param>
+                </xacro:if>
+                <xacro:unless value="${'$(arg direction)' == '1'}">
+                    <param name="hand_side">right</param>
+                </xacro:unless>
             </xacro:if>
         </hardware>
 

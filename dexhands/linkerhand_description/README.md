@@ -95,3 +95,36 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch basic_joint_controller hand.launch.py type:=l6 direction:=-1
   ```
+
+
+## 4. Real Hardware with Modbus ROS2 Control
+
+To use the real O7 dexterous hand with Modbus communication:
+
+```bash
+# 1. Set serial port permissions
+sudo chmod 666 /dev/ttyUSB0  # Adjust port as needed
+
+# 2. Launch with real hardware
+source ~/ros2_ws/install/setup.bash
+ros2 launch basic_joint_controller hand.launch.py \
+    hand:=linkerhand \
+    type:=o7 \
+    hardware:=real \
+    direction:=1
+
+# For right hand (direction=-1)
+ros2 launch basic_joint_controller hand.launch.py \
+    hand:=linkerhand \
+    type:=o7 \
+    hardware:=real \
+    direction:=-1
+```
+
+**Parameters:**
+- `hand:=linkerhand` - Hand name
+- `type:=o7` - Hand type (O7 dexterous hand)
+- `hardware:=real` - Use real hardware (Modbus ROS2 Control)
+- `direction:=1` - Left hand (direction=-1 for right hand)
+
+**Note:** The `serial_port` is defined in the xacro file (`linkerhand_description/xacro/ros2_control/hand.xacro`) with a default value of `/dev/ttyUSB0`. To change it, modify the xacro file directly or pass it as a xacro argument when processing the file.

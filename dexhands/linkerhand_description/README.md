@@ -60,6 +60,7 @@ colcon build --packages-up-to linkerhand_description --symlink-install
 
 
 ## 3. ROS2 Control Demo
+
 ### 3.1 O7 DexHands
 * Left Hand
   ```bash
@@ -95,7 +96,6 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch basic_joint_controller hand.launch.py type:=l6 direction:=-1
   ```
-
 
 ## 4. Real Hardware with Modbus ROS2 Control
 

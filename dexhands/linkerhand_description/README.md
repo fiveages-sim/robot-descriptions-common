@@ -97,7 +97,7 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   ```
 
 
-### 3.2 Real Hardware with Modbus ROS2 Control
+## 4. Real Hardware with Modbus ROS2 Control
 
 To use the real O7 dexterous hand with Modbus communication:
 

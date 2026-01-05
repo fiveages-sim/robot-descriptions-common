@@ -27,7 +27,7 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   ros2 launch robot_common_launch hand.launch.py hand:=linkerhand direction:=-1
   ```
 
-### 2.1 O6 DexHands
+### 2.2 O6 DexHands
 * Left Hand
   ```bash
   # left hand
@@ -42,10 +42,24 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=o6 direction:=-1
   ```
+### 2.3 L6 DexHands
+* Left Hand
+  ```bash
+  # left hand
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=l6
+  ```
+  ![linkerhand l6](../.images/linkerhand_l6.png)
+
+* Right Hand
+  ```bash
+  # right hand
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=l6 direction:=-1
+  ```
 
 
 ## 3. ROS2 Control Demo
-<<<<<<< HEAD
 ### 3.1 O7 DexHands
 * Left Hand
   ```bash
@@ -69,13 +83,19 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch basic_joint_controller hand.launch.py type:=o6 direction:=-1
   ```
-=======
 
-### 3.1 Mock Component Simulation
-```bash
-source ~/ros2_ws/install/setup.bash
-ros2 launch basic_joint_controller hand.launch.py
-```
+### 3.3 L6 DexHands
+* Left Hand
+  ```bash
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch basic_joint_controller hand.launch.py type:=l6
+  ```
+* Right Hand
+  ```bash
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch basic_joint_controller hand.launch.py type:=l6 direction:=-1
+  ```
+
 
 ### 3.2 Real Hardware with Modbus ROS2 Control
 
@@ -108,4 +128,3 @@ ros2 launch basic_joint_controller hand.launch.py \
 - `direction:=1` - Left hand (direction=-1 for right hand)
 
 **Note:** The `serial_port` is defined in the xacro file (`linkerhand_description/xacro/ros2_control/hand.xacro`) with a default value of `/dev/ttyUSB0`. To change it, modify the xacro file directly or pass it as a xacro argument when processing the file.
->>>>>>> d723d6a (Add support for dexhands)

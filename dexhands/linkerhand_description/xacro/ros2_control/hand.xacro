@@ -47,7 +47,7 @@
             <xacro:include filename="$(find linkerhand_description)/xacro/ros2_control/o7.xacro"/>
             <xacro:linkerhand_o7_interfaces name=""/>
         </xacro:if>
-        <xacro:if value="${'$(arg type)' == 'o6'}">
+        <xacro:if value="${'$(arg type)' == 'o6' or '$(arg type)' == 'l6'}">
             <xacro:include filename="$(find linkerhand_description)/xacro/ros2_control/o6.xacro"/>
             <xacro:linkerhand_o6_interfaces name=""/>
         </xacro:if>

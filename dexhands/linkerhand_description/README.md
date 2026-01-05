@@ -27,7 +27,7 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   ros2 launch robot_common_launch hand.launch.py hand:=linkerhand direction:=-1
   ```
 
-### 2.1 O6 DexHands
+### 2.2 O6 DexHands
 * Left Hand
   ```bash
   # left hand
@@ -41,6 +41,21 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   # right hand
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=o6 direction:=-1
+  ```
+### 2.3 L6 DexHands
+* Left Hand
+  ```bash
+  # left hand
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=l6
+  ```
+  ![linkerhand l6](../.images/linkerhand_l6.png)
+
+* Right Hand
+  ```bash
+  # right hand
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=l6 direction:=-1
   ```
 
 
@@ -67,4 +82,16 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   ```bash
   source ~/ros2_ws/install/setup.bash
   ros2 launch basic_joint_controller hand.launch.py type:=o6 direction:=-1
+  ```
+
+### 3.3 L6 DexHands
+* Left Hand
+  ```bash
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch basic_joint_controller hand.launch.py type:=l6
+  ```
+* Right Hand
+  ```bash
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch basic_joint_controller hand.launch.py type:=l6 direction:=-1
   ```

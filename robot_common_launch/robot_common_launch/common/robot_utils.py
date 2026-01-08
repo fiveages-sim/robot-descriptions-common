@@ -483,7 +483,7 @@ def parse_task_info(task_file_path):
 def prepare_arms_target_manager_parameters(
     task_file_path,
     config_file_path=None,
-    marker_fixed_frame='base_link',
+    marker_fixed_frame=None,
     enable_head_control=False,
     hand_controllers=None
 ):
@@ -498,7 +498,7 @@ def prepare_arms_target_manager_parameters(
     Args:
         task_file_path (str): task.info 文件路径
         config_file_path (str, optional): 显式指定的配置文件路径
-        marker_fixed_frame (str): marker 固定坐标系，默认为 'base_link'
+        marker_fixed_frame (str, optional): marker 固定坐标系。如果为 None，则使用配置文件中的值或节点默认值 'base_link'
         enable_head_control (bool): 是否启用头部控制，默认为 False
         hand_controllers (list, optional): 手部/夹爪控制器名称列表
         
@@ -560,9 +560,12 @@ def prepare_arms_target_manager_parameters(
     override_params = {
         'dual_arm_mode': dual_arm_mode,
         'control_base_frame': control_base_frame,
-        'marker_fixed_frame': marker_fixed_frame,
         'enable_head_control': enable_head_control
     }
+    
+    # 只有当明确提供 marker_fixed_frame 时才覆盖配置文件中的值
+    if marker_fixed_frame is not None:
+        override_params['marker_fixed_frame'] = marker_fixed_frame
     
     # 添加 hand_controllers 参数（如果提供）
     if hand_controllers:

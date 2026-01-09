@@ -26,7 +26,8 @@ joint_state_broadcaster:
 hand_joint_controller:
   ros__parameters:
     update_rate: 100  # Hz
-    
+    movej_interpolation_type: "None"
+    home_interpolation_type: "None"
     # 7个主控关节
     joints:
       - thumb_joint1
@@ -46,7 +47,7 @@ hand_joint_controller:
     home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     home_2: [1.0, 0.5, 1.0, 1.0, 1.0, 1.0]
     
-    home_duration: 3.0
-    move_duration: 3.0
+    home_duration: 0.2
+    move_duration: 0.2
     hold_position_threshold: 0.1
 

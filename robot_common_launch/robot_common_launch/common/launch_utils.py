@@ -273,3 +273,41 @@ def create_visualization_launch_description(
     args.append(OpaqueFunction(function=launch_setup))
     
     return LaunchDescription(args)
+
+
+def parse_launch_mode(context):
+    """
+    解析launch_mode配置
+    
+    Args:
+        context: Launch context对象
+        
+    Returns:
+        tuple: (launch_mode, rviz_only, use_rviz)
+            - launch_mode: 'full', 'control_only', or 'rviz_only'
+            - rviz_only: bool, 是否为rviz_only模式
+            - use_rviz: bool, 是否需要启动rviz
+    """
+    launch_mode = context.launch_configurations.get('launch_mode', 'full').lower()
+    rviz_only = launch_mode == 'rviz_only'
+    use_rviz = launch_mode in ['full', 'rviz_only']
+    
+    return launch_mode, rviz_only, use_rviz
+
+
+def create_launch_mode_arguments():
+    """
+    创建launch_mode相关的参数声明
+    
+    Returns:
+        list: DeclareLaunchArgument对象列表
+    """
+    return [
+        DeclareLaunchArgument(
+            'launch_mode',
+            default_value='full',
+            description="Launch mode: 'full' (rviz + control, default), 'control_only' (no rviz), or 'rviz_only' (only rviz for remote visualization)"
+        ),
+    ]
+
+

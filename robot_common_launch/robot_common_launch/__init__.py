@@ -10,7 +10,9 @@ from .common.launch_utils import (
     create_common_launch_arguments,
     create_visualization_launch_description,
     is_rmw_zenoh,
-    create_rmw_zenohd_node
+    create_rmw_zenohd_node,
+    parse_launch_mode,
+    create_launch_mode_arguments
 )
 
 __all__ = [
@@ -32,5 +34,7 @@ __all__ = [
     'create_common_launch_arguments',
     'create_visualization_launch_description',
     'is_rmw_zenoh',
-    'create_rmw_zenohd_node'
+    'create_rmw_zenohd_node',
+    'parse_launch_mode',
+    'create_launch_mode_arguments'
 ]

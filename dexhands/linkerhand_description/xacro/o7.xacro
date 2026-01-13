@@ -1,17 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<xacro:macro name="LinkerHandO7" params="name direction:=1 use_flange:=false fixed_joints:=false">
+	<!-- 定义 O7 手质量和转动惯量参数的宏 (用于生成 dyn_param) -->
+	<!-- dyn_param 格式 (10个值): [M, mx, my, mz, XX, XY, XZ, YY, YZ, ZZ] -->
+	<!-- M: 质量 (单位: kg) -->
+	<!-- mx, my, mz: 质心位置 (单位: mm) -->
+	<!-- XX, XY, XZ, YY, YZ, ZZ: 转动惯量 (6个值) -->
+	<xacro:macro name="LinkerHandO7_DynParams" params="direction com_offset_x:=0 com_offset_y:=0 com_offset_z:=0">
+		<!-- 质量中心位置 (单位: 米，考虑 direction 和偏移) -->
+		<xacro:property name="com_x_m" value="${(direction == 1 and -0.000897326242450024 or -0.000635826168353301) + com_offset_x}"/>
+		<xacro:property name="com_y_m" value="${direction*-0.000912910200583317 + com_offset_y}"/>
+		<xacro:property name="com_z_m" value="${(direction == 1 and 0.0725139361953409 or 0.0808531524968522) + com_offset_z}"/>
+		<!-- 转换为毫米 (乘以 1000) -->
+		<xacro:property name="com_x" value="${com_x_m * 1000}"/>
+		<xacro:property name="com_y" value="${com_y_m * 1000}"/>
+		<xacro:property name="com_z" value="${com_z_m * 1000}"/>
+		<!-- 质量 (单位: kg) -->
+		<xacro:property name="mass" value="${direction == 1 and 0.0961317016824249 or 0.115532510357281}"/>
+		<!-- 转动惯量 -->
+		<xacro:property name="ixx" value="${direction == 1 and 0.000102695669168065 or 0.000103865728174833}"/>
+		<xacro:property name="ixy" value="${direction*-4.31409372592166E-07}"/>
+		<xacro:property name="ixz" value="-1.88110470378979E-06"/>
+		<xacro:property name="iyy" value="${direction == 1 and 6.48454975844519E-05 or 6.66546428907319E-05}"/>
+		<xacro:property name="iyz" value="${direction*8.30780063139162E-07}"/>
+		<xacro:property name="izz" value="${direction == 1 and 4.84048917293055E-05 or 4.97086581300188E-05}"/>
+		<!-- 输出 dyn_param 数组格式: [M, mx, my, mz, XX, XY, XZ, YY, YZ, ZZ] -->
+		[${mass},${com_x},${com_y},${com_z},${ixx},${ixy},${ixz},${iyy},${iyz},${izz}]
+	</xacro:macro>
+
+	<xacro:macro name="LinkerHandO7" params="name direction:=1 use_flange:=false fixed_joints:=false com_offset_x:=0 com_offset_y:=0 com_offset_z:=0">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
+		<!-- 质量中心偏移量 (单位: 米) -->
 
 		<!-- ========================================== -->
 		<!-- 手掌基座 (Hand Base) -->
 		<!-- ========================================== -->
 		<link name="${prefix}hand_base">
 			<inertial>
+				<!-- 质量中心位置 = 原始位置 + 偏移量 -->
 				<origin
-						xyz="${direction == 1 and -0.000897326242450024 or -0.000635826168353301} ${direction*-0.000912910200583317} ${direction == 1 and 0.0725139361953409 or 0.0808531524968522}"
+						xyz="${(direction == 1 and -0.000897326242450024 or -0.000635826168353301) + com_offset_x} ${direction*-0.000912910200583317 + com_offset_y} ${(direction == 1 and 0.0725139361953409 or 0.0808531524968522) + com_offset_z}"
 				/>
 				<mass value="${direction == 1 and 0.0961317016824249 or 0.115532510357281}"/>
 				<inertia ixx="${direction == 1 and 0.000102695669168065 or 0.000103865728174833}"

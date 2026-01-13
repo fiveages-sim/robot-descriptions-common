@@ -6,6 +6,7 @@
 
 import os
 import re
+import subprocess
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
@@ -121,14 +122,53 @@ def is_rmw_zenoh():
     return rmw_implementation == 'rmw_zenoh_cpp'
 
 
+def is_zenoh_router_running():
+    """
+    检测系统中是否已经有zenoh router在运行
+    
+    Returns:
+        bool: 如果已经有zenoh router在运行则返回True，否则返回False
+    """
+    try:
+        # 检查是否有rmw_zenohd进程在运行
+        result = subprocess.run(
+            ['pgrep', '-f', 'rmw_zenohd'],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return True
+        
+        # 也检查是否有zenohd进程在运行（独立的zenoh router）
+        result = subprocess.run(
+            ['pgrep', '-f', 'zenohd'],
+            capture_output=True,
+            text=True
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return True
+        
+        return False
+    except Exception as e:
+        # 如果检测失败（例如pgrep命令不存在），默认返回False，允许启动
+        print(f"[WARNING] Failed to check if zenoh router is running: {e}")
+        return False
+
+
 def create_rmw_zenohd_node():
     """
     创建rmw_zenohd节点（当使用rmw_zenoh_cpp中间件时）
+    如果系统中已经有zenoh router在运行，则不会重复启动
     
     Returns:
-        Node: rmw_zenohd节点对象，如果不需要则返回None
+        Node: rmw_zenohd节点对象，如果不需要或已存在则返回None
     """
     if not is_rmw_zenoh():
+        return None
+    
+    # 检查是否已经有zenoh router在运行
+    if is_zenoh_router_running():
+        print("[INFO] Zenoh router is already running, skipping rmw_zenohd node creation")
         return None
     
     return Node(

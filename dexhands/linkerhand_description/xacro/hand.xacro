@@ -5,7 +5,6 @@
 	<xacro:arg name="direction" default="1"/>
 
 	<!-- 质量中心偏移配置 (Center of Mass Offset) -->
-	<!-- 为不同类型的手设置质量中心偏移，用于调整惯性参数 -->
 	<!-- 单位: 米，默认值为 0 表示不偏移 -->
 	<!-- O7 手质量中心偏移 -->
 	<xacro:arg name="com_offset_o7_x" default="0"/>

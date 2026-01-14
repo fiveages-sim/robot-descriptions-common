@@ -16,9 +16,11 @@
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
                 <plugin>gz_ros2_control/GazeboSimSystem</plugin>
             </xacro:if>
+
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'mock_components'}">
                 <plugin>mock_components/GenericSystem</plugin>
             </xacro:if>
+
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'isaac'}">
                 <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
                 <param name="joint_commands_topic">/isaac/joint_command</param>
@@ -26,27 +28,18 @@
                 <param name="sum_wrapped_joint_states">false</param>
                 <param name="initialize_commands_from_state">true</param>
             </xacro:if>
+
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
-                <!-- Modbus ROS2 Control hardware interface for dexterous hand -->
                 <plugin>modbus_ros2_control/DexterousHandHardware</plugin>
-                <!-- Serial port for Modbus communication (can be overridden via xacro arg) -->
-                <xacro:arg name="serial_port" default="/dev/ttyUSB0"/>
-                <param name="serial_port">$(arg serial_port)</param>
-                <!-- Hand type: o7, o6, or l6 (passed from type argument) -->
-                <xacro:if value="${'$(arg type)' != ''}">
-                    <param name="hand_type">$(arg type)</param>
-                </xacro:if>
-                <!-- Hand side: left or right (determined by direction parameter) -->
-                <!-- direction=1 means left hand, direction=-1 means right hand -->
+                <param name="serial_port">/dev/ttyUSB0</param>
+                <param name="hand_type">linkerhand_$(arg type)</param>
                 <xacro:if value="${'$(arg direction)' == '1'}">
                     <param name="hand_side">left</param>
                 </xacro:if>
                 <xacro:unless value="${'$(arg direction)' == '1'}">
                     <param name="hand_side">right</param>
                 </xacro:unless>
-                <!-- Speed limiting: max_speed_ratio (0.0-1.0, default 1.0 = no limiting) -->
-                <xacro:arg name="max_speed_ratio" default="0.8"/>
-                <param name="max_speed_ratio">$(arg max_speed_ratio)</param>
+                <param name="max_speed_ratio">0.8</param>
             </xacro:if>
         </hardware>
 

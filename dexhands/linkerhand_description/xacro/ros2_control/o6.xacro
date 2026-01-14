@@ -7,7 +7,8 @@
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
     
     <!-- 6个主控关节接口定义 -->
-    <!-- 拇指关节 -->
+    <!-- 关节顺序与 Modbus 协议地址顺序一致 -->
+    <!-- Address 0: Current_Thumb_Pitch (大拇指弯曲) - thumb_joint1 是第一个关节 -->
     <joint name="${prefix}thumb_joint1">
       <command_interface name="position"/>
       <state_interface name="position">
@@ -17,6 +18,7 @@
       <state_interface name="effort"/>
     </joint>
 
+    <!-- Address 1: Current_Thumb_Yaw (大拇指横摆) - thumb_joint2 是第二个关节 -->
     <joint name="${prefix}thumb_joint2">
       <command_interface name="position"/>
       <state_interface name="position">

@@ -92,7 +92,8 @@
 			</collision>
 		</link>
 
-		<joint name="${prefix}thumb_joint1" type="${joint_type}">
+		<joint name="${prefix}thumb_joint2" type="${joint_type}">
+			<!-- thumb_joint2: 大拇指横摆运动 (Current_Thumb_Yaw, Modbus Address 1) -->
 			<origin xyz="0.0078133 ${direction*-0.029898} 0.026692"/>
 			<parent link="${prefix}hand_base"/>
 			<child link="${prefix}thumb_metacarpals_base1"/>
@@ -127,7 +128,8 @@
 			</collision>
 		</link>
 
-		<joint name="${prefix}thumb_joint2" type="${joint_type}">
+		<joint name="${prefix}thumb_joint1" type="${joint_type}">
+			<!-- thumb_joint1: 大拇指弯曲/伸直运动 (Current_Thumb_Pitch, Modbus Address 0) -->
 			<origin xyz="0.0050248 ${direction*-0.013602} 0.0066685"
 							rpy="${direction*1.2615} 0 ${direction*0.34907}"/>
 			<parent link="${prefix}thumb_metacarpals_base1"/>
@@ -170,7 +172,7 @@
 			<xacro:unless value="${fixed_joints}">
 				<axis xyz="${direction*-1} 0 0"/>
 				<limit lower="0" upper="1.22" effort="100" velocity="1"/>
-				<mimic joint="${prefix}thumb_joint2" multiplier="1.23" offset="0"/>
+				<mimic joint="${prefix}thumb_joint1" multiplier="1.23" offset="0"/>
 			</xacro:unless>
 		</joint>
 

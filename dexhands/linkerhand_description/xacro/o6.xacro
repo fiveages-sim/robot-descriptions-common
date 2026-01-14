@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<xacro:macro name="LinkerHandO6" params="name direction:=1 use_flange:=false fixed_joints:=false com_offset_x:=0 com_offset_y:=0 com_offset_z:=0">
+	<xacro:macro name="LinkerHandO6" params="name direction:=1 use_flange:=false fixed_joints:=false">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
-		<!-- 质量中心偏移量 (单位: 米) -->
 
 		<xacro:if value="${use_flange}">
 			<link name="${prefix}flange">
@@ -43,9 +42,8 @@
 		<!-- ========================================== -->
 		<link name="${prefix}hand_base">
 			<inertial>
-				<!-- 质量中心位置 = 原始位置 + 偏移量 -->
 				<origin
-						xyz="${(direction == 1 and -0.00157788568070457 or -0.00160320773490556) + com_offset_x} ${(direction*-0.00034876725935859) + com_offset_y} ${(direction == 1 and 0.0538452219801211 or 0.0538002704027215) + com_offset_z}"
+						xyz="${direction == 1 and -0.00157788568070457 or -0.00160320773490556} ${direction*-0.00034876725935859} ${direction == 1 and 0.0538452219801211 or 0.0538002704027215}"
 				/>
 				<mass value="0.0672935238166485"/>
 				<inertia ixx="5.22525212160954E-05"

@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<xacro:macro name="LinkerHandO7" params="name direction:=1 use_flange:=false fixed_joints:=false com_offset_x:=0 com_offset_y:=0 com_offset_z:=0">
+	<xacro:macro name="LinkerHandO7" params="name direction:=1 use_flange:=false fixed_joints:=false">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
-		<!-- 质量中心偏移量 (单位: 米) -->
 
 		<!-- ========================================== -->
 		<!-- 手掌基座 (Hand Base) -->
 		<!-- ========================================== -->
 		<link name="${prefix}hand_base">
 			<inertial>
-				<!-- 质量中心位置 = 原始位置 + 偏移量 -->
 				<origin
-						xyz="${(direction == 1 and -0.000897326242450024 or -0.000635826168353301) + com_offset_x} ${direction*-0.000912910200583317 + com_offset_y} ${(direction == 1 and 0.0725139361953409 or 0.0808531524968522) + com_offset_z}"
+						xyz="${direction == 1 and -0.000897326242450024 or -0.000635826168353301} ${direction*-0.000912910200583317} ${direction == 1 and 0.0725139361953409 or 0.0808531524968522}"
 				/>
 				<mass value="${direction == 1 and 0.0961317016824249 or 0.115532510357281}"/>
 				<inertia ixx="${direction == 1 and 0.000102695669168065 or 0.000103865728174833}"

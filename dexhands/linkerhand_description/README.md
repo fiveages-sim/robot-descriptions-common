@@ -155,8 +155,7 @@ ros2 launch basic_joint_controller hand.launch.py \
     hand:=linkerhand \
     type:=o6 \
     hardware:=real \
-    direction:=1 \
-    serial_port:=/dev/ttyUSB0
+    direction:=1
 
 # 3. Launch with real hardware - Right Hand (Modbus ID 0x27)
 ros2 launch basic_joint_controller hand.launch.py \
@@ -164,7 +163,6 @@ ros2 launch basic_joint_controller hand.launch.py \
     type:=o6 \
     hardware:=real \
     direction:=-1 \
-    serial_port:=/dev/ttyUSB0
 ```
 
 ### 4.4 L6 Dexterous Hand
@@ -181,16 +179,14 @@ ros2 launch basic_joint_controller hand.launch.py \
     hand:=linkerhand \
     type:=l6 \
     hardware:=real \
-    direction:=1 \
-    serial_port:=/dev/ttyUSB0
+    direction:=1 
 
 # 3. Launch with real hardware - Right Hand (Modbus ID 0x27)
 ros2 launch basic_joint_controller hand.launch.py \
     hand:=linkerhand \
     type:=l6 \
     hardware:=real \
-    direction:=-1 \
-    serial_port:=/dev/ttyUSB0
+    direction:=-1 
 ```
 
 ### 4.5 Launch Parameters

@@ -4,37 +4,21 @@
 	<xacro:arg name="type" default="o7"/>
 	<xacro:arg name="direction" default="1"/>
 
-	<!-- 质量中心偏移配置 (Center of Mass Offset) -->
-	<!-- 为不同类型的手设置质量中心偏移，用于调整惯性参数 -->
-	<!-- 单位: 米，默认值为 0 表示不偏移 -->
-	<!-- O7 手质量中心偏移 -->
-	<xacro:arg name="com_offset_o7_x" default="0"/>
-	<xacro:arg name="com_offset_o7_y" default="0"/>
-	<xacro:arg name="com_offset_o7_z" default="0"/>
-	<!-- O6 手质量中心偏移 -->
-	<xacro:arg name="com_offset_o6_x" default="0"/>
-	<xacro:arg name="com_offset_o6_y" default="0"/>
-	<xacro:arg name="com_offset_o6_z" default="0"/>
-	<!-- L6 手质量中心偏移 -->
-	<xacro:arg name="com_offset_l6_x" default="0"/>
-	<xacro:arg name="com_offset_l6_y" default="0"/>
-	<xacro:arg name="com_offset_l6_z" default="0"/>
-
 	<!-- 创建手部 (direction=1 为左手, direction=-1 为右手) -->
 	<!-- 支持 type: o7, o6, l6 -->
 	<xacro:if value="${'$(arg type)' == 'o7'}">
 		<xacro:include filename="$(find linkerhand_description)/xacro/o7.xacro"/>
-		<xacro:LinkerHandO7 name="" direction="$(arg direction)" com_offset_x="$(arg com_offset_o7_x)" com_offset_y="$(arg com_offset_o7_y)" com_offset_z="$(arg com_offset_o7_z)"/>
+		<xacro:LinkerHandO7 name="" direction="$(arg direction)"/>
 	</xacro:if>
 
 	<xacro:if value="${'$(arg type)' == 'o6'}">
 		<xacro:include filename="$(find linkerhand_description)/xacro/o6.xacro"/>
-		<xacro:LinkerHandO6 name="" direction="$(arg direction)" com_offset_x="$(arg com_offset_o6_x)" com_offset_y="$(arg com_offset_o6_y)" com_offset_z="$(arg com_offset_o6_z)"/>
+		<xacro:LinkerHandO6 name="" direction="$(arg direction)"/>
 	</xacro:if>
 
 	<xacro:if value="${'$(arg type)' == 'l6'}">
 		<xacro:include filename="$(find linkerhand_description)/xacro/l6.xacro"/>
-		<xacro:LinkerHandL6 name="" direction="$(arg direction)" com_offset_x="$(arg com_offset_l6_x)" com_offset_y="$(arg com_offset_l6_y)" com_offset_z="$(arg com_offset_l6_z)"/>
+		<xacro:LinkerHandL6 name="" direction="$(arg direction)"/>
 	</xacro:if>
 
 

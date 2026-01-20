@@ -484,7 +484,6 @@ def prepare_arms_target_manager_parameters(
     task_file_path,
     config_file_path=None,
     marker_fixed_frame=None,
-    enable_head_control=False,
     hand_controllers=None
 ):
     """
@@ -499,8 +498,10 @@ def prepare_arms_target_manager_parameters(
         task_file_path (str): task.info 文件路径
         config_file_path (str, optional): 显式指定的配置文件路径
         marker_fixed_frame (str, optional): marker 固定坐标系。如果为 None，则使用配置文件中的值或节点默认值 'base_link'
-        enable_head_control (bool): 是否启用头部控制，默认为 False
         hand_controllers (list, optional): 手部/夹爪控制器名称列表
+        
+    Note:
+        enable_head_control is now configured via YAML config file, not via function parameter
         
     Returns:
         list: 节点参数列表，可以直接传递给 Node 的 parameters 参数
@@ -559,8 +560,7 @@ def prepare_arms_target_manager_parameters(
     # 必须覆盖的参数（从 task_file 解析或必需参数）
     override_params = {
         'dual_arm_mode': dual_arm_mode,
-        'control_base_frame': control_base_frame,
-        'enable_head_control': enable_head_control
+        'control_base_frame': control_base_frame
     }
     
     # 只有当明确提供 marker_fixed_frame 时才覆盖配置文件中的值

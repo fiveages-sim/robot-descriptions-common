@@ -188,7 +188,7 @@
       <child link="${prefix}right_2_link"/>
       <axis xyz="0 0 -1"/>
       <limit lower="0" upper="1" effort="40"  velocity="${4*PI/3}"/>
-      <mimic joint="${prefix}left_2_joint" multiplier="1" offset="0"/>
+      <mimic joint="${prefix}gripper_joint" multiplier="1" offset="0"/>
     </joint>
 
     <link name="${prefix}right_1_link">
@@ -254,7 +254,7 @@
       <child link="${prefix}right_support_link"/>
       <axis xyz="0 0 1"/>
       <limit lower="0" upper="1" effort="40"  velocity="${4*PI/3}"/>
-      <mimic joint="${prefix}right_1_joint" multiplier="1" offset="0"/>
+      <mimic joint="${prefix}gripper_joint" multiplier="1" offset="0"/>
     </joint>
 
     <link name="${prefix}right_pad_link">

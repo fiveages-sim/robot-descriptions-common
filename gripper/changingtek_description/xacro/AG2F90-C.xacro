@@ -279,7 +279,7 @@
 			<child link="${prefix}right_2_link"/>
 			<axis xyz="1 0 0"/>
 			<limit lower="0" upper="1" effort="50" velocity="${PI}"/>
-			<mimic joint="${prefix}left_2_Joint"/>
+			<mimic joint="${prefix}gripper_joint"/>
 		</joint>
 
 		<link name="${prefix}right_1_link">
@@ -345,7 +345,7 @@
 			<child link="${prefix}right_in_link"/>
 			<axis xyz="-1 0 0"/>
 			<limit lower="0" upper="1" effort="50" velocity="${PI}"/>
-			<mimic joint="${prefix}right_1_Joint" multiplier="0.1" offset="0"/>
+			<mimic joint="${prefix}gripper_joint" multiplier="0.1" offset="0"/>
 		</joint>
 
 		<link name="${prefix}right_up_link">
@@ -378,7 +378,7 @@
 			<child link="${prefix}right_up_link"/>
 			<axis xyz="-1 0 0"/>
 			<limit lower="0" upper="1" effort="50" velocity="${PI}"/>
-			<mimic joint="${prefix}right_1_Joint"/>
+			<mimic joint="${prefix}gripper_joint"/>
 		</joint>
 
 		<xacro:if value="${pad == 'soft'}">

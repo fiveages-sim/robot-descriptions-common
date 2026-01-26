@@ -47,6 +47,6 @@ hand_joint_controller:
     home_2: [1.0, 0.5, 1.0, 1.0, 1.0, 1.0]
     
     home_duration: 3.0
-    move_duration: 3.0
+    movej_duration: 3.0
     hold_position_threshold: 0.1
 

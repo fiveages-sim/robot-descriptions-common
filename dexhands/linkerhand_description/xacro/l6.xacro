@@ -20,12 +20,12 @@
 				</inertial>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/flange.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/flange.glb"/>
 					</geometry>
 				</visual>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find linkerhand_description)/meshes/o6/flange.obj"/>
+						<mesh filename="file://$(find linkerhand_description)/meshes/o6/flange.glb"/>
 					</geometry>
 				</visual>
 			</link>
@@ -52,13 +52,13 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/base.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/base.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/base.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/base.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</collision>
@@ -80,13 +80,13 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals_base.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals_base.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals_base.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals_base.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</collision>
@@ -116,13 +116,13 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_metacarpals.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</collision>
@@ -153,13 +153,13 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_distal.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_distal.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_distal.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/thumb_distal.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</collision>
@@ -192,13 +192,13 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</collision>
@@ -227,12 +227,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -264,12 +264,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -297,12 +297,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -334,12 +334,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -367,12 +367,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -404,12 +404,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -437,12 +437,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.obj"/>
+					<mesh filename="file://$(find linkerhand_description)/meshes/l6/index_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>

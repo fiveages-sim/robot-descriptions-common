@@ -21,7 +21,7 @@
 				</inertial>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/flange.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/flange.glb"/>
 					</geometry>
 				</visual>
 			</link>
@@ -46,7 +46,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/gripper_base.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/gripper_base.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -70,7 +70,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_1.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_1.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -107,7 +107,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/in_link.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/in_link.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -140,7 +140,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/up_link.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/up_link.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -174,12 +174,12 @@
 				</inertial>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
 					</geometry>
 				</visual>
 				<collision>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
 					</geometry>
 				</collision>
 			</link>
@@ -199,7 +199,7 @@
 				</inertial>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link.glb"/>
 					</geometry>
 				</visual>
 				<collision>
@@ -230,7 +230,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_2.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_2.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -263,7 +263,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_2.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_2.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -296,7 +296,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_1.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_1.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -329,7 +329,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/in_link.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/in_link.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -362,7 +362,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/up_link.obj"/>
+					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/up_link.glb"/>
 				</geometry>
 			</visual>
 			<collision>
@@ -396,12 +396,12 @@
 				</inertial>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
 					</geometry>
 				</visual>
 				<collision>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
 					</geometry>
 				</collision>
 			</link>
@@ -421,7 +421,7 @@
 				</inertial>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link.obj"/>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link.glb"/>
 					</geometry>
 				</visual>
 				<collision>

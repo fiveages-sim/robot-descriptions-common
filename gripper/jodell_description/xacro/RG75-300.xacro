@@ -19,12 +19,12 @@
             </inertial>
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find jodell_description)/meshes/RG75/base.obj"/>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/base.glb"/>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="file://$(find jodell_description)/meshes/RG75/base.obj"/>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/base.glb"/>
                 </geometry>
             </collision>
         </link>
@@ -44,12 +44,12 @@
                 </inertial>
                 <visual>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/flange.obj"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/flange.glb"/>
                     </geometry>
                 </visual>
                 <collision>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/flange.obj"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/flange.glb"/>
                     </geometry>
                 </collision>
 
@@ -74,12 +74,12 @@
             </inertial>
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj"/>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb"/>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj"/>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb"/>
                 </geometry>
             </collision>
         </link>
@@ -106,12 +106,12 @@
             </inertial>
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj" scale="-1 -1 1"/>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb" scale="-1 -1 1"/>
                 </geometry>
             </visual>
             <collision>
                 <geometry>
-                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.obj" scale="-1 -1 1"/>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb" scale="-1 -1 1"/>
                 </geometry>
             </collision>
         </link>
@@ -140,12 +140,12 @@
                 </inertial>
                 <visual>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.glb"/>
                     </geometry>
                 </visual>
                 <collision>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.glb"/>
                     </geometry>
                 </collision>
             </link>
@@ -170,13 +170,13 @@
                 </inertial>
                 <visual>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.glb"
                               scale="1 -1 1"/>
                     </geometry>
                 </visual>
                 <collision>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.obj"
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_fiveages.glb"
                               scale="1 -1 1"/>
                     </geometry>
                 </collision>
@@ -211,12 +211,12 @@
                 </inertial>
                 <visual>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.glb"/>
                     </geometry>
                 </visual>
                 <collision>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.glb"/>
                     </geometry>
                 </collision>
             </link>
@@ -241,13 +241,13 @@
                 </inertial>
                 <visual>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.glb"
                               scale="1 -1 1"/>
                     </geometry>
                 </visual>
                 <collision>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.obj"
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/pad_leapmotor.glb"
                               scale="1 -1 1"/>
                     </geometry>
                 </collision>

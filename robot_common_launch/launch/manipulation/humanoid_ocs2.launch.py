@@ -34,7 +34,7 @@ def generate_launch_description():
     # 机器人名称参数
     robot_name = launch.actions.DeclareLaunchArgument(
         name='robot_name',
-        default_value='fa_w2',
+        default_value='fiveages_w2',
         description='Name of the humanoid robot (e.g., fa_w2)'
     )
 

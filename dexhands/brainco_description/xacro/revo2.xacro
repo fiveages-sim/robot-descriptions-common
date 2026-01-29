@@ -14,12 +14,12 @@
 				</inertial>
 				<visual>
 					<geometry>
-						<mesh filename="file://$(find brainco_description)/meshes/revo2/flange.obj"/>
+						<mesh filename="file://$(find brainco_description)/meshes/revo2/flange.glb"/>
 					</geometry>
 				</visual>
 				<collision>
 					<geometry>
-						<mesh filename="file://$(find brainco_description)/meshes/revo2/flange.obj"/>
+						<mesh filename="file://$(find brainco_description)/meshes/revo2/flange.glb"/>
 					</geometry>
 				</collision>
 			</link>
@@ -39,12 +39,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/base_link.obj" scale="1 ${direction} 1"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/base_link.glb" scale="1 ${direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/base_link.obj" scale="1 ${direction} 1"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/base_link.glb" scale="1 ${direction} 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -61,12 +61,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_metacarpal.obj" scale="${direction} ${direction} ${direction}"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_metacarpal.glb" scale="${direction} ${direction} ${direction}"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_metacarpal.obj" scale="${direction} ${direction} ${direction}"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_metacarpal.glb" scale="${direction} ${direction} ${direction}"/>
 				</geometry>
 			</collision>
 		</link>
@@ -91,12 +91,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_proximal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_proximal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_proximal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -124,12 +124,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_distal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_distal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_distal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/thumb_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -191,13 +191,13 @@
 			<visual>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/index_proximal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/index_proximal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/index_proximal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/index_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -227,12 +227,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/index_distal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/index_distal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/index_distal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/index_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -296,13 +296,13 @@
 			<visual>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/middle_proximal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/middle_proximal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/middle_proximal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/middle_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -332,12 +332,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/middle_distal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/middle_distal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/middle_distal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/middle_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -401,18 +401,13 @@
 			<visual>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/ring_proximal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/ring_proximal.glb"/>
 				</geometry>
-				<material
-						name="">
-					<color
-							rgba="1 1 1 1"/>
-				</material>
 			</visual>
 			<collision>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/ring_proximal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/ring_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -446,18 +441,13 @@
 			<visual>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/ring_distal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/ring_distal.glb"/>
 				</geometry>
-				<material
-						name="">
-					<color
-							rgba="1 1 1 1"/>
-				</material>
 			</visual>
 			<collision>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/ring_distal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/ring_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -517,12 +507,12 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/pinky_proximal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/pinky_proximal.glb"/>
 				</geometry>
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find brainco_description)/meshes/revo2/pinky_proximal.obj"/>
+					<mesh filename="file://$(find brainco_description)/meshes/revo2/pinky_proximal.glb"/>
 				</geometry>
 			</collision>
 		</link>
@@ -556,18 +546,13 @@
 			<visual>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/pinky_distal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/pinky_distal.glb"/>
 				</geometry>
-				<material
-						name="">
-					<color
-							rgba="1 1 1 1"/>
-				</material>
 			</visual>
 			<collision>
 				<geometry>
 					<mesh
-							filename="file://$(find brainco_description)/meshes/revo2/pinky_distal.obj"/>
+							filename="file://$(find brainco_description)/meshes/revo2/pinky_distal.glb"/>
 				</geometry>
 			</collision>
 		</link>

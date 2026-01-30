@@ -1,6 +1,8 @@
 <?xml version="1.0" ?>
 
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
+	<xacro:arg name="collider" default="convex"/>
+	<xacro:property name="collider_type" value="$(arg collider)"/>
 
 	<xacro:macro name="AG2F90-C" params="name use_flange:=false pad:=default">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
@@ -49,11 +51,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/gripper_base.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/base.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/base.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<link name="${prefix}left_1_link">
@@ -73,11 +77,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_1.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_1.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_1.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}gripper_joint" type="revolute">
@@ -110,11 +116,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/in_link.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/in_link.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/in_link.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}left_in_Joint" type="revolute">
@@ -143,11 +151,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/up_link.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/up_link.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/up_link.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}left_up_Joint" type="revolute">
@@ -177,11 +187,13 @@
 						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
 					</geometry>
 				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
-					</geometry>
-				</collision>
+				<xacro:if value="${collider_type == 'convex'}">
+					<collision>
+						<geometry>
+							<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
+						</geometry>
+					</collision>
+				</xacro:if>
 			</link>
 		</xacro:if>
 		<xacro:if value="${pad == 'default'}">
@@ -202,11 +214,13 @@
 						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link.glb"/>
 					</geometry>
 				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/pad_link.stl"/>
-					</geometry>
-				</collision>
+				<xacro:if value="${collider_type == 'convex'}">
+					<collision>
+						<geometry>
+							<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/pad_link.stl"/>
+						</geometry>
+					</collision>
+				</xacro:if>
 			</link>
 		</xacro:if>
 
@@ -233,11 +247,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_2.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_2.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_2.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}left_2_Joint" type="revolute">
@@ -266,11 +282,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_2.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_2.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_2.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}right_2_Joint" type="revolute">
@@ -299,11 +317,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/link_1.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_1.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/link_1.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}right_1_Joint" type="revolute">
@@ -332,11 +352,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/in_link.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/in_link.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/in_link.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}right_in_Joint" type="revolute">
@@ -365,11 +387,13 @@
 					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/up_link.glb"/>
 				</geometry>
 			</visual>
-			<collision>
-				<geometry>
-					<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/up_link.stl"/>
-				</geometry>
-			</collision>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/up_link.stl"/>
+					</geometry>
+				</collision>
+			</xacro:if>
 		</link>
 
 		<joint name="${prefix}right_up_Joint" type="revolute">
@@ -399,11 +423,13 @@
 						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
 					</geometry>
 				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
-					</geometry>
-				</collision>
+				<xacro:if value="${collider_type == 'convex'}">
+					<collision>
+						<geometry>
+							<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link_soft.glb"/>
+						</geometry>
+					</collision>
+				</xacro:if>
 			</link>
 		</xacro:if>
 		<xacro:if value="${pad == 'default'}">
@@ -424,11 +450,13 @@
 						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/pad_link.glb"/>
 					</geometry>
 				</visual>
-				<collision>
-					<geometry>
-						<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/pad_link.stl"/>
-					</geometry>
-				</collision>
+				<xacro:if value="${collider_type == 'convex'}">
+					<collision>
+						<geometry>
+							<mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/collision/pad_link.stl"/>
+						</geometry>
+					</collision>
+				</xacro:if>
 			</link>
 		</xacro:if>
 

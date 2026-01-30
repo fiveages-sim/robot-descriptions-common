@@ -6,7 +6,7 @@ from launch.actions import OpaqueFunction
 from launch import LaunchDescription
 
 # Import robot_common_launch utilities
-from robot_common_launch import get_robot_package_path, get_planning_urdf_path
+from robot_common_launch import get_robot_package_path
 
 
 def generate_launch_description():
@@ -92,10 +92,22 @@ def generate_launch_description():
             print(f"❌ Error: Could not find {robot_name_value}_description package")
             return []
         
-        # 使用 robot_common_launch 工具获取 URDF 文件路径
-        urdf_file_value = get_planning_urdf_path(robot_name_value, type_value)
-        if urdf_file_value is None:
-            print(f"❌ Error: Could not find URDF file for {robot_name_value}")
+        # 获取 URDF 文件路径
+        urdf_dir = os.path.join(robot_pkg_path, "urdf")
+        if type_value and type_value.strip():
+            # Try type-specific URDF first
+            type_specific_urdf = os.path.join(urdf_dir, f"{robot_name_value}_{type_value}.urdf")
+            if os.path.exists(type_specific_urdf):
+                urdf_file_value = type_specific_urdf
+            else:
+                # Fallback to default URDF
+                urdf_file_value = os.path.join(urdf_dir, f"{robot_name_value}.urdf")
+        else:
+            # Use default URDF
+            urdf_file_value = os.path.join(urdf_dir, f"{robot_name_value}.urdf")
+        
+        if not os.path.exists(urdf_file_value):
+            print(f"❌ Error: Could not find URDF file: {urdf_file_value}")
             return []
         print(f"📁 URDF: {urdf_file_value}")
         

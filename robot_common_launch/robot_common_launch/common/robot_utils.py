@@ -190,44 +190,6 @@ def load_robot_config(robot_name, config_type="ros2_control", robot_type=""):
         return None, None
 
 
-def get_planning_urdf_path(robot_name, robot_type=""):
-    """
-    Get planning URDF file path based on robot type.
-    
-    Args:
-        robot_name (str): Name of the robot
-        robot_type (str): Robot type/variant
-        
-    Returns:
-        str: Path to planning URDF file, or None if not found
-        
-    Example:
-        >>> urdf_path = get_planning_urdf_path('cr5', 'x5')
-        >>> print(urdf_path)
-        '/opt/ros/humble/share/cr5_description/urdf/cr5_x5.urdf'
-    """
-    robot_pkg_path = get_robot_package_path(robot_name)
-    if robot_pkg_path is None:
-        return None
-    
-    if robot_type and robot_type.strip():
-        # Try type-specific URDF first
-        robot_identifier = robot_name + "_" + robot_type
-        type_specific_urdf = os.path.join(robot_pkg_path, "urdf", robot_identifier + ".urdf")
-        
-        # Check if type-specific URDF exists
-        if os.path.exists(type_specific_urdf):
-            return type_specific_urdf
-        else:
-            # Fallback to default URDF if type-specific doesn't exist
-            default_urdf = os.path.join(robot_pkg_path, "urdf", robot_name + ".urdf")
-            return default_urdf
-    else:
-        # Use default URDF
-        default_urdf = os.path.join(robot_pkg_path, "urdf", robot_name + ".urdf")
-        return default_urdf
-
-
 def get_info_file_name(robot_name, robot_type="", config_type="ros2_control"):
     """
     Get info_file_name from ROS2 controller configuration, fallback to 'task'.

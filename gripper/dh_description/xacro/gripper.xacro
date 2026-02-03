@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot name="PGC_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="type" default="PGC_140_50"/>
+
+  <!-- 根据type参数决定使用哪种夹爪和pad配置 -->
+  <xacro:if value="${'$(arg type)' == 'PGC_140_50'}">
+    <xacro:include filename="$(find dh_description)/xacro/PGC_140_50.xacro"/>
+    <!-- default: 使用PGC_140_50配置 (不带M) -->
+    <xacro:PGC_140_50 name="" pad="default"/>
+  </xacro:if>
+
+  <xacro:if value="${'$(arg type)' == 'PGC_140_50-dexforce'}">
+    <xacro:include filename="$(find dh_description)/xacro/PGC_140_50.xacro"/>
+    <!-- dexforce: 使用PGC_140_50_M配置 (带M) -->
+    <xacro:PGC_140_50 name="" pad="dexforce"/>
+  </xacro:if>
+
+</robot>
+

@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- PGC_140_50夹爪完整接口定义宏 -->
+  <xacro:macro name="pgc_140_50_interfaces" params="name pad:=default">
+    <xacro:arg name="gazebo" default="false"/>
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+    
+    <!-- 夹爪主关节接口定义 -->
+    <joint name="${prefix}gripper_joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <xacro:if value="$(arg gazebo)">
+      <!-- PGC_140_50夹爪的mimic关节接口 -->
+      <joint name="${prefix}finger2_joint">
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+    </xacro:if>
+  </xacro:macro>
+
+</robot>

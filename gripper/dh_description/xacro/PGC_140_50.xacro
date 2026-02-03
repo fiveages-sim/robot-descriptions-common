@@ -1,0 +1,107 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+	<xacro:arg name="collider" default="convex"/>
+	<xacro:property name="collider_type" value="$(arg collider)"/>
+
+	<xacro:macro name="PGC_140_50" params="name pad:=default">
+		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+
+		<!-- 根据pad参数选择配置 -->
+		<!-- 默认值 -->
+		<xacro:property name="mesh_dir" value="PGC_140_50"/>
+		<xacro:property name="base_collision_file" value="base_link.stl"/>
+		
+		<!-- 如果是dexforce配置，覆盖默认值 -->
+		<xacro:if value="${pad == 'dexforce'}">
+			<xacro:property name="mesh_dir" value="PGC_140_50/dexforce"/>
+			<xacro:property name="base_collision_file" value="base_link_acd.obj"/>
+		</xacro:if>
+
+		<link name="${prefix}gripper_base">
+			<inertial>
+				<origin xyz="-3.9257E-06 -0.00027208 0.037806"/>
+				<mass value="0.34365"/>
+				<inertia ixx="0.00036805" ixy="-7.2868E-08" ixz="-5.0168E-08" iyy="0.0003341" iyz="-2.6462E-06"
+								 izz="0.00022294"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find dh_description)/meshes/${mesh_dir}/visual/base_link.glb"/>
+				</geometry>
+			</visual>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find dh_description)/meshes/${mesh_dir}/collision/${base_collision_file}"/>
+					</geometry>
+				</collision>
+			</xacro:if>
+		</link>
+
+		<link name="${prefix}finger1_link">
+			<inertial>
+				<origin xyz="0.0030491 -0.0066024 0.0064209"/>
+				<mass value="0.014278"/>
+				<inertia ixx="1.7567E-06" ixy="-5.7832E-08" ixz="2.6803E-08" iyy="2.3034E-06" iyz="2.2145E-07"
+								 izz="1.3354E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find dh_description)/meshes/${mesh_dir}/visual/finger.glb"/>
+				</geometry>
+			</visual>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find dh_description)/meshes/${mesh_dir}/collision/finger.obj"/>
+					</geometry>
+				</collision>
+			</xacro:if>
+		</link>
+
+		<joint name="${prefix}gripper_joint" type="prismatic">
+			<origin xyz="0.0132 0.0015 0.093" rpy="0 0 -1.5708"/>
+			<parent link="${prefix}gripper_base"/>
+			<child link="${prefix}finger1_link"/>
+			<axis xyz="-1 0 0"/>
+			<limit lower="0" upper="0.025" effort="140" velocity="1"/>
+		</joint>
+
+		<link name="${prefix}finger2_link">
+			<inertial>
+				<origin xyz="0.0030491 -0.0066024 0.0064209"/>
+				<mass value="0.014278"/>
+				<inertia ixx="1.7567E-06" ixy="-5.7832E-08" ixz="2.6803E-08" iyy="2.3034E-06" iyz="2.2145E-07"
+								 izz="1.3354E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find dh_description)/meshes/${mesh_dir}/visual/finger.glb"/>
+				</geometry>
+			</visual>
+			<xacro:if value="${collider_type == 'convex'}">
+				<collision>
+					<geometry>
+						<mesh filename="file://$(find dh_description)/meshes/${mesh_dir}/collision/finger.obj"/>
+					</geometry>
+				</collision>
+			</xacro:if>
+		</link>
+
+		<joint name="${prefix}finger2_joint" type="prismatic">
+			<origin xyz="-0.0132 -0.0015 0.093" rpy="0 0 1.5708"/>
+			<parent link="${prefix}gripper_base"/>
+			<child link="${prefix}finger2_link"/>
+			<axis xyz="-1 0 0"/>
+			<limit lower="0" upper="0.025" effort="140" velocity="1"/>
+			<mimic joint="${prefix}gripper_joint" multiplier="1" offset="0"/>
+		</joint>
+
+		<link name="${prefix}eef"/>
+		<joint name="${prefix}eef_joint" type="fixed">
+			<parent link="${prefix}gripper_base"/>
+			<child link="${prefix}eef"/>
+			<origin xyz="0 0 0.15"/>
+		</joint>
+	</xacro:macro>
+</robot>

@@ -71,7 +71,7 @@
 			</collision>
 		</link>
 
-		<joint name="${prefix}thumb_joint1" type="${joint_type}">
+		<joint name="${prefix}thumb_joint2" type="${joint_type}">
 			<origin xyz="${direction == 1 and 0.0045 or 0.005619} ${direction == 1 and -0.019 or 0.019867} 0.027825"
 				  rpy="${1.5708 - direction * 1.5708} 0 ${direction == 1 and 0.16787 or 2.9637}"/>
 			<parent link="${prefix}hand_base"/>
@@ -101,7 +101,7 @@
 			</collision>
 		</link>
 
-		<joint name="${prefix}thumb_joint2" type="${joint_type}">
+		<joint name="${prefix}thumb_joint1" type="${joint_type}">
 			<origin xyz="0 ${direction*-0.014227} 0"
 				  rpy="${direction == 1 and 0.17488 or -2.9667} -0.23736 2.9737"/>
 			<parent link="${prefix}thumb_metacarpal_Link"/>
@@ -141,7 +141,7 @@
 			<xacro:unless value="${fixed_joints}">
 				<axis xyz="1 0 0"/>
 				<limit lower="0" upper="1.0472" effort="1.1" velocity="2.5303"/>
-				<mimic joint="${prefix}thumb_joint2" multiplier="1" offset="0"/>
+				<mimic joint="${prefix}thumb_joint1" multiplier="1" offset="0"/>
 			</xacro:unless>
 		</joint>
 

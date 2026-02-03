@@ -16,6 +16,7 @@ colcon build --packages-up-to dh_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch gripper.launch.py gripper:=dh type:=PGC_140_50
   ```
+  ![pgc140](../.images/dh_pgc_140.png)
 
 * PGC_140_50 Gripper (dexforce pad)
   ```bash

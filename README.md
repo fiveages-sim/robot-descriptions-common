@@ -15,6 +15,7 @@ Located in `gripper/` directory:
 | Brand                                | Models               | Repaint | Images                                                                                                                                                                                                              |
 |--------------------------------------|----------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [ChangingTek](gripper/changingtek_description) | AG2F90-C<br>AG2F120S | Yes     | <img src="gripper/.images/tek_ag2f90c.png" width="150"> <img src="gripper/.images/tek_ag2f120s.png" width="150">                                                                                                   |
+| [DH](gripper/dh_description)                  | PGC_140_50           | Yes     | <img src="gripper/.images/dh_pgc_140.png" width="150">                                                                                                                                                             |
 | [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                                                                                                                              |
 | [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                                                                                                                             |
 | [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">                                                                                                                                                             |
@@ -31,7 +32,7 @@ Located in `dexhands/` directory:
 
 | Brand                                      | Model        | Repaint | Images                                                                                                                                                                                                              |
 |--------------------------------------------|--------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [BrainCo](dexhands/brainco_description)    | REVO2        | Yes     | <img src="dexhands/.images/brainco_revo2_left.png" width="150"> <img src="dexhands/.images/brainco_revo2_right.png" width="150">                                                                                   |
+| [BrainCo](dexhands/brainco_description)    | REVO1<br>REVO2        | Yes     | <img src="dexhands/.images/brainco_revo1.png" width="150"> <img src="dexhands/.images/brainco_revo2_left.png" width="150"> <img src="dexhands/.images/brainco_revo2_right.png" width="150">                                                                                   |
 | [LinkerHand](dexhands/linkerhand_description) | O6<br>O7<br>L6     | Yes     | <img src="dexhands/.images/linkerhand_o6.png" width="150"> <img src="dexhands/.images/linkerhand_o7.png" width="150"> <img src="dexhands/.images/linkerhand_l6.png" width="150">                                                                                             |
 | [OyMotion](dexhands/oymotion_description)  | RoHand Gen2  | Yes     | <img src="dexhands/.images/rohand_gen2.png" width="150">                                                                                                                                                           |
 
@@ -126,6 +127,7 @@ common/
 │   └── oymotion_description/
 ├── gripper/               # Gripper descriptions
 │   ├── changingtek_description/
+│   ├── dh_description/
 │   ├── inspire_description/
 │   ├── jodell_description/
 │   └── robotiq_description/

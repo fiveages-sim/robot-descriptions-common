@@ -42,6 +42,7 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=o6 direction:=-1
   ```
+
 ### 2.3 L6 DexHands
 * Left Hand
   ```bash
@@ -58,6 +59,21 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=l6 direction:=-1
   ```
 
+### 2.4 L10 DexHands
+* Left Hand
+  ```bash
+  # left hand
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=l10
+  ```
+  ![linkerhand l10](../.images/linkerhand_l10.png)
+
+* Right Hand
+  ```bash
+  # right hand
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch hand.launch.py hand:=linkerhand type:=l10 direction:=-1
+  ```
 
 ## 3. ROS2 Control Demo
 
@@ -95,6 +111,18 @@ colcon build --packages-up-to linkerhand_description --symlink-install
   ```bash
   source ~/ros2_ws/install/setup.bash
   ros2 launch basic_joint_controller hand.launch.py type:=l6 direction:=-1
+  ```
+
+### 3.4 L10 DexHands
+* Left Hand
+  ```bash
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch basic_joint_controller hand.launch.py type:=l10
+  ```
+* Right Hand
+  ```bash
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch basic_joint_controller hand.launch.py type:=l10 direction:=-1
   ```
 
 ## 4. Real Hardware with Modbus ROS2 Control

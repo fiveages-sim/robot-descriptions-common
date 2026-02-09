@@ -78,16 +78,14 @@
 								 izz="${direction == 1 and 7.37573294246133E-07 or 2.85304047365918E-06}"/>
 			</inertial>
 			<visual>
-
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/o7/thumb_metacarpals_base2.glb"
+					<mesh filename="file://$(find linkerhand_description)/meshes/o7/thumb_metacarpals_base1.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
-
 				<geometry>
-					<mesh filename="file://$(find linkerhand_description)/meshes/o7/thumb_metacarpals_base2.glb"
+					<mesh filename="file://$(find linkerhand_description)/meshes/o7/thumb_metacarpals_base1.glb"
 								scale="1 ${direction} 1"/>
 				</geometry>
 			</collision>

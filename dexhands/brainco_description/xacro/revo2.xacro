@@ -159,15 +159,11 @@
 			</inertial>
 		</link>
 
-		<joint name="${prefix}thumb_tip_joint" type="${joint_type}">
+		<joint name="${prefix}thumb_tip_joint" type="fixed">
 			<origin xyz="0 0.026528781163583 -0.00177344281307927"
 				  rpy="${direction == 1 and 0.0667504507189052 or -0.06675} 0 ${direction == 1 and 3.14159265358979 or 0}"/>
 			<parent link="${prefix}thumb_distal_Link"/>
 			<child link="${prefix}thumb_tip_Link"/>
-			<xacro:unless value="${fixed_joints}">
-				<axis xyz="-1 0 0"/>
-				<limit lower="0" upper="0" effort="0" velocity="0"/>
-			</xacro:unless>
 		</joint>
 
 		<!-- ========================================== -->
@@ -265,14 +261,10 @@
 			</inertial>
 		</link>
 
-		<joint name="${prefix}index_tip_joint" type="${joint_type}">
+		<joint name="${prefix}index_tip_joint" type="fixed">
 			<origin xyz="0.011097 0 0.035739" rpy="0 0.48723 0"/>
 			<parent link="${prefix}index_distal_Link"/>
 			<child link="${prefix}index_tip_Link"/>
-			<xacro:unless value="${fixed_joints}">
-				<axis xyz="0 1 0"/>
-				<limit lower="1" upper="1" effort="1" velocity="1"/>
-			</xacro:unless>
 		</joint>
 
 		<!-- ========================================== -->
@@ -370,14 +362,10 @@
 			</inertial>
 		</link>
 
-		<joint name="${prefix}middle_tip_joint" type="${joint_type}">
+		<joint name="${prefix}middle_tip_joint" type="fixed">
 			<origin xyz="0.0073534 0 0.041703" rpy="0 0.34907 0"/>
 			<parent link="${prefix}middle_distal_Link"/>
 			<child link="${prefix}middle_tip_Link"/>
-			<xacro:unless value="${fixed_joints}">
-				<axis xyz="0 1 0"/>
-				<limit lower="1" upper="1" effort="1" velocity="1"/>
-			</xacro:unless>
 		</joint>
 
 		<!-- ========================================== -->
@@ -480,14 +468,10 @@
 			</inertial>
 		</link>
 
-		<joint name="${prefix}ring_tip_joint" type="${joint_type}">
+		<joint name="${prefix}ring_tip_joint" type="fixed">
 			<origin xyz="0.0071824 0 0.040734" rpy="0 0.34907 0"/>
 			<parent link="${prefix}ring_distal_Link"/>
 			<child link="${prefix}ring_tip_Link"/>
-			<xacro:unless value="${fixed_joints}">
-				<axis xyz="0 1 0"/>
-				<limit lower="1" upper="1" effort="1" velocity="1"/>
-			</xacro:unless>
 		</joint>
 
 		<!-- ========================================== -->
@@ -585,14 +569,10 @@
 			</inertial>
 		</link>
 
-		<joint name="${prefix}pinky_tip_joint" type="${joint_type}">
+		<joint name="${prefix}pinky_tip_joint" type="fixed">
 			<origin xyz="0.010221 0 0.032918" rpy="0 0.4756 0"/>
 			<parent link="${prefix}pinky_distal_Link"/>
 			<child link="${prefix}pinky_tip_Link"/>
-			<xacro:unless value="${fixed_joints}">
-				<axis xyz="0 1 0"/>
-				<limit lower="1" upper="1" effort="1" velocity="1"/>
-			</xacro:unless>
 		</joint>
 
 	</xacro:macro>

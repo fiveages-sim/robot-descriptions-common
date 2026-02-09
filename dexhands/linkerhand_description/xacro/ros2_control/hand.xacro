@@ -43,7 +43,7 @@
             </xacro:if>
         </hardware>
 
-        <!-- Support type: o7, o6, l6 -->
+        <!-- Support type: o7, o6, l6, l10 -->
         <xacro:if value="${'$(arg type)' == 'o7'}">
             <xacro:include filename="$(find linkerhand_description)/xacro/ros2_control/o7.xacro"/>
             <xacro:linkerhand_o7_interfaces name=""/>
@@ -51,6 +51,10 @@
         <xacro:if value="${'$(arg type)' == 'o6' or '$(arg type)' == 'l6'}">
             <xacro:include filename="$(find linkerhand_description)/xacro/ros2_control/o6.xacro"/>
             <xacro:linkerhand_o6_interfaces name=""/>
+        </xacro:if>
+        <xacro:if value="${'$(arg type)' == 'l10'}">
+            <xacro:include filename="$(find linkerhand_description)/xacro/ros2_control/l10.xacro"/>
+            <xacro:linkerhand_l10_interfaces name=""/>
         </xacro:if>
     </ros2_control>
 

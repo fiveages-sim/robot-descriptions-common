@@ -5,6 +5,32 @@
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
 
+		<xacro:if value="${use_flange}">
+			<link name="${prefix}flange">
+				<inertial>
+					<origin xyz="-0.000388 0.002345 0.0"/>
+					<mass value="0.114"/>
+					<inertia
+							ixx="0.000040105"
+							ixy="0.000000214"
+							ixz="0.0"
+							iyy="0.000085776"
+							iyz="0.0"
+							izz="0.000054044"/>
+				</inertial>
+				<visual>
+					<geometry>
+						<mesh filename="file://$(find linkerhand_description)/meshes/o7/flange.glb"/>
+					</geometry>
+				</visual>
+			</link>
+			<joint name="${prefix}flange_joint" type="fixed">
+				<origin xyz="0 0 0.022"/>
+				<parent link="${prefix}flange"/>
+				<child link="${prefix}hand_base"/>
+			</joint>
+		</xacro:if>
+
 		<!-- ========================================== -->
 		<!-- 手掌基座 (Hand Base) -->
 		<!-- ========================================== -->

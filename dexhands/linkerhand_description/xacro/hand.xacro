@@ -23,7 +23,7 @@
 
 	<xacro:if value="${'$(arg type)' == 'l10'}">
 		<xacro:include filename="$(find linkerhand_description)/xacro/l10.xacro"/>
-		<xacro:LinkerHandL10 name="" direction="$(arg direction)"/>
+		<xacro:LinkerHandL10 name="" direction="$(arg direction)" use_flange="true"/>
 	</xacro:if>
 
 

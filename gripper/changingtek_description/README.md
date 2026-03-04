@@ -18,6 +18,10 @@ colcon build --packages-up-to changingtek_description --symlink-install
   ```
   ```bash
   source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch gripper.launch.py gripper:=changingtek type:=AG2F90
+  ```
+  ```bash
+  source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch gripper.launch.py gripper:=changingtek type:=AG2F90-C-Soft
   ```
 

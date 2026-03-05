@@ -3,7 +3,7 @@
     <xacro:arg name="collider" default="convex"/>
     <xacro:property name="collider_type" value="$(arg collider)"/>
     
-    <xacro:macro name="RG75-300" params="name use_flange:=false pad:=fiveages">
+    <xacro:macro name="RG75-300" params="name use_flange:=false pad:=default">
         <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
         <xacro:property name="PI" value="3.1415926535897931"/>
         <xacro:property name="is_heavy_carry" value="${pad == 'heavy carry' or pad == 'heavy_carry'}"/>
@@ -152,7 +152,7 @@
             </joint>
         </xacro:if>
 
-        <xacro:if value="${pad == 'fiveages'}">
+        <xacro:if value="${pad == 'default'}">
             <link name="${prefix}left_finger_pad">
                 <inertial>
                     <origin xyz="0.000284583617113476 -0.00740966548408983 0.0204352405718595"/>

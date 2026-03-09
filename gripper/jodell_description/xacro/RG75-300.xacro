@@ -3,10 +3,10 @@
     <xacro:arg name="collider" default="convex"/>
     <xacro:property name="collider_type" value="$(arg collider)"/>
     
-    <xacro:macro name="RG75-300" params="name use_flange:=false pad:=fiveages">
+    <xacro:macro name="RG75-300" params="name use_flange:=false pad:=default">
         <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
         <xacro:property name="PI" value="3.1415926535897931"/>
-
+        <xacro:property name="use_default_support" value="${pad == 'default' or pad == 'leapmotor' or pad == 'none'}"/>
 
         <link name="${prefix}gripper_base">
             <inertial>
@@ -84,12 +84,12 @@
                     <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb"/>
                 </geometry>
             </visual>
-            <xacro:if value="${collider_type == 'convex'}">
-                <collision>
+            <xacro:if value="${use_default_support}">
+                <visual>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/finger_support.glb"/>
                     </geometry>
-                </collision>
+                </visual>
             </xacro:if>
         </link>
 
@@ -115,15 +115,17 @@
             </inertial>
             <visual>
                 <geometry>
-                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb" scale="-1 -1 1"/>
+                    <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb"/>
                 </geometry>
+                <origin rpy="0 0 ${PI}"/>
             </visual>
-            <xacro:if value="${collider_type == 'convex'}">
-                <collision>
+            <xacro:if value="${use_default_support}">
+                <visual>
                     <geometry>
-                        <mesh filename="file://$(find jodell_description)/meshes/RG75/finger.glb" scale="-1 -1 1"/>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/finger_support.glb"/>
                     </geometry>
-                </collision>
+                    <origin rpy="0 0 ${PI}"/>
+                </visual>
             </xacro:if>
         </link>
 
@@ -136,7 +138,21 @@
             <mimic joint="${prefix}gripper_joint" multiplier="1" offset="0"/>
         </joint>
 
-        <xacro:if value="${pad == 'fiveages'}">
+        <xacro:if value="${use_default_support}">
+            <joint name="${prefix}left_finger_pad_joint" type="fixed">
+                <origin xyz="-0.014785 0.011478 0.0315"/>
+                <parent link="${prefix}left_finger"/>
+                <child link="${prefix}left_finger_pad"/>
+            </joint>
+
+            <joint name="${prefix}right_finger_pad_joint" type="fixed">
+                <origin xyz="0.014785 -0.011478 0.0315"/>
+                <parent link="${prefix}right_finger"/>
+                <child link="${prefix}right_finger_pad"/>
+            </joint>
+        </xacro:if>
+
+        <xacro:if value="${pad == 'default'}">
             <link name="${prefix}left_finger_pad">
                 <inertial>
                     <origin xyz="0.000284583617113476 -0.00740966548408983 0.0204352405718595"/>
@@ -162,12 +178,6 @@
                     </collision>
                 </xacro:if>
             </link>
-
-            <joint name="${prefix}left_finger_pad_joint" type="fixed">
-                <origin xyz="-0.014715 0.011478 0.0315"/>
-                <parent link="${prefix}left_finger"/>
-                <child link="${prefix}left_finger_pad"/>
-            </joint>
 
             <link name="${prefix}right_finger_pad">
                 <inertial>
@@ -196,12 +206,6 @@
                     </collision>
                 </xacro:if>
             </link>
-
-            <joint name="${prefix}right_finger_pad_joint" type="fixed">
-                <origin xyz="0.014785 -0.011478 0.03175"/>
-                <parent link="${prefix}right_finger"/>
-                <child link="${prefix}right_finger_pad"/>
-            </joint>
 
             <link name="${prefix}eef"/>
             <joint name="${prefix}eef_joint" type="fixed">
@@ -238,12 +242,6 @@
                 </xacro:if>
             </link>
 
-            <joint name="${prefix}left_finger_pad_joint" type="fixed">
-                <origin xyz="-0.02225 0.01245 0.0607500000000101"/>
-                <parent link="${prefix}left_finger"/>
-                <child link="${prefix}left_finger_pad"/>
-            </joint>
-
             <link name="${prefix}right_finger_pad">
                 <inertial>
                     <origin xyz="-0.0273648226249448 0.0115580703720554 0.131965151776598"/>
@@ -272,8 +270,79 @@
                 </xacro:if>
             </link>
 
+            <link name="${prefix}eef"/>
+            <joint name="${prefix}eef_joint" type="fixed">
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}eef"/>
+                <origin xyz="-0.2 0 0.42525" rpy="0 ${PI/2} ${PI}"/>
+            </joint>
+        </xacro:if>
+
+        <xacro:if value="${pad == 'none'}">
+            <link name="${prefix}left_finger_pad"/>
+            <link name="${prefix}right_finger_pad"/>
+        </xacro:if>
+
+        <xacro:if value="${pad == 'heavy_carry'}">
+            <link name="${prefix}left_finger_pad">
+                <inertial>
+                    <origin xyz="-0.0273621671052904 -0.0115571775561825 0.131965151776638"/>
+                    <mass value="0.971848511966183"/>
+                    <inertia
+                            ixx="0.00567329523505055"
+                            ixy="-1.46176859453297E-08"
+                            ixz="0.00209826432464484"
+                            iyy="0.00798991806803702"
+                            iyz="-1.72430069472743E-06"
+                            izz="0.00233523656275322"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/heavy_carry/${name}/left.glb"/>
+                    </geometry>
+                </visual>
+                <xacro:if value="${collider_type == 'convex'}">
+                    <collision>
+                        <geometry>
+                            <mesh filename="file://$(find jodell_description)/meshes/RG75/heavy_carry/${name}/left.glb"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
+            </link>
+
+            <joint name="${prefix}left_finger_pad_joint" type="fixed">
+                <origin xyz="0.01475 0.043263 0.13525"/>
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}left_finger_pad"/>
+            </joint>
+
+            <link name="${prefix}right_finger_pad">
+                <inertial>
+                    <origin xyz="-0.0273648226249448 0.0115580703720554 0.131965151776598"/>
+                    <mass value="0.971848511966211"/>
+                    <inertia
+                            ixx="0.00567329523505061"
+                            ixy="-1.46176859456687E-08"
+                            ixz="0.00209826432464498"
+                            iyy="0.00798991806803724"
+                            iyz="1.87585284859872E-06"
+                            izz="0.0023352365627534"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/heavy_carry/${name}/right.glb"/>
+                    </geometry>
+                </visual>
+                <xacro:if value="${collider_type == 'convex'}">
+                    <collision>
+                        <geometry>
+                            <mesh filename="file://$(find jodell_description)/meshes/RG75/heavy_carry/${name}/right.glb"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
+            </link>
+
             <joint name="${prefix}right_finger_pad_joint" type="fixed">
-                <origin xyz="0.00724999999998532 -0.01245 0.0607500000000101"/>
                 <parent link="${prefix}right_finger"/>
                 <child link="${prefix}right_finger_pad"/>
             </joint>
@@ -282,7 +351,101 @@
             <joint name="${prefix}eef_joint" type="fixed">
                 <parent link="${prefix}gripper_base"/>
                 <child link="${prefix}eef"/>
-                <origin xyz="-0.2 0 0.42525" rpy="0 ${PI/2} ${PI}"/>
+                <xacro:if value="${name == 'left'}">
+                    <origin xyz="0.06 0.07 0.16" rpy="${PI*17/9} 0 0"/>
+                </xacro:if>
+                <xacro:if value="${name == 'right'}">
+                    <origin xyz="-0.06 0.07 0.16" rpy="${PI*17/9} 0 0"/>
+                </xacro:if>
+            </joint>
+        </xacro:if>
+
+        <xacro:if value="${pad == 'ptc'}">
+            <link name="${prefix}left_finger_pad">
+                <inertial>
+                    <origin xyz="-0.0273621671052904 -0.0115571775561825 0.131965151776638"/>
+                    <mass value="0.971848511966183"/>
+                    <inertia
+                        ixx="0.00567329523505055"
+                        ixy="-1.46176859453297E-08"
+                        ixz="0.00209826432464484"
+                        iyy="0.00798991806803702"
+                        iyz="-1.72430069472743E-06"
+                        izz="0.00233523656275322"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/ptc/finger_support.glb"/>
+                    </geometry>
+                </visual>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/ptc/pad.glb"/>
+                    </geometry>
+                </visual>
+                <xacro:if value="${collider_type == 'convex'}">
+                    <collision>
+                        <geometry>
+                            <mesh filename="file://$(find jodell_description)/meshes/RG75/ptc/finger_support.glb"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
+            </link>
+
+            <joint name="${prefix}left_finger_pad_joint" type="fixed">
+                <parent link="${prefix}left_finger"/>
+                <child link="${prefix}left_finger_pad"/>
+            </joint>
+
+            <link name="${prefix}right_finger_pad">
+                <inertial>
+                    <origin xyz="-0.0273648226249448 0.0115580703720554 0.131965151776598"/>
+                    <mass value="0.971848511966211"/>
+                    <inertia
+                        ixx="0.00567329523505061"
+                        ixy="-1.46176859456687E-08"
+                        ixz="0.00209826432464498"
+                        iyy="0.00798991806803724"
+                        iyz="1.87585284859872E-06"
+                        izz="0.0023352365627534"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/ptc/finger_support.glb"/>
+                    </geometry>
+                    <origin rpy="0 0 ${PI}"/>
+                </visual>
+                <visual>
+                    <geometry>
+                        <mesh filename="file://$(find jodell_description)/meshes/RG75/ptc/pad.glb" scale="-1 1 1"/>
+                    </geometry>
+                    <origin rpy="0 0 ${PI}" xyz="0.0295 0 0"/>
+                </visual>
+                <xacro:if value="${collider_type == 'convex'}">
+                    <collision>
+                        <geometry>
+                            <mesh filename="file://$(find jodell_description)/meshes/RG75/ptc/finger_support.glb"/>
+                        </geometry>
+                        <origin rpy="0 0 ${PI}"/>
+                    </collision>
+                </xacro:if>
+            </link>
+
+            <joint name="${prefix}right_finger_pad_joint" type="fixed">
+                <parent link="${prefix}right_finger"/>
+                <child link="${prefix}right_finger_pad"/>
+            </joint>
+
+            <link name="${prefix}eef"/>
+            <joint name="${prefix}eef_joint" type="fixed">
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}eef"/>
+                <xacro:if value="${name == 'left'}">
+                    <origin xyz="0.06 0.07 0.16" rpy="${PI*17/9} 0 0"/>
+                </xacro:if>
+                <xacro:if value="${name == 'right'}">
+                    <origin xyz="-0.06 0.07 0.16" rpy="${PI*17/9} 0 0"/>
+                </xacro:if>
             </joint>
         </xacro:if>
 

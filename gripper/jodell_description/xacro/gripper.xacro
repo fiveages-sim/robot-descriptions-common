@@ -6,12 +6,38 @@
     <!-- 根据type参数决定使用哪种夹爪 -->
     <xacro:if value="${'$(arg type)' == 'RG75'}">
         <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
-        <xacro:RG75-300 name="" use_flange="true"/>
+        <xacro:RG75-300 name="" use_flange="true" pad="none"/>
     </xacro:if>
 
     <xacro:if value="${'$(arg type)' == 'RG75-leapmotor'}">
         <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
         <xacro:RG75-300 name="" pad="leapmotor"/>
     </xacro:if>
+
+    <xacro:if value="${'$(arg type)' == 'heavy_carry_left'}">
+        <link name="gripper_base"/>
+        <joint name="base_joint" type="fixed">
+            <parent link="gripper_base"/>
+            <child link="left_gripper_base"/>
+        </joint>
+        <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
+        <xacro:RG75-300 name="left" pad="heavy_carry"/>
+    </xacro:if>
+
+    <xacro:if value="${'$(arg type)' == 'heavy_carry_right'}">
+        <link name="gripper_base"/>
+        <joint name="base_joint" type="fixed">
+            <parent link="gripper_base"/>
+            <child link="right_gripper_base"/>
+        </joint>
+        <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
+        <xacro:RG75-300 name="right" pad="heavy_carry"/>
+    </xacro:if>
+
+    <xacro:if value="${'$(arg type)' == 'RG75-ptc'}">
+        <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
+        <xacro:RG75-300 name="" pad="ptc"/>
+    </xacro:if>
+
 </robot>
 

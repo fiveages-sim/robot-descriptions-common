@@ -433,7 +433,13 @@ def parse_task_info(task_file_path):
         if base_frame_match:
             control_base_frame = base_frame_match.group(1)
             print(f"[INFO] Detected base frame: {control_base_frame}")
-        
+
+        # 轮式底盘模式（manipulatorModelType=1）下，OCS2目标和EE均在world坐标系下
+        model_type_match = re.search(r'manipulatorModelType\s+(\d+)', content)
+        if model_type_match and int(model_type_match.group(1)) == 1:
+            control_base_frame = "world"
+            print(f"[INFO] Wheel-based mode detected, overriding control_base_frame to 'world'")
+
         print(f"[INFO] Parsed task file - dual_arm_mode: {dual_arm_mode}, control_base_frame: {control_base_frame}")
         
     except Exception as e:

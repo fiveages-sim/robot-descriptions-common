@@ -9,6 +9,11 @@
     <xacro:AG2F90-C name=""/>
   </xacro:if>
 
+  <xacro:if value="${'$(arg type)' == 'AG2F90'}">
+    <xacro:include filename="$(find changingtek_description)/xacro/AG2F90-C.xacro"/>
+    <xacro:AG2F90-C name="" pad="none" use_flange="true"/>
+  </xacro:if>
+
   <xacro:if value="${'$(arg type)' == 'AG2F90-C-Soft'}">
     <xacro:include filename="$(find changingtek_description)/xacro/AG2F90-C.xacro"/>
     <xacro:AG2F90-C name="" pad="soft"/>

@@ -4,8 +4,8 @@ project(inspire_description)
 find_package(ament_cmake REQUIRED)
 
 install(
-		DIRECTORY meshes xacro
-		DESTINATION share/${PROJECT_NAME}/
+    DIRECTORY meshes xacro config
+    DESTINATION share/${PROJECT_NAME}/
 )
 
 ament_package()

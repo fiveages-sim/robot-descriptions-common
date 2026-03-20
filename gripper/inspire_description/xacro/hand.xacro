@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="InspireHand_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="name" default=""/>
+  <xacro:arg name="type" default="RH56E2"/>
+  <xacro:arg name="direction" default="1"/>
+
+  <xacro:if value="${'$(arg type)' == 'RH56E2'}">
+    <xacro:include filename="$(find inspire_description)/xacro/hands/RH56E2.xacro"/>
+    <xacro:InspireHandRH56E2 name="$(arg name)" direction="$(arg direction)" use_flange="true"/>
+  </xacro:if>
+
+</robot>

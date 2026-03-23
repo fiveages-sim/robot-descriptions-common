@@ -28,12 +28,13 @@ Each gripper package includes:
 
 ### Dexterous Hands
 
-Located in `dexhands/` directory:
+Mainly located in `dexhands/` directory (Inspire RH56E2 is provided by `gripper/inspire_description`):
 
 | Brand                                      | Model                 | Repaint | Images                                                                                                                                                                                                                                       |
 |--------------------------------------------|-----------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [BrainCo](dexhands/brainco_description)    | REVO1<br>REVO2        | Yes     | <img src="dexhands/.images/brainco_revo1.png" width="150"> <img src="dexhands/.images/brainco_revo2_left.png" width="150"> <img src="dexhands/.images/brainco_revo2_right.png" width="150">                                                  |
 | [LinkerHand](dexhands/linkerhand_description) | O6<br>O7<br>L6<br>L10 | Yes     | <img src="dexhands/.images/linkerhand_o6.png" width="150"> <img src="dexhands/.images/linkerhand_o7.png" width="150"> <img src="dexhands/.images/linkerhand_l6.png" width="150"> <img src="dexhands/.images/linkerhand_l10.png" width="150"> |
+| [Inspire](gripper/inspire_description)     | RH56E2                | Yes     | <img src="dexhands/.images/inspire_rh56e2.png" width="150">                                                                                                                                                                                 |
 | [OyMotion](dexhands/oymotion_description)  | RoHand Gen2           | Yes     | <img src="dexhands/.images/rohand_gen2.png" width="150">                                                                                                                                                                                     |
 
 Features:

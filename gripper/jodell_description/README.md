@@ -40,3 +40,9 @@ colcon build --packages-up-to jodell_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch gripper.launch.py gripper:=jodell type:=heavy_carry_right
   ```
+
+* Ptc pad
+  ```bash
+  source ~/ros2_ws/install/setup.bash
+  ros2 launch robot_common_launch gripper.launch.py gripper:=jodell type:=RG75-ptc
+  ```

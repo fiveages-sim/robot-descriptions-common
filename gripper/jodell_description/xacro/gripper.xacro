@@ -33,5 +33,11 @@
         <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
         <xacro:RG75-300 name="right" pad="heavy_carry"/>
     </xacro:if>
+
+    <xacro:if value="${'$(arg type)' == 'RG75-ptc'}">
+        <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
+        <xacro:RG75-300 name="" pad="ptc"/>
+    </xacro:if>
+
 </robot>
 

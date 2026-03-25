@@ -397,37 +397,39 @@ def parse_task_info(task_file_path):
         task_file_path (str): task.info 文件路径
         
     Returns:
-        tuple: (dual_arm_mode, control_base_frame)
+        tuple: (dual_arm_mode, control_base_frame, marker_fixed_frame)
             - dual_arm_mode (bool): 是否为双臂模式
             - control_base_frame (str): 控制基坐标系ID
-            
+            - marker_fixed_frame (str or None): marker固定坐标系，None表示由target_manager.yaml决定
+
     Example:
-        >>> dual_arm, frame = parse_task_info('/path/to/task.info')
-        >>> print(f"Dual arm: {dual_arm}, Frame: {frame}")
+        >>> dual_arm, frame, marker_frame = parse_task_info('/path/to/task.info')
+        >>> print(f"Dual arm: {dual_arm}, Frame: {frame}, Marker frame: {marker_frame}")
     """
     dual_arm_mode = False
     control_base_frame = "world"
-    
+    marker_fixed_frame = None
+
     if not os.path.exists(task_file_path):
         print(f"[WARN] Task file not found: {task_file_path}")
-        return dual_arm_mode, control_base_frame
-    
+        return dual_arm_mode, control_base_frame, marker_fixed_frame
+
     try:
         with open(task_file_path, 'r') as file:
             content = file.read()
-        
+
         # 检查是否有 dualArmMode 配置
         dual_arm_match = re.search(r'dualArmMode\s+true', content)
         if dual_arm_match:
             dual_arm_mode = True
             print(f"[INFO] Detected dual arm mode from task file")
-        
+
         # 检查是否有 eeFrame1（双臂机器人的第二个末端执行器）
         ee_frame1_match = re.search(r'eeFrame1\s+"([^"]+)"', content)
         if ee_frame1_match:
             dual_arm_mode = True
             print(f"[INFO] Detected dual arm mode from eeFrame1: {ee_frame1_match.group(1)}")
-        
+
         # 提取 baseFrame
         base_frame_match = re.search(r'baseFrame\s+"([^"]+)"', content)
         if base_frame_match:
@@ -435,17 +437,19 @@ def parse_task_info(task_file_path):
             print(f"[INFO] Detected base frame: {control_base_frame}")
 
         # 轮式底盘模式（manipulatorModelType=1）下，OCS2目标和EE均在world坐标系下
+        # marker也必须锚定在world，否则底盘移动时marker跟着漂移
         model_type_match = re.search(r'manipulatorModelType\s+(\d+)', content)
         if model_type_match and int(model_type_match.group(1)) == 1:
             control_base_frame = "world"
-            print(f"[INFO] Wheel-based mode detected, overriding control_base_frame to 'world'")
+            marker_fixed_frame = "world"
+            print(f"[INFO] Wheel-based mode detected, overriding control_base_frame and marker_fixed_frame to 'world'")
 
-        print(f"[INFO] Parsed task file - dual_arm_mode: {dual_arm_mode}, control_base_frame: {control_base_frame}")
-        
+        print(f"[INFO] Parsed task file - dual_arm_mode: {dual_arm_mode}, control_base_frame: {control_base_frame}, marker_fixed_frame: {marker_fixed_frame}")
+
     except Exception as e:
         print(f"[ERROR] Failed to parse task file {task_file_path}: {e}")
-    
-    return dual_arm_mode, control_base_frame
+
+    return dual_arm_mode, control_base_frame, marker_fixed_frame
 
 
 def prepare_arms_target_manager_parameters(
@@ -486,8 +490,8 @@ def prepare_arms_target_manager_parameters(
         return []
     
     # 解析 task.info 文件
-    dual_arm_mode, control_base_frame = parse_task_info(task_file_path)
-    
+    dual_arm_mode, control_base_frame, auto_marker_fixed_frame = parse_task_info(task_file_path)
+
     # 确定配置文件路径（优先级：显式指定的config_file > task_file同目录 > 默认配置）
     config_path = None
     
@@ -531,9 +535,10 @@ def prepare_arms_target_manager_parameters(
         'control_base_frame': control_base_frame
     }
     
-    # 只有当明确提供 marker_fixed_frame 时才覆盖配置文件中的值
-    if marker_fixed_frame is not None:
-        override_params['marker_fixed_frame'] = marker_fixed_frame
+    # marker_fixed_frame 优先级：函数参数 > task.info自动检测 > target_manager.yaml
+    effective_marker_fixed_frame = marker_fixed_frame if marker_fixed_frame is not None else auto_marker_fixed_frame
+    if effective_marker_fixed_frame is not None:
+        override_params['marker_fixed_frame'] = effective_marker_fixed_frame
     
     # 添加 hand_controllers 参数（如果提供）
     if hand_controllers:

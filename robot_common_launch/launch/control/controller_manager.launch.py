@@ -71,6 +71,26 @@ def generate_launch_description():
         default_value='mock_components',
         description='Hardware type: gz for Gazebo, isaac for Isaac, mock_components for mock'
     )
+    force_control_mode_arg = DeclareLaunchArgument(
+        'force_control_mode',
+        default_value='ros2_control_controllers',
+        description='Force mode for dobot hardware: native_commands or ros2_control_controllers'
+    )
+    enable_servoj_stream_arg = DeclareLaunchArgument(
+        'enable_servoj_stream',
+        default_value='true',
+        description='Whether dobot hardware write() sends ServoJ continuously'
+    )
+    allow_servoj_with_force_drag_arg = DeclareLaunchArgument(
+        'allow_servoj_with_force_drag',
+        default_value='false',
+        description='Whether to keep ServoJ streaming while ForceDrive drag is active (experimental)'
+    )
+    enable_gripper_io_arg = DeclareLaunchArgument(
+        'enable_gripper_io',
+        default_value='true',
+        description='Whether dobot hardware enables gripper Modbus read/write'
+    )
 
     ctrl_mode_arg = DeclareLaunchArgument(
         "ctrl_mode",
@@ -85,6 +105,12 @@ def generate_launch_description():
         description='Topic remappings for ros2_control_node (format: "from1:to1;from2:to2")'
     )
 
+    ros2_control_config_file_arg = DeclareLaunchArgument(
+        'ros2_control_config_file',
+        default_value='',
+        description='Optional absolute path to ros2_control yaml. When set, overrides auto config selection.'
+    )
+
     
 
     def launch_setup(context, *args, **kwargs):
@@ -94,7 +120,12 @@ def generate_launch_description():
         world = context.launch_configurations['world']
         world_package = context.launch_configurations['world_package']
         hardware = context.launch_configurations['hardware']
+        force_control_mode = context.launch_configurations.get('force_control_mode', 'ros2_control_controllers')
+        enable_servoj_stream = context.launch_configurations.get('enable_servoj_stream', 'true')
+        allow_servoj_with_force_drag = context.launch_configurations.get('allow_servoj_with_force_drag', 'false')
+        enable_gripper_io = context.launch_configurations.get('enable_gripper_io', 'true')
         remappings_str = context.launch_configurations.get('remappings', '')
+        ros2_control_config_file = context.launch_configurations.get('ros2_control_config_file', '')
         ctrl_mode = context.launch_configurations.get('ctrl_mode', '')
         
         # 根据 hardware 参数自动判断是否使用 Gazebo
@@ -119,7 +150,15 @@ def generate_launch_description():
             print(f"[INFO] Gazebo mode enabled")
         
         # 生成 ros2_control robot_description（使用统一的函数，带缓存机制）
-        robot_description = get_ros2_control_robot_description(robot_name, robot_type, hardware)
+        robot_description = get_ros2_control_robot_description(
+            robot_name,
+            robot_type,
+            hardware,
+            force_control_mode,
+            enable_servoj_stream,
+            allow_servoj_with_force_drag,
+            enable_gripper_io,
+        )
         
         if robot_description is None:
             print(f"[ERROR] Failed to generate robot_description for '{robot_name}'")
@@ -216,7 +255,12 @@ def generate_launch_description():
             nodes.append(gz_spawn_entity)
         else:
             # ros2_control_node (仅在非Gazebo模式下)
-            ros2_controllers_config, ros2_controllers_path = load_robot_config(robot_name, "ros2_control", robot_type)
+            if ros2_control_config_file and ros2_control_config_file.strip():
+                ros2_controllers_path = ros2_control_config_file
+                ros2_controllers_config = None
+                print(f"[INFO] Using explicit ros2_control config override: {ros2_controllers_path}")
+            else:
+                ros2_controllers_config, ros2_controllers_path = load_robot_config(robot_name, "ros2_control", robot_type)
             if ros2_controllers_path is not None:
                 # 默认 remappings
                 default_remappings = [
@@ -266,7 +310,11 @@ def generate_launch_description():
                 # 1. 如果使用默认配置，传递launch参数中的robot_type
                 # 2. 如果使用type-specific配置但配置文件中没有robot_type，传递launch参数中的robot_type
                 # 3. 如果使用type-specific配置且配置文件中有robot_type，不传递launch参数（使用配置文件中的值）
-                if not is_type_specific_config:
+                if ros2_control_config_file and ros2_control_config_file.strip():
+                    if robot_type and robot_type.strip():
+                        node_parameters.append({'robot_type': robot_type})
+                        print(f"[INFO] Using launch arg robot_type '{robot_type}' (explicit config override)")
+                elif not is_type_specific_config:
                     # 使用默认配置，需要传递launch参数中的robot_type
                     if robot_type and robot_type.strip():
                         node_parameters.append({'robot_type': robot_type})
@@ -316,6 +364,11 @@ def generate_launch_description():
         world_arg,
         world_package_arg,
         hardware_arg,
+        force_control_mode_arg,
+        enable_servoj_stream_arg,
+        allow_servoj_with_force_drag_arg,
+        enable_gripper_io_arg,
         remappings_arg,
+        ros2_control_config_file_arg,
         OpaqueFunction(function=launch_setup)
     ])

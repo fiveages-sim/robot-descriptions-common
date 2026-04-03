@@ -1,7 +1,7 @@
 # robot_common_launch package
 # Common launch utilities for robots
 
-from .common.robot_utils import get_robot_package_path, load_robot_config, get_info_file_name, get_gz_bridge_config_path, get_gz_image_bridge_topics, clear_config_cache, get_ros2_control_robot_description, parse_task_info, prepare_arms_target_manager_parameters
+from .common.robot_utils import get_robot_package_path, load_robot_config, get_info_file_name, get_planning_urdf_path, get_gz_bridge_config_path, get_gz_image_bridge_topics, clear_config_cache, get_ros2_control_robot_description, parse_task_info, prepare_arms_target_manager_parameters
 from .common.controller_utils import detect_controllers, create_controller_spawners
 from .common.launch_utils import (
     process_xacro, 
@@ -19,6 +19,7 @@ __all__ = [
     'get_robot_package_path',
     'load_robot_config',
     'get_info_file_name',
+    'get_planning_urdf_path',
     'get_gz_bridge_config_path',
     'get_gz_image_bridge_topics',
     'clear_config_cache',

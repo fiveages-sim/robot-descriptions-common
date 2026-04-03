@@ -5,6 +5,7 @@ This module provides utility functions for controller detection and management.
 """
 
 import xml.etree.ElementTree as ET
+import re
 from launch_ros.actions import Node
 
 
@@ -35,6 +36,28 @@ def _extract_joints_from_urdf(robot_description):
     except Exception as e:
         print(f"[WARN] Error extracting joints from robot_description: {e}")
         return set()
+
+
+def _controller_name_matches_patterns(controller_name, patterns):
+    """
+    Match controller names by tokens instead of raw substring matching.
+
+    This avoids false positives such as matching ``hand`` inside ``handle``
+    while still supporting names like ``left_hand_controller``.
+    """
+    if not controller_name or not patterns:
+        return False
+
+    name_lower = controller_name.lower()
+    tokens = [token for token in re.split(r'[^a-z0-9]+', name_lower.replace('_', ' ')) if token]
+    token_set = set(tokens)
+
+    for pattern in patterns:
+        pattern_lower = pattern.lower()
+        if pattern_lower in token_set:
+            return True
+
+    return False
 
 
 def detect_controllers(robot_name, robot_type="", patterns=None, robot_description=None):
@@ -89,7 +112,7 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
     
     for controller_name, controller_config in controller_manager.items():
         # Check if controller name matches any pattern
-        if any(pattern.lower() in controller_name.lower() for pattern in patterns):
+        if _controller_name_matches_patterns(controller_name, patterns):
             # Extract controller type and parameters
             controller_type = controller_config.get('type', '')
             
@@ -121,7 +144,7 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
     
     # Also check for controller parameter sections
     for section_name, section_config in config.items():
-        if any(pattern.lower() in section_name.lower() for pattern in patterns):
+        if _controller_name_matches_patterns(section_name, patterns):
             # 检查是否已经在 controllers 列表中，或者已经被跳过
             if section_name in [c['name'] for c in controllers] or section_name in skipped_controllers:
                 continue

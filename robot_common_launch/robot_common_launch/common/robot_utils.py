@@ -221,6 +221,65 @@ def get_info_file_name(robot_name, robot_type="", config_type="ros2_control"):
         return 'task'
 
 
+def get_planning_urdf_path(robot_name, robot_type=""):
+    """
+    Get planning URDF file path for a robot.
+
+    Selection order:
+    1. If robot_type is provided, try progressive type candidates:
+       - {robot_name}_{candidate}.urdf
+       - {robot_name}_{candidate_with_underscores}.urdf
+    2. Fallback to {robot_name}.urdf
+    3. Fallback to the first .urdf file in the urdf directory
+
+    Args:
+        robot_name (str): Name of the robot
+        robot_type (str): Robot type/variant (optional)
+
+    Returns:
+        str or None: Planning URDF path if found, otherwise None
+    """
+    robot_pkg_path = get_robot_package_path(robot_name)
+    if robot_pkg_path is None:
+        return None
+
+    urdf_dir = os.path.join(robot_pkg_path, "urdf")
+    if not os.path.isdir(urdf_dir):
+        print(f"[WARN] URDF directory not found for robot '{robot_name}': {urdf_dir}")
+        return None
+
+    # Try type-specific URDF names first
+    if robot_type and robot_type.strip():
+        for candidate in _generate_progressive_type_candidates(robot_type):
+            names_to_try = [
+                f"{robot_name}_{candidate}.urdf",
+                f"{robot_name}_{candidate.replace('-', '_')}.urdf",
+            ]
+            for file_name in names_to_try:
+                urdf_path = os.path.join(urdf_dir, file_name)
+                if os.path.exists(urdf_path):
+                    return urdf_path
+
+    # Try canonical default name
+    default_urdf = os.path.join(urdf_dir, f"{robot_name}.urdf")
+    if os.path.exists(default_urdf):
+        return default_urdf
+
+    # Final fallback: first URDF file
+    try:
+        urdf_files = sorted(
+            f for f in os.listdir(urdf_dir)
+            if f.endswith(".urdf")
+        )
+        if urdf_files:
+            return os.path.join(urdf_dir, urdf_files[0])
+    except Exception as e:
+        print(f"[WARN] Failed to scan URDF directory for robot '{robot_name}': {e}")
+
+    print(f"[WARN] No planning URDF found for robot '{robot_name}' in {urdf_dir}")
+    return None
+
+
 def get_gz_bridge_config_path(robot_name):
     """
     Get Gazebo bridge configuration file path for a robot.
@@ -263,7 +322,15 @@ def get_gz_bridge_config_path(robot_name):
         return None
 
 
-def get_ros2_control_robot_description(robot_name, robot_type="", hardware="mock_components"):
+def get_ros2_control_robot_description(
+    robot_name,
+    robot_type="",
+    hardware="mock_components",
+    force_control_mode="",
+    enable_servoj_stream="",
+    allow_servoj_with_force_drag="",
+    enable_gripper_io="",
+):
     """
     生成 ros2_control 的 robot_description。
     
@@ -274,6 +341,10 @@ def get_ros2_control_robot_description(robot_name, robot_type="", hardware="mock
         robot_name (str): Name of the robot (e.g., 'cr5', 'arx5', etc.)
         robot_type (str): Robot type/variant (e.g., 'x5', 'r5', etc.)
         hardware (str): Hardware type (e.g., 'gz', 'mock_components', 'real', etc.)
+        force_control_mode (str): Optional xacro arg for dobot force mode
+        enable_servoj_stream (str): Optional xacro arg, true/false
+        allow_servoj_with_force_drag (str): Optional xacro arg, true/false
+        enable_gripper_io (str): Optional xacro arg, true/false
         
     Returns:
         str: URDF/XML 格式的机器人描述字符串，如果失败则返回 None
@@ -286,7 +357,7 @@ def get_ros2_control_robot_description(robot_name, robot_type="", hardware="mock
     global _robot_description_cache
     
     # 创建缓存键
-    cache_key = f"{robot_name}_{robot_type}_{hardware}"
+    cache_key = f"{robot_name}_{robot_type}_{hardware}_{force_control_mode}_{enable_servoj_stream}_{allow_servoj_with_force_drag}_{enable_gripper_io}"
     
     # 检查缓存
     if cache_key in _robot_description_cache:
@@ -314,6 +385,14 @@ def get_ros2_control_robot_description(robot_name, robot_type="", hardware="mock
         }
         if robot_type and robot_type.strip():
             mappings["type"] = robot_type
+        if force_control_mode and str(force_control_mode).strip():
+            mappings["force_control_mode"] = force_control_mode
+        if enable_servoj_stream and str(enable_servoj_stream).strip():
+            mappings["enable_servoj_stream"] = enable_servoj_stream
+        if allow_servoj_with_force_drag and str(allow_servoj_with_force_drag).strip():
+            mappings["allow_servoj_with_force_drag"] = allow_servoj_with_force_drag
+        if enable_gripper_io and str(enable_gripper_io).strip():
+            mappings["enable_gripper_io"] = enable_gripper_io
         
         # 如果是 Gazebo 模式，添加 gazebo 映射
         if hardware == 'gz':

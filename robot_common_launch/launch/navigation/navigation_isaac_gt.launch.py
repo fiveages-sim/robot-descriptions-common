@@ -99,11 +99,14 @@ def generate_launch_description():
         ),
     ])
 
+    # 必须与 Nav2 / Isaac 一致使用仿真时钟；否则 TF 用 wall time、其它节点用 /clock，
+    # 会出现 map<->odom 与代价地图/点云时间差数十秒，报 Transform too old / 点云被丢弃。
     map_to_odom_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
         name='map_to_odom_tf',
         arguments=['0', '0', '0', '0', '0', '0', 'map', 'odom'],
+        parameters=[{'use_sim_time': use_sim_time}],
         condition=IfCondition(publish_map_odom_tf),
     )
     map_to_world_tf = Node(
@@ -111,6 +114,7 @@ def generate_launch_description():
         executable='static_transform_publisher',
         name='map_to_world_tf',
         arguments=['0', '0', '0', '0', '0', '0', 'map', 'world'],
+        parameters=[{'use_sim_time': use_sim_time}],
         condition=IfCondition(publish_map_world_tf),
     )
 

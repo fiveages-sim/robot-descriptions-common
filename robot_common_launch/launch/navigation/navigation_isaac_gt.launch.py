@@ -95,6 +95,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     robot = LaunchConfiguration('robot', default='')
     params_file = LaunchConfiguration('params_file', default='')
+    nav2_profile = LaunchConfiguration('nav2_profile', default='default')
     map_arg = LaunchConfiguration('map')
     resolved_params_file = LaunchConfiguration('resolved_params_file')
     resolved_map_yaml = LaunchConfiguration('resolved_map_yaml')
@@ -107,14 +108,30 @@ def generate_launch_description():
             actions.append(SetLaunchConfiguration('resolved_params_file', user_params))
         else:
             robot_name = robot.perform(context).strip()
+            profile = nav2_profile.perform(context).strip().lower()
             chosen = default_params_yaml
             if robot_name:
                 try:
                     robot_share = get_package_share_directory(f'{robot_name}_description')
-                    robot_params = os.path.join(
-                        robot_share, 'config', 'nav2', 'nav2_params_isaac_gt.yaml')
-                    if os.path.exists(robot_params):
-                        chosen = robot_params
+                    if profile == 'map_only':
+                        map_only_params = os.path.join(
+                            robot_share, 'config', 'nav2', 'nav2_params_isaac_gt_map_only.yaml')
+                        if os.path.exists(map_only_params):
+                            chosen = map_only_params
+                        else:
+                            print(
+                                '[navigation_isaac_gt] nav2_profile=map_only but '
+                                f'{map_only_params!r} not found; falling back to nav2_params_isaac_gt.yaml.'
+                            )
+                            robot_params = os.path.join(
+                                robot_share, 'config', 'nav2', 'nav2_params_isaac_gt.yaml')
+                            if os.path.exists(robot_params):
+                                chosen = robot_params
+                    else:
+                        robot_params = os.path.join(
+                            robot_share, 'config', 'nav2', 'nav2_params_isaac_gt.yaml')
+                        if os.path.exists(robot_params):
+                            chosen = robot_params
                 except PackageNotFoundError:
                     pass
             actions.append(SetLaunchConfiguration('resolved_params_file', chosen))
@@ -208,6 +225,14 @@ def generate_launch_description():
             'params_file',
             default_value='',
             description='Optional explicit Nav2 parameter file (highest priority)'),
+        DeclareLaunchArgument(
+            'nav2_profile',
+            default_value='default',
+            description=(
+                'Nav2 preset when params_file is empty: default=nav2_params_isaac_gt.yaml; '
+                'map_only=nav2_params_isaac_gt_map_only.yaml (static map only, no point cloud) '
+                'if present under {robot}_description/config/nav2'
+            )),
         DeclareLaunchArgument(
             'robot',
             default_value='',

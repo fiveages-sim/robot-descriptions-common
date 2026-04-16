@@ -90,7 +90,9 @@ def generate_launch_description():
     def launch_setup(context, *args, **kwargs):
         robot_name = context.launch_configurations['robot']
         robot_type = context.launch_configurations['type']
-        use_sim_time = context.launch_configurations['use_sim_time'] == 'true'
+        # IncludeLaunchDescription 常传入 str(bool)，即 'True'/'False'；与字面量 'true' 比较会恒为假。
+        _use_sim_raw = context.launch_configurations['use_sim_time'].strip().lower()
+        use_sim_time = _use_sim_raw in ('true', '1', 'yes')
         world = context.launch_configurations['world']
         world_package = context.launch_configurations['world_package']
         hardware = context.launch_configurations['hardware']
@@ -141,7 +143,10 @@ def generate_launch_description():
                 {
                     'publish_frequency': 100.0,
                     'use_tf_static': True,
-                    'robot_description': robot_description
+                    'robot_description': robot_description,
+                    # 必须与 ros2_control_node / rviz2 一致，否则 joint_states 为仿真时间戳时
+                    # TF 与 RViz MessageFilter 会出现 “timestamp earlier than transform cache” 等混钟问题。
+                    'use_sim_time': use_sim_time,
                 }
             ],
         )

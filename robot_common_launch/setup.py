@@ -3,6 +3,12 @@ import os
 from glob import glob
 
 package_name = 'robot_common_launch'
+maps_files = glob('config/maps/**/*.*', recursive=True)
+maps_data_files = []
+for file_path in maps_files:
+    relative_dir = os.path.dirname(os.path.relpath(file_path, 'config/maps'))
+    install_dir = os.path.join('share', package_name, 'config/maps', relative_dir)
+    maps_data_files.append((install_dir, [file_path]))
 
 setup(
     name=package_name,
@@ -18,7 +24,7 @@ setup(
         (os.path.join('share', package_name, 'config/cartographer'), glob('config/cartographer/*.*', recursive=True)),
         (os.path.join('share', package_name, 'config/gazebo'), glob('config/gazebo/*.*', recursive=True)),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/**/*.sdf', recursive=True)),
-    ],
+    ] + maps_data_files,
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Huang Zhenbiao',

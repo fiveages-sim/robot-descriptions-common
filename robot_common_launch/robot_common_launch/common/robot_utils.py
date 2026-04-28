@@ -97,6 +97,26 @@ def _generate_progressive_type_candidates(robot_type):
     return candidates
 
 
+def _deep_merge_dicts(base, override):
+    """
+    Recursively merge dictionaries without mutating inputs.
+
+    Values from override win when both sides define the same key.
+    """
+    if not isinstance(base, dict):
+        base = {}
+    if not isinstance(override, dict):
+        return override
+
+    merged = dict(base)
+    for key, value in override.items():
+        if key in merged and isinstance(merged[key], dict) and isinstance(value, dict):
+            merged[key] = _deep_merge_dicts(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
 def load_robot_config(robot_name, config_type="ros2_control", robot_type=""):
     """
     Get robot configuration from ROS2 controller configuration file.
@@ -170,8 +190,17 @@ def load_robot_config(robot_name, config_type="ros2_control", robot_type=""):
             
         print(f"[INFO] Reading {config_type} config from: {config_path}")
         
+        common_config_path = os.path.join(config_dir, "common.yaml")
+        common_config = {}
+        if config_type == "ros2_control" and os.path.exists(common_config_path):
+            with open(common_config_path, 'r') as file:
+                common_config = yaml.safe_load(file) or {}
+            print(f"[INFO] Reading common {config_type} config from: {common_config_path}")
+
         with open(config_path, 'r') as file:
-            config = yaml.safe_load(file)
+            config = yaml.safe_load(file) or {}
+
+        config = _deep_merge_dicts(common_config, config)
         
         # 缓存结果
         result = (config, config_path)

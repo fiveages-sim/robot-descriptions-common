@@ -1,0 +1,15 @@
+# This config file is used by ros2_control
+controller_manager:
+  ros__parameters:
+    update_rate: 100
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    hand_controller:
+      type: adaptive_gripper_controller/AdaptiveGripperController
+
+hand_controller:
+  ros__parameters:
+    joint: gripper_joint
+    use_effort_interface: false

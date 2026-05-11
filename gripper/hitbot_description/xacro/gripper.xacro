@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="Hitbot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="type" default="Z-EFG-100"/>
+  <xacro:arg name="collider" default="simple"/>
+
+  <xacro:if value="${'$(arg type)' == 'Z-EFG-100'}">
+    <xacro:include filename="$(find hitbot_description)/xacro/Z-EFG-100.xacro"/>
+    <xacro:Gripper name="" collider_type="$(arg collider)"/>
+  </xacro:if>
+</robot>

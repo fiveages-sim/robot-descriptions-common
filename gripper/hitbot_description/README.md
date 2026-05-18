@@ -14,7 +14,7 @@ colcon build --packages-up-to hitbot_description --symlink-install
 * Z-EFG-100
   ```bash
   source ~/ros2_ws/install/setup.bash
-  ros2 launch robot_common_launch gripper.launch.py gripper:=hitbot type:=Z-EFG-100
+  ros2 launch robot_common_launch gripper.launch.py gripper:=hitbot
   ```
 
   ![Z-EFG-100](../.images/hitbot_z_efg_100.png)
@@ -24,5 +24,5 @@ colcon build --packages-up-to hitbot_description --symlink-install
 * Z-EFG-100
 ```bash
 source ~/ros2_ws/install/setup.bash
-ros2 launch adaptive_gripper_controller demo.launch.py gripper:=hitbot type:=Z-EFG-100
+ros2 launch adaptive_gripper_controller demo.launch.py gripper:=hitbot
 ```

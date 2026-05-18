@@ -95,10 +95,11 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
             
             # 如果提供了 robot_description，检查配置中的 joint 是否存在
             if robot_description and available_joints:
-                # 检查控制器配置中的 joint 字段
+                # 检查控制器配置中的 joint/joints 字段
                 controller_params = config.get(controller_name, {}).get('ros__parameters', {})
                 joint_name = controller_params.get('joint')
-                
+                joint_names = controller_params.get('joints')
+
                 if joint_name:
                     if joint_name not in available_joints:
                         print(f"[WARN] Controller '{controller_name}' specifies joint '{joint_name}' which does not exist in robot_description, skipping")
@@ -106,9 +107,19 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
                         continue
                     else:
                         print(f"[INFO] Detected controller: {controller_name} ({controller_type}) with joint '{joint_name}' (verified)")
+                elif joint_names:
+                    missing = [j for j in joint_names if j not in available_joints]
+                    if missing:
+                        print(f"[WARN] Controller '{controller_name}' specifies joints {missing} which do not exist in robot_description, skipping")
+                        skipped_controllers.add(controller_name)
+                        continue
+                    else:
+                        print(f"[INFO] Detected controller: {controller_name} ({controller_type}) with {len(joint_names)} joints (verified)")
                 else:
-                    # 如果没有指定 joint，仍然添加（可能是其他类型的控制器）
-                    print(f"[INFO] Detected controller: {controller_name} ({controller_type}) (no joint specified)")
+                    # 提供了 robot_description 但找不到 joint 信息，说明该控制器不属于当前型号，跳过
+                    print(f"[WARN] Controller '{controller_name}' has no joint info in config, skipping (robot_description provided)")
+                    skipped_controllers.add(controller_name)
+                    continue
             else:
                 # 没有提供 robot_description，直接添加
                 print(f"[INFO] Detected controller: {controller_name} ({controller_type})")
@@ -128,10 +139,11 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
             
             # 如果提供了 robot_description，检查配置中的 joint 是否存在
             if robot_description and available_joints:
-                # 检查控制器配置中的 joint 字段
+                # 检查控制器配置中的 joint/joints 字段
                 section_params = section_config.get('ros__parameters', {})
                 joint_name = section_params.get('joint')
-                
+                joint_names = section_params.get('joints')
+
                 if joint_name:
                     if joint_name not in available_joints:
                         print(f"[WARN] Controller section '{section_name}' specifies joint '{joint_name}' which does not exist in robot_description, skipping")
@@ -139,9 +151,19 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
                         continue
                     else:
                         print(f"[INFO] Detected controller section: {section_name} with joint '{joint_name}' (verified)")
+                elif joint_names:
+                    missing = [j for j in joint_names if j not in available_joints]
+                    if missing:
+                        print(f"[WARN] Controller section '{section_name}' specifies joints {missing} which do not exist in robot_description, skipping")
+                        skipped_controllers.add(section_name)
+                        continue
+                    else:
+                        print(f"[INFO] Detected controller section: {section_name} with {len(joint_names)} joints (verified)")
                 else:
-                    # 如果没有指定 joint，仍然添加
-                    print(f"[INFO] Detected controller section: {section_name} (no joint specified)")
+                    # 提供了 robot_description 但找不到 joint 信息，说明该控制器不属于当前型号，跳过
+                    print(f"[WARN] Controller section '{section_name}' has no joint info in config, skipping (robot_description provided)")
+                    skipped_controllers.add(section_name)
+                    continue
             else:
                 print(f"[INFO] Detected controller section: {section_name}")
             

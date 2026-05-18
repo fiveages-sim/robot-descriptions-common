@@ -33,7 +33,7 @@
 
     <xacro:if value="${'$(arg type)' == 'Z-EFG-100'}">
       <xacro:include filename="$(find hitbot_description)/xacro/ros2_control/Z-EFG-100.xacro"/>
-      <xacro:hitbot_z_efg_100_interfaces name="gripper"/>
+      <xacro:hitbot_z_efg_100_interfaces name=""/>
     </xacro:if>
   </ros2_control>
 

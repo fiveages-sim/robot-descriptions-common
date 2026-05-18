@@ -24,10 +24,10 @@
 
   <xacro:macro name="Gripper"
     params="name collider_type:=simple">
-    <xacro:property name="prefix" value="${name + '_' if name else 'gripper_'}"/>
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
     <xacro:property name="M_PI" value="3.1415926535897931" />
 
-    <link name="${prefix}base">
+    <link name="${prefix}gripper_base">
       <inertial>
         <origin xyz="0.0828 0.03604 -7.000000000000001e-05" rpy="0 0 0" />
         <mass value="0.878" />
@@ -39,23 +39,14 @@
           <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/visual/base.glb" />
         </geometry>
       </visual>
-      <xacro:if value="${collider_type == 'convex_decomposition'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex_decomposition/base_link_convex_decomposition.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
-      <xacro:if value="${collider_type == 'simple'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex/base_link.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/collision/base_link.stl" />
+        </geometry>
+      </collision>
     </link>
 
-    <link name="${prefix}link1">
+    <link name="${prefix}gripper_link1">
       <inertial>
         <origin xyz="0.01927 -0.00066 -0.00023999999999999998" rpy="0 0 0" />
         <mass value="0.0312" />
@@ -67,33 +58,24 @@
           <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/visual/link1.glb" />
         </geometry>
       </visual>
-      <xacro:if value="${collider_type == 'convex_decomposition'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex_decomposition/gripper_link1_convex_decomposition.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
-      <xacro:if value="${collider_type == 'simple'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex/gripper_link1.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/collision/gripper_link1.stl" />
+        </geometry>
+      </collision>
     </link>
 
-    <joint name="${prefix}joint" type="revolute">
+    <joint name="${prefix}gripper_joint" type="revolute">
       <origin xyz="0.12183 -0.02 0" rpy="${M_PI} 0 ${-M_PI/4}" />
-      <parent link="${prefix}base" />
-      <child link="${prefix}link1" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link1" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
       for
       gripper -->
     </joint>
 
-    <link name="${prefix}link2">
+    <link name="${prefix}gripper_link2">
       <inertial>
         <origin xyz="0.02767 -0.0 -0.0" rpy="0 0 0" />
         <mass value="0.0168" />
@@ -104,34 +86,25 @@
           <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/visual/link2.glb" />
         </geometry>
       </visual>
-      <xacro:if value="${collider_type == 'convex_decomposition'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex_decomposition/gripper_link2_convex_decomposition.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
-      <xacro:if value="${collider_type == 'simple'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex/gripper_link2.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/collision/gripper_link2.stl" />
+        </geometry>
+      </collision>
     </link>
 
-    <joint name="${prefix}joint2" type="revolute">
+    <joint name="${prefix}gripper_joint2" type="revolute">
       <origin xyz="0.1368 -0.01 0" rpy="${M_PI} 0 ${-M_PI/4}" />
-      <parent link="${prefix}base" />
-      <child link="${prefix}link2" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link2" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
       for
       gripper -->
-      <mimic joint="${prefix}joint" multiplier="1.0"/>
+      <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
     </joint>
 
-    <link name="${prefix}link3">
+    <link name="${prefix}gripper_link3">
       <inertial>
         <origin xyz="0.010320000000000001 -0.00034 0.0" rpy="0 0 0" />
         <mass value="0.026000000000000002" />
@@ -143,34 +116,25 @@
           <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/visual/link3.glb" />
         </geometry>
       </visual>
-      <xacro:if value="${collider_type == 'convex_decomposition'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex_decomposition/gripper_link3_convex_decomposition.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
-      <xacro:if value="${collider_type == 'simple'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex/gripper_link3.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/collision/gripper_link3.stl" />
+        </geometry>
+      </collision>
     </link>
 
-    <joint name="${prefix}joint3" type="revolute">
+    <joint name="${prefix}gripper_joint3" type="revolute">
       <origin xyz="0.065 0 0" rpy="0 0 ${-M_PI/4}" />
-      <parent link="${prefix}link2" />
-      <child link="${prefix}link3" />
+      <parent link="${prefix}gripper_link2" />
+      <child link="${prefix}gripper_link3" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
       for
       gripper -->
-      <mimic joint="${prefix}joint" multiplier="-1.0"/>
+      <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
     </joint>
 
-    <link name="${prefix}link4">
+    <link name="${prefix}gripper_link4">
       <inertial>
         <origin xyz="0.01927 0.00066 0.00023999999999999998" rpy="0 0 0" />
         <mass value="0.0312" />
@@ -182,34 +146,25 @@
           <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/visual/link4.glb" />
         </geometry>
       </visual>
-      <xacro:if value="${collider_type == 'convex_decomposition'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex_decomposition/gripper_link4_convex_decomposition.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
-      <xacro:if value="${collider_type == 'simple'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex/gripper_link4.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/collision/gripper_link4.stl" />
+        </geometry>
+      </collision>
     </link>
 
-    <joint name="${prefix}joint4" type="revolute">
+    <joint name="${prefix}gripper_joint4" type="revolute">
       <origin xyz="0.121833370678203 0.0199999993241963 0" rpy="${M_PI} 0 ${M_PI/4}" />
-      <parent link="${prefix}base" />
-      <child link="${prefix}link4" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link4" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
       for
       gripper -->
-      <mimic joint="${prefix}joint" multiplier="-1.0"/>
+      <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
     </joint>
 
-    <link name="${prefix}link5">
+    <link name="${prefix}gripper_link5">
       <inertial>
         <origin xyz="0.02767 0.0 0.0" rpy="0 0 0" />
         <mass value="0.0168" />
@@ -220,34 +175,25 @@
           <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/visual/link5.glb" />
         </geometry>
       </visual>
-      <xacro:if value="${collider_type == 'convex_decomposition'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex_decomposition/gripper_link5_convex_decomposition.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
-      <xacro:if value="${collider_type == 'simple'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex/gripper_link5.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/collision/gripper_link5.stl" />
+        </geometry>
+      </collision>
     </link>
 
-    <joint name="${prefix}joint5" type="revolute">
+    <joint name="${prefix}gripper_joint5" type="revolute">
       <origin xyz="0.1368 0.01 0" rpy="${M_PI} 0 ${M_PI/4}" />
-      <parent link="${prefix}base" />
-      <child link="${prefix}link5" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link5" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
       for
       gripper -->
-      <mimic joint="${prefix}joint" multiplier="-1.0"/>
+      <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
     </joint>
 
-    <link name="${prefix}link6">
+    <link name="${prefix}gripper_link6">
       <inertial>
         <origin xyz="0.010320000000000001 0.00034 -0.0" rpy="0 0 0" />
         <mass value="0.026000000000000002" />
@@ -259,39 +205,30 @@
           <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/visual/link6.glb" />
         </geometry>
       </visual>
-      <xacro:if value="${collider_type == 'convex_decomposition'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex_decomposition/gripper_link6_convex_decomposition.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
-      <xacro:if value="${collider_type == 'simple'}">
-        <collision>
-          <geometry>
-            <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/convex/gripper_link6.stl" />
-          </geometry>
-        </collision>
-      </xacro:if>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/collision/gripper_link6.stl" />
+        </geometry>
+      </collision>
     </link>
 
-    <joint name="${prefix}joint6" type="revolute">
+    <joint name="${prefix}gripper_joint6" type="revolute">
       <origin xyz="0.065 0 0" rpy="0 0 ${M_PI/4}" />
-      <parent link="${prefix}link5" />
-      <child link="${prefix}link6" />
+      <parent link="${prefix}gripper_link5" />
+      <child link="${prefix}gripper_link6" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
       for
       gripper -->
-      <mimic joint="${prefix}joint" multiplier="1.0"/>
+      <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
     </joint>
 
     <!-- Tool Center Point -->
-    <link name="${prefix}tcp_link" />
-    <joint name="${prefix}tcp_joint" type="fixed">
+    <link name="${prefix}gripper_tcp_link" />
+    <joint name="${prefix}gripper_tcp_joint" type="fixed">
       <origin xyz="0.222892 0 0 " rpy="3.14 0 0" />
-      <parent link="${prefix}base" />
-      <child link="${prefix}tcp_link" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_tcp_link" />
       <axis xyz="0 0 0" />
     </joint>
 

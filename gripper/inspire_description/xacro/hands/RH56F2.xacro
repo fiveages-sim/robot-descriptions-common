@@ -1,0 +1,699 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="InspireHandRH56F2" params="name:='' direction:=1 use_flange:=false">
+
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+    <!-- direction: 1=left (no mirror), -1=right (Y mirror); meshes from left hand -->
+    <xacro:property name="dir" value="${int(direction)}"/>
+
+    <xacro:if value="${use_flange}">
+      <link name="${prefix}flange">
+        <inertial>
+          <origin xyz="0.000631583768841 ${dir*-4.98983354635e-11} 0.0185710296512"/>
+          <mass value="0.0793945339385"/>
+          <inertia
+              ixx="2.73302961659e-05"
+              ixy="${dir*-1.14020192447e-12}"
+              ixz="2.8631777655e-08"
+              iyy="2.62165201866e-05"
+              iyz="${dir*-9.86803596471e-13}"
+              izz="3.5682441558e-05" />
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/ft_sensor.glb" scale="1 ${dir} 1"/>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="${prefix}flange_joint" type="fixed">
+        <origin xyz="0 0 0.0305"/>
+        <parent link="${prefix}flange"/>
+        <child link="${prefix}hand_base"/>
+      </joint>
+    </xacro:if>
+
+    <link name="${prefix}hand_base">
+      <inertial>
+        <origin xyz="0.00012753701782 ${dir*0.000322652223325} 0.0525755995149"/>
+        <mass value="0.248211687083"/>
+        <inertia
+          ixx="0.000102442040141"
+          ixy="${dir*-1.68842230638e-06}"
+          ixz="-5.33496661407e-07"
+          iyy="7.45141774503e-05"
+          iyz="${dir*3.64600414188e-06}"
+          izz="5.91506588002e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/palm.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/palm.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}thumb_1">
+      <inertial>
+        <origin xyz="0.000721934043098 ${dir*-0.00775578718481} -0.00440716940439"/>
+        <mass value="0.00413097402749"/>
+        <inertia
+          ixx="1.9001834841e-07"
+          ixy="${dir*7.9964478706e-09}"
+          ixz="-1.98233040455e-09"
+          iyy="8.31091586969e-08"
+          iyz="${dir*2.437048004e-08}"
+          izz="1.60769500368e-07" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}thumb_2">
+      <inertial>
+        <origin xyz="0.0242760891768 ${dir*0.00744835897632} 0.00789983782755"/>
+        <mass value="0.0154827952785"/>
+        <inertia
+          ixx="3.03962545231e-06"
+          ixy="${dir*-1.44995257451e-06}"
+          ixz="3.81273455997e-11"
+          iyy="4.126953969e-06"
+          iyz="${dir*3.4508000283e-11}"
+          izz="5.44830374759e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}thumb_3">
+      <inertial>
+        <origin xyz="0.00758137615689 ${dir*-0.00213840982405} 0.0104006915613"/>
+        <mass value="0.00706437470275"/>
+        <inertia
+          ixx="8.61634277182e-07"
+          ixy="${dir*-2.26152858839e-08}"
+          ixz="1.17700265842e-11"
+          iyy="7.13322819556e-07"
+          iyz="${dir*5.91514525313e-11}"
+          izz="6.76169485458e-07" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb3.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb3.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}thumb_4">
+      <inertial>
+        <origin xyz="0.0120622798781 ${dir*0.00225745896283} 0.00810565421266"/>
+        <mass value="0.00874918487425"/>
+        <inertia
+          ixx="5.1834755671e-07"
+          ixy="${dir*-2.52611163904e-07}"
+          ixz="2.12761254029e-10"
+          iyy="4.75214449534e-07"
+          iyz="${dir*-9.22957024523e-12}"
+          izz="6.86131149e-07" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb4.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/thumb4.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}thumb_force_sensor">
+      <inertial>
+        <origin xyz="-0.00035133358744 ${dir*4.15418579397e-09} -0.0040724059311"/>
+        <mass value="0.00151132560501"/>
+        <inertia
+          ixx="2.43019617561e-08"
+          ixy="${dir*-1.36069919777e-12}"
+          ixz="2.726441779e-09"
+          iyy="5.39559820345e-08"
+          iyz="${dir*-4.56451202329e-14}"
+          izz="6.9490145023e-08" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/thumb_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/thumb_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}index_1">
+      <inertial>
+        <origin xyz="-0.000213118933136 ${dir*0.0129667510721} -0.00700009049866"/>
+        <mass value="0.0101128730673"/>
+        <inertia
+          ixx="1.52293868463e-06"
+          ixy="${dir*-2.7393534933e-08}"
+          ixz="2.72401992707e-11"
+          iyy="6.48636094462e-07"
+          iyz="${dir*-2.22293522096e-11}"
+          izz="1.5911211529e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}index_2">
+      <inertial>
+        <origin xyz="-0.00338864504984 ${dir*0.0177154569037} -0.00600010557901"/>
+        <mass value="0.0148775096987"/>
+        <inertia
+          ixx="1.698811049e-06"
+          ixy="${dir*-1.51989948813e-07}"
+          ixz="-1.70830931291e-12"
+          iyy="3.2355684622e-07"
+          iyz="${dir*-1.81472194209e-11}"
+          izz="1.63577617481e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}index_force_sensor">
+      <inertial>
+        <origin xyz="0.000274166775213 ${dir*-0.00109250800999} -0.00378206414558"/>
+        <mass value="0.0014165171597"/>
+        <inertia
+          ixx="4.98853418947e-08"
+          ixy="${dir*2.20695927457e-09}"
+          ixz="-3.70955177453e-10"
+          iyy="2.28344707779e-08"
+          iyz="${dir*-5.11812177553e-09}"
+          izz="6.43193727825e-08" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/index_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/index_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}middle_1">
+      <inertial>
+        <origin xyz="-0.000213072792724 ${dir*0.0129666778084} -0.00700007393324"/>
+        <mass value="0.0101128579467"/>
+        <inertia
+          ixx="1.52294301471e-06"
+          ixy="${dir*-2.73911930621e-08}"
+          ixz="2.64378989458e-11"
+          iyy="6.48635345221e-07"
+          iyz="${dir*-1.83994917512e-11}"
+          izz="1.59112383602e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}middle_2">
+      <inertial>
+        <origin xyz="-0.00303462808164 ${dir*0.0192127707774} -0.00609979154027"/>
+        <mass value="0.0160290241248"/>
+        <inertia
+          ixx="2.05512741384e-06"
+          ixy="${dir*-2.07457986025e-07}"
+          ixz="-1.96963698032e-12"
+          iyy="3.59568763398e-07"
+          iyz="${dir*-6.98989358756e-12}"
+          izz="1.99656085783e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/middle2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/middle2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}middle_force_sensor">
+      <inertial>
+        <origin xyz="0.000204170935796 ${dir*-0.00112709996088} -0.00374510764031"/>
+        <mass value="0.00139473316754"/>
+        <inertia
+          ixx="4.90560936415e-08"
+          ixy="${dir*5.38714642796e-10}"
+          ixz="-6.73763387749e-10"
+          iyy="2.21954037382e-08"
+          iyz="${dir*-5.02159420607e-09}"
+          izz="6.31458691019e-08" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/middle_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/middle_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}ring_1">
+      <inertial>
+        <origin xyz="-0.000213074416602 ${dir*0.0129666904917} -0.00700007681337"/>
+        <mass value="0.0101128489317"/>
+        <inertia
+          ixx="1.52293986585e-06"
+          ixy="${dir*-2.73923193422e-08}"
+          ixz="2.66490640358e-11"
+          iyy="6.48634710004e-07"
+          iyz="${dir*-1.88167880936e-11}"
+          izz="1.59112092605e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}ring_2">
+      <inertial>
+        <origin xyz="-0.00338861167275 ${dir*0.0177154360274} -0.00600010480552"/>
+        <mass value="0.0148775262426"/>
+        <inertia
+          ixx="1.69881092238e-06"
+          ixy="${dir*-1.51987171675e-07}"
+          ixz="-1.35484989713e-12"
+          iyy="3.23556687238e-07"
+          iyz="${dir*-1.75790071901e-11}"
+          izz="1.63577508426e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}ring_force_sensor">
+      <inertial>
+        <origin xyz="0.000146810520762 ${dir*-0.0011167818992} -0.00378199571439"/>
+        <mass value="0.00141652493631"/>
+        <inertia
+          ixx="5.00320233631e-08"
+          ixy="${dir*-9.39276719212e-10}"
+          ixz="-9.56734118665e-10"
+          iyy="2.26880102248e-08"
+          iyz="${dir*-5.04162744022e-09}"
+          izz="6.43195322473e-08" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/ring_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/ring_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}pinky_1">
+      <inertial>
+        <origin xyz="-0.000213183036904 ${dir*0.0129666406879} -0.00700036331816"/>
+        <mass value="0.0101126234024"/>
+        <inertia
+          ixx="1.52292292826e-06"
+          ixy="${dir*-2.73902195895e-08}"
+          ixz="3.76873753869e-11"
+          iyy="6.48619577376e-07"
+          iyz="${dir*-1.49480807171e-11}"
+          izz="1.59110695586e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/index1.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}pinky_2">
+      <inertial>
+        <origin xyz="-0.00492903804519 ${dir*0.0112741969941} -0.0063572949595"/>
+        <mass value="0.00813475754866"/>
+        <inertia
+          ixx="8.68455472082e-07"
+          ixy="${dir*-9.77352281498e-08}"
+          ixz="-4.08250101116e-11"
+          iyy="1.83350118047e-07"
+          iyz="${dir*9.71903407068e-11}"
+          izz="8.45570420889e-07" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/pinky2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/pinky2.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}pinky_force_sensor">
+      <inertial>
+        <origin xyz="9.69999954585e-05 ${dir*-0.00109467799273} -0.00381846156549"/>
+        <mass value="0.00143859605271"/>
+        <inertia
+          ixx="5.08064396111e-08"
+          ixy="${dir*-2.42407546797e-09}"
+          ixz="-1.23435829252e-09"
+          iyy="2.33443694201e-08"
+          iyz="${dir*-5.02010104935e-09}"
+          izz="6.54536553903e-08" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/pinky_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/pinky_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}palm_force_sensor">
+      <inertial>
+        <origin xyz="0.0013471527555 ${dir*-0.00241155995776} -0.00177717506865"/>
+        <mass value="0.00449423213489"/>
+        <inertia
+          ixx="2.77349945683e-07"
+          ixy="${dir*-1.27066244966e-10}"
+          ixz="2.8530472006e-09"
+          iyy="1.25941924754e-06"
+          iyz="${dir*5.96464935986e-09}"
+          izz="1.53054656756e-06" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/palm_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+        <material name="">
+          <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
+        </material>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/sensors/palm_force_sensor.STL" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}palm_casing">
+      <inertial>
+        <origin xyz="-0.0145080707706 ${dir*-0.0029706275537} 0.0599886430688"/>
+        <mass value="0.0503941523377"/>
+        <inertia
+          ixx="7.44290151293e-05"
+          ixy="${dir*2.11550341707e-06}"
+          ixz="3.52673443243e-07"
+          iyy="4.06594932989e-05"
+          iyz="${dir*-3.15566621911e-06}"
+          izz="4.24832389558e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/palm_casing.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find inspire_description)/meshes/RH56F2/palm_casing.glb" scale="1 ${dir} 1"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}thumb_joint1" type="revolute">
+      <origin xyz="0.018361 ${dir*-0.027493} 0.040054" rpy="0 0 0"/>
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}thumb_1"/>
+      <axis xyz="0 0 ${dir}"/>
+      <limit lower="0" upper="2" effort="1" velocity="2"/>
+    </joint>
+
+    <joint name="${prefix}thumb_joint2" type="revolute">
+      <origin xyz="0.00903585558357 ${dir*-0.0124048110618} -0.00529612169302" rpy="${dir*1.57070938522} 0 ${dir*-1.48352986386}"/>
+      <parent link="${prefix}thumb_1"/>
+      <child link="${prefix}thumb_2"/>
+      <axis xyz="0 0 ${dir}"/>
+      <limit lower="0" upper="0.7854" effort="1" velocity="2"/>
+    </joint>
+
+    <joint name="${prefix}thumb_joint3" type="revolute">
+      <origin xyz="0.0437230821114 ${dir*0.0271075946182} -0.0025" rpy="0 0 0"/>
+      <parent link="${prefix}thumb_2"/>
+      <child link="${prefix}thumb_3"/>
+      <axis xyz="0 0 ${dir}"/>
+      <limit lower="0" upper="0.567232" effort="1" velocity="2"/>
+      <mimic joint="${prefix}thumb_joint2" multiplier="0.7222" offset="0"/>
+    </joint>
+
+    <joint name="${prefix}thumb_joint4" type="revolute">
+      <origin xyz="0.0117743449217 ${dir*0.00853690944054} 0.0023" rpy="0 0 0"/>
+      <parent link="${prefix}thumb_3"/>
+      <child link="${prefix}thumb_4"/>
+      <axis xyz="0 0 ${dir}"/>
+      <limit lower="0" upper="0.3957" effort="1" velocity="2"/>
+      <mimic joint="${prefix}thumb_joint3" multiplier="0.69754" offset="0"/>
+    </joint>
+
+    <joint name="${prefix}thumb_force_sensor_joint" type="fixed">
+      <origin xyz="0.0110525379901 ${dir*0.0151768661525} 0.00810002097347" rpy="${dir*-1.57079632679} 0 ${dir*0.709290431066}"/>
+      <parent link="${prefix}thumb_4"/>
+      <child link="${prefix}thumb_force_sensor"/>
+    </joint>
+
+    <joint name="${prefix}index_joint" type="revolute">
+      <origin xyz="0.000707528417719 ${dir*-0.0343765200022} 0.105041789582" rpy="${dir*1.63188285056} 0 0"/>
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}index_1"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.466" effort="1" velocity="2"/>
+    </joint>
+
+    <joint name="${prefix}index_dip" type="revolute">
+      <origin xyz="0.00310563899528 ${dir*0.0328535387201} -0.001" rpy="0 0 0"/>
+      <parent link="${prefix}index_1"/>
+      <child link="${prefix}index_2"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.6925" effort="1" velocity="2"/>
+      <mimic joint="${prefix}index_joint" multiplier="1.1545" offset="0"/>
+    </joint>
+
+    <joint name="${prefix}index_force_sensor_joint" type="fixed">
+      <xacro:if value="${int(direction) == 1}">
+        <origin xyz="0.00513900678887179 0.0286711244317914 -0.00599959231295411" rpy="-2.19535617095001 1.48286514284323 -2.37486802090387"/>
+      </xacro:if>
+      <xacro:if value="${int(direction) == -1}">
+        <origin xyz="0.00513902051324763 -0.0286711219704398 -0.00599959231297529" rpy="2.19535617095001 1.48286514284323 2.37486802090387"/>
+      </xacro:if>
+      <parent link="${prefix}index_2"/>
+      <child link="${prefix}index_force_sensor"/>
+    </joint>
+
+    <joint name="${prefix}middle_joint" type="revolute">
+      <origin xyz="0.000707458100343 ${dir*-0.0157674860481} 0.105977715252" rpy="${dir*1.57079632675} 0 0"/>
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}middle_1"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.466" effort="1" velocity="2"/>
+    </joint>
+
+    <joint name="${prefix}middle_dip" type="revolute">
+      <origin xyz="0.00310557432106 ${dir*0.0328535448336} -0.001" rpy="0 0 0"/>
+      <parent link="${prefix}middle_1"/>
+      <child link="${prefix}middle_2"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.6925" effort="1" velocity="2"/>
+      <mimic joint="${prefix}middle_joint" multiplier="1.1545" offset="0"/>
+    </joint>
+
+    <joint name="${prefix}middle_force_sensor_joint" type="fixed">
+      <xacro:if value="${int(direction) == 1}">
+        <origin xyz="0.00596547699518871 0.0315506291833856 -0.00609979667448918" rpy="-2.94049948242814 1.51838355821903 3.14159265268253"/>
+      </xacro:if>
+      <xacro:if value="${int(direction) == -1}">
+        <origin xyz="0.00596549491818255 -0.0315506307157533 -0.00609979666878198" rpy="2.94049944238355 1.5183827265035 3.14159265268255"/>
+      </xacro:if>
+      <parent link="${prefix}middle_2"/>
+      <child link="${prefix}middle_force_sensor"/>
+    </joint>
+
+    <joint name="${prefix}ring_joint" type="revolute">
+      <origin xyz="0.000707462370517 ${dir*0.00308760190729} 0.10592786535" rpy="${dir*1.51843644919} 0 0"/>
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}ring_1"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.466" effort="1" velocity="2"/>
+    </joint>
+
+    <joint name="${prefix}ring_dip" type="revolute">
+      <origin xyz="0.00310557506658 ${dir*0.0328535447632} -0.001" rpy="0 0 0"/>
+      <parent link="${prefix}ring_1"/>
+      <child link="${prefix}ring_2"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.6925" effort="1" velocity="2"/>
+      <mimic joint="${prefix}ring_joint" multiplier="1.1545" offset="0"/>
+    </joint>
+
+    <joint name="${prefix}ring_force_sensor_joint" type="fixed">
+      <xacro:if value="${int(direction) == 1}">
+        <origin xyz="0.00513895080637811 0.0286711344658421 -0.00599959231296668" rpy="2.43655808395159 1.50331944682071 2.25408845217607"/>
+      </xacro:if>
+      <xacro:if value="${int(direction) == -1}">
+        <origin xyz="0.00513895080637811 -0.0286711344658421 -0.00599959231296668" rpy="-2.43655808395159 1.50331944682071 -2.25408845217607"/>
+      </xacro:if>
+      <parent link="${prefix}ring_2"/>
+      <child link="${prefix}ring_force_sensor"/>
+    </joint>
+
+    <joint name="${prefix}pinky_joint" type="revolute">
+      <origin xyz="0.000707528158212 ${dir*0.0210944782704} 0.104807160869" rpy="${dir*1.46607657163} 0 0"/>
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}pinky_1"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.466" effort="1" velocity="2"/>
+    </joint>
+
+    <joint name="${prefix}pinky_dip" type="revolute">
+      <origin xyz="0.00310565018524 ${dir*0.0328535376623} -0.00100000000001" rpy="0 0 0"/>
+      <parent link="${prefix}pinky_1"/>
+      <child link="${prefix}pinky_2"/>
+      <axis xyz="0 0 ${-dir}"/>
+      <limit lower="0" upper="1.6925" effort="1" velocity="2"/>
+      <mimic joint="${prefix}pinky_joint" multiplier="1.1545" offset="0"/>
+    </joint>
+
+    <joint name="${prefix}pinky_force_sensor_joint" type="fixed">
+      <xacro:if value="${int(direction) == 1}">
+        <origin xyz="0.00513150605006601 0.0215818179554969 -0.00635425383204277" rpy="2.06090354878319 1.46163808334447 1.85802094900237"/>
+      </xacro:if>
+      <xacro:if value="${int(direction) == -1}">
+        <origin xyz="0.00513141874387627 -0.0215818297574073 -0.0059959432768055" rpy="-2.06090354878319 1.46163808334447 -1.85802094900237"/>
+      </xacro:if>
+      <parent link="${prefix}pinky_2"/>
+      <child link="${prefix}pinky_force_sensor"/>
+    </joint>
+
+    <joint name="${prefix}palm_force_sensor_joint" type="fixed">
+      <origin xyz="0.015940202579 ${dir*-0.00135045071385} 0.0737461049924" rpy="${dir*1.57079632679} ${dir*0.00015268384715} ${dir*1.56851809049}"/>
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}palm_force_sensor"/>
+    </joint>
+
+    <joint name="${prefix}palm_casing_joint" type="fixed">
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}palm_casing"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>

@@ -29,6 +29,11 @@
       <xacro:include filename="$(find inspire_description)/xacro/ros2_control/RH56E2.xacro"/>
       <xacro:inspire_rh56e2_interfaces name="$(arg name)" direction="$(arg direction)"/>
     </xacro:if>
+
+    <xacro:if value="${'$(arg type)' == 'RH56F2'}">
+      <xacro:include filename="$(find inspire_description)/xacro/ros2_control/RH56F2.xacro"/>
+      <xacro:inspire_rh56f2_interfaces name="$(arg name)" direction="$(arg direction)"/>
+    </xacro:if>
   </ros2_control>
 
   <xacro:if value="$(arg gazebo)">

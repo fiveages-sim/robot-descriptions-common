@@ -261,11 +261,18 @@ def generate_launch_description():
                     except Exception:
                         pass
                 
-                # 构建参数列表
-                node_parameters = [
+                # 构建参数列表。common.yaml is loaded first so the selected
+                # robot-type config can override shared defaults when needed.
+                node_parameters = []
+                common_config_path = os.path.join(os.path.dirname(ros2_controllers_path), 'common.yaml')
+                if os.path.exists(common_config_path):
+                    node_parameters.append(common_config_path)
+                    print(f"[INFO] Loading common ros2_control defaults from: {common_config_path}")
+
+                node_parameters.extend([
                     ros2_controllers_path,
                     {'use_sim_time': use_sim_time},
-                ]
+                ])
                 
                 # 决定是否传递launch参数中的robot_type
                 # 1. 如果使用默认配置，传递launch参数中的robot_type

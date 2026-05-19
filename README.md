@@ -19,6 +19,7 @@ Located in `gripper/` directory:
 | [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                                                                                                                              |
 | [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                                                                                                                             |
 | [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">                                                                                                                                                             |
+| [Hitbot](gripper/hitbot_description)           | Z-EFG-100            | Yes     | <img src="gripper/.images/hitbot_z_efg_100.png" width="150">                                                                                                                                                        |
 
 Each gripper package includes:
 - URDF/Xacro files for robot description
@@ -131,6 +132,7 @@ common/
 │   ├── dh_description/
 │   ├── inspire_description/
 │   ├── jodell_description/
+│   ├── hitbot_description/
 │   └── robotiq_description/
 └── robot_common_launch/   # Common launch files and utilities
     ├── config/           # Configuration files (RViz, Nav2, etc.)

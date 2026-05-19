@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>hitbot_description</name>
+  <version>0.0.0</version>
+  <description>The Hitbot Z-EFG-100 gripper description package</description>
+
+  <maintainer email="k2571675874@163.com">Xu Shengnan</maintainer>
+  <license>TODO</license>
+
+  <exec_depend>robot_common_launch</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,224 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- 
+#####################################################################################
+#
+# Copyright (c) 2023-2025 Galbot, Inc. All Rights Reserved.
+#
+# This software contains confidential and proprietary information of Galbot, Inc.
+# ("Confidential Information"). You shall not disclose such Confidential Information
+# and shall use it only in accordance with the terms of the license agreement you
+# entered into with Galbot, Inc.
+#
+# UNAUTHORIZED COPYING, USE, OR DISTRIBUTION OF THIS SOFTWARE, OR ANY PORTION OR
+# DERIVATIVE THEREOF, IS STRICTLY PROHIBITED. IF YOU HAVE RECEIVED THIS SOFTWARE IN
+# ERROR, PLEASE NOTIFY GALBOT, INC. IMMEDIATELY AND DELETE IT FROM YOUR SYSTEM.
+#
+#####################################################################################
+#
+# Description: XACRO file for hitbot gripper.
+# Maintainer: Herman Ye, Yuhao Zeng@Galbot
+#
+#####################################################################################
+-->
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="hitbot_gripper">
+
+  <xacro:macro name="Gripper"
+    params="name collider_type:=simple">
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+    <xacro:property name="M_PI" value="3.1415926535897931" />
+
+    <link name="${prefix}gripper_base">
+      <inertial>
+        <origin xyz="0.0828 0.03604 -7.000000000000001e-05" rpy="0 0 0" />
+        <mass value="0.878" />
+        <inertia ixx="0.0011546199999999999" ixy="0.0026213200000000003"
+          ixz="-5.0899999999999995e-06" iyy="0.00603809" iyz="-2.31e-06" izz="0.0071770900000000006" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/base.glb" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/base.glb" />
+        </geometry>
+      </collision>
+    </link>
+
+    <link name="${prefix}gripper_link1">
+      <inertial>
+        <origin xyz="0.01927 -0.00066 -0.00023999999999999998" rpy="0 0 0" />
+        <mass value="0.0312" />
+        <inertia ixx="2.53e-06" ixy="3.8e-07" ixz="3e-08" iyy="2.928e-05" iyz="6e-08"
+          izz="2.795e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link1.glb" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link1.glb" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}gripper_joint" type="revolute">
+      <origin xyz="0.12183 -0.02 0" rpy="${M_PI} 0 ${-M_PI/4}" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link1" />
+      <axis xyz="0 0 -1" />
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
+    </joint>
+
+    <link name="${prefix}gripper_link2">
+      <inertial>
+        <origin xyz="0.02767 -0.0 -0.0" rpy="0 0 0" />
+        <mass value="0.0168" />
+        <inertia ixx="1.25e-06" ixy="0.0" ixz="0.0" iyy="2.284e-05" iyz="0.0" izz="2.175e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link2.glb" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link2.glb" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}gripper_joint2" type="revolute">
+      <origin xyz="0.1368 -0.01 0" rpy="${M_PI} 0 ${-M_PI/4}" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link2" />
+      <axis xyz="0 0 -1" />
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
+    </joint>
+
+    <link name="${prefix}gripper_link3">
+      <inertial>
+        <origin xyz="0.010320000000000001 -0.00034 0.0" rpy="0 0 0" />
+        <mass value="0.026000000000000002" />
+        <inertia ixx="1.57e-06" ixy="1.92e-06" ixz="0.0" iyy="1.1380000000000001e-05" iyz="0.0"
+          izz="1.176e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link3.glb" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link3.glb" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}gripper_joint3" type="revolute">
+      <origin xyz="0.065 0 0" rpy="0 0 ${-M_PI/4}" />
+      <parent link="${prefix}gripper_link2" />
+      <child link="${prefix}gripper_link3" />
+      <axis xyz="0 0 -1" />
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
+    </joint>
+
+    <link name="${prefix}gripper_link4">
+      <inertial>
+        <origin xyz="0.01927 0.00066 0.00023999999999999998" rpy="0 0 0" />
+        <mass value="0.0312" />
+        <inertia ixx="2.53e-06" ixy="3.8e-07" ixz="3e-08" iyy="2.928e-05" iyz="6.5e-08"
+          izz="2.795e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link4.glb" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link4.glb" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}gripper_joint4" type="revolute">
+      <origin xyz="0.121833370678203 0.0199999993241963 0" rpy="${M_PI} 0 ${M_PI/4}" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link4" />
+      <axis xyz="0 0 -1" />
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
+    </joint>
+
+    <link name="${prefix}gripper_link5">
+      <inertial>
+        <origin xyz="0.02767 0.0 0.0" rpy="0 0 0" />
+        <mass value="0.0168" />
+        <inertia ixx="1.25e-06" ixy="0.0" ixz="0.0" iyy="2.284e-05" iyz="0.0" izz="2.175e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link5.glb" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link5.glb" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}gripper_joint5" type="revolute">
+      <origin xyz="0.1368 0.01 0" rpy="${M_PI} 0 ${M_PI/4}" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_link5" />
+      <axis xyz="0 0 -1" />
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
+    </joint>
+
+    <link name="${prefix}gripper_link6">
+      <inertial>
+        <origin xyz="0.010320000000000001 0.00034 -0.0" rpy="0 0 0" />
+        <mass value="0.026000000000000002" />
+        <inertia ixx="1.57e-06" ixy="-1.92e-06" ixz="0.0" iyy="1.1380000000000001e-05" iyz="0.0"
+          izz="1.176e-05" />
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link6.glb" />
+        </geometry>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="file://$(find hitbot_description)/meshes/Z-EFG-100/link6.glb" />
+        </geometry>
+      </collision>
+    </link>
+
+    <joint name="${prefix}gripper_joint6" type="revolute">
+      <origin xyz="0.065 0 0" rpy="0 0 ${M_PI/4}" />
+      <parent link="${prefix}gripper_link5" />
+      <child link="${prefix}gripper_link6" />
+      <axis xyz="0 0 -1" />
+      <limit lower="0" upper="0.75" velocity="3" effort="2" /> 
+      <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
+    </joint>
+
+    <!-- Tool Center Point -->
+    <link name="${prefix}gripper_tcp_link" />
+    <joint name="${prefix}gripper_tcp_joint" type="fixed">
+      <origin xyz="0.222892 0 0 " rpy="3.14 0 0" />
+      <parent link="${prefix}gripper_base" />
+      <child link="${prefix}gripper_tcp_link" />
+      <axis xyz="0 0 0" />
+    </joint>
+
+  </xacro:macro>
+</robot>

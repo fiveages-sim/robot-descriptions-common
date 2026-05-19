@@ -70,9 +70,7 @@
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link1" />
       <axis xyz="0 0 -1" />
-      <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
-      for
-      gripper -->
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
     </joint>
 
     <link name="${prefix}gripper_link2">
@@ -98,9 +96,7 @@
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link2" />
       <axis xyz="0 0 -1" />
-      <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
-      for
-      gripper -->
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
       <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
     </joint>
 
@@ -128,9 +124,7 @@
       <parent link="${prefix}gripper_link2" />
       <child link="${prefix}gripper_link3" />
       <axis xyz="0 0 -1" />
-      <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
-      for
-      gripper -->
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
       <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
     </joint>
 
@@ -158,9 +152,7 @@
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link4" />
       <axis xyz="0 0 -1" />
-      <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
-      for
-      gripper -->
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
       <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
     </joint>
 
@@ -187,9 +179,7 @@
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link5" />
       <axis xyz="0 0 -1" />
-      <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
-      for
-      gripper -->
+      <limit lower="0" upper="0.75" velocity="3" effort="2" />
       <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
     </joint>
 
@@ -217,9 +207,7 @@
       <parent link="${prefix}gripper_link5" />
       <child link="${prefix}gripper_link6" />
       <axis xyz="0 0 -1" />
-      <limit lower="0" upper="0.75" velocity="3" effort="2" /> <!-- Tuned opening range
-      for
-      gripper -->
+      <limit lower="0" upper="0.75" velocity="3" effort="2" /> 
       <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
     </joint>
 

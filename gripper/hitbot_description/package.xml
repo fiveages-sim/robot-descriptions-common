@@ -4,7 +4,7 @@
   <version>0.0.0</version>
   <description>The Hitbot Z-EFG-100 gripper description package</description>
 
-  <maintainer email="biao876990970@hotmail.com">Huang Zhenbiao</maintainer>
+  <maintainer email="k2571675874@163.com">Xu Shengnan</maintainer>
   <license>TODO</license>
 
   <exec_depend>robot_common_launch</exec_depend>

@@ -862,7 +862,7 @@
       <child link="${prefix}ring_force_sensor_1" />
     </joint>
 
-    <link name="${prefix}little_1">
+    <link name="${prefix}pinky_1">
       <inertial>
         <origin xyz="-0.00219418424084009 ${dir*0.0127409391731467} -0.00664940009923338" />
         <mass value="0.02841" />
@@ -889,11 +889,11 @@
     <joint name="${prefix}pinky_joint" type="revolute">
       <origin xyz="0.025916 ${dir*0.00056467} 0.11815" rpy="${dir*1.4661} 0 ${dir*-1.5708}" />
       <parent link="${prefix}hand_base" />
-      <child link="${prefix}little_1" />
+      <child link="${prefix}pinky_1" />
       <axis xyz="0 0 ${dir}" />
       <limit lower="0" upper="1.4381" effort="10" velocity="1" />
     </joint>
-    <link name="${prefix}little_2">
+    <link name="${prefix}pinky_2">
       <inertial>
         <origin xyz="0.00142962322858008 ${dir*0.0206390061213492} -0.00609937271859847" />
         <mass value="0.00957" />
@@ -907,19 +907,19 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/little2.glb" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/pinky2.glb" scale="1 ${dir} 1" />
         </geometry>
       </visual>
       <collision>
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/little2.glb" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/pinky2.glb" scale="1 ${dir} 1" />
         </geometry>
       </collision>
     </link>
     <joint name="${prefix}pinky_dip" type="revolute">
       <origin xyz="-0.0034259 ${dir*0.032596} -0.00055" />
-      <parent link="${prefix}little_1" />
-      <child link="${prefix}little_2" />
+      <parent link="${prefix}pinky_1" />
+      <child link="${prefix}pinky_2" />
       <axis xyz="0 0 ${dir}" />
       <limit lower="0" upper="3.14" effort="10" velocity="1" />
       <mimic
@@ -927,7 +927,7 @@
           multiplier="1.0843"
           offset="0" />
     </joint>
-    <link name="${prefix}little_force_sensor_2">
+    <link name="${prefix}pinky_force_sensor_2">
       <inertial>
         <origin xyz="1.83850807690782E-05 ${dir*-0.000118792499944516} -0.00077353663965421" />
         <mass value="0.001" />
@@ -942,7 +942,7 @@
       <visual>
 
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/little_force_sensor_2.STL" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/pinky_force_sensor_2.STL" scale="1 ${dir} 1" />
         </geometry>
         <material name="">
           <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
@@ -951,17 +951,17 @@
       <collision>
 
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/little_force_sensor_2.STL" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/pinky_force_sensor_2.STL" scale="1 ${dir} 1" />
         </geometry>
       </collision>
     </link>
-    <joint name="${prefix}little_force_sensor_2_joint" type="fixed">
+    <joint name="${prefix}pinky_force_sensor_2_joint" type="fixed">
       <origin xyz="-0.00645123763174135 ${dir*0.0276833479200767} -0.00611719352979621" rpy="${dir*1.57079632679488} -1.45969392221055 ${dir*-1.22888814145719}" />
-      <parent link="${prefix}little_2" />
-      <child link="${prefix}little_force_sensor_2" />
+      <parent link="${prefix}pinky_2" />
+      <child link="${prefix}pinky_force_sensor_2" />
      
     </joint>
-    <link name="${prefix}little_force_sensor_3">
+    <link name="${prefix}pinky_force_sensor_3">
       <inertial>
         <origin xyz="6.36863053951123E-05 ${dir*-0.000437236774208316} -0.00112814037373121" />
         <mass value="0.001" />
@@ -976,7 +976,7 @@
       <visual>
 
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/little_force_sensor_3.STL" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/pinky_force_sensor_3.STL" scale="1 ${dir} 1" />
         </geometry>
         <material name="">
           <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
@@ -985,17 +985,17 @@
       <collision>
 
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/little_force_sensor_3.STL" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/pinky_force_sensor_3.STL" scale="1 ${dir} 1" />
         </geometry>
       </collision>
     </link>
-    <joint name="${prefix}little_force_sensor_3_joint" type="fixed">
+    <joint name="${prefix}pinky_force_sensor_3_joint" type="fixed">
       <origin xyz="-0.00639723214432697 ${dir*0.042706921918282} -0.00611537168168175" rpy="${dir*1.5707963267949} -1.43362674619531 ${dir*-2.2760856926538}" />
-      <parent link="${prefix}little_2" />
-      <child link="${prefix}little_force_sensor_3" />
+      <parent link="${prefix}pinky_2" />
+      <child link="${prefix}pinky_force_sensor_3" />
      
     </joint>
-    <link name="${prefix}little_force_sensor_1">
+    <link name="${prefix}pinky_force_sensor_1">
       <inertial>
         <origin xyz="-1.2130080955873E-05 ${dir*0.000116026903212899} -0.00056744299424992" />
         <mass value="0.001" />
@@ -1010,7 +1010,7 @@
       <visual>
 
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/little_force_sensor_1.STL" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/pinky_force_sensor_1.STL" scale="1 ${dir} 1" />
         </geometry>
         <material name="">
           <color rgba="0.411764705882353 0.411764705882353 0.411764705882353 1" />
@@ -1019,14 +1019,14 @@
       <collision>
 
         <geometry>
-          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/little_force_sensor_1.STL" scale="1 ${dir} 1" />
+          <mesh filename="file://$(find inspire_description)/meshes/RH56E2/sensors/pinky_force_sensor_1.STL" scale="1 ${dir} 1" />
         </geometry>
       </collision>
     </link>
-    <joint name="${prefix}little_force_sensor_1_joint" type="fixed">
+    <joint name="${prefix}pinky_force_sensor_1_joint" type="fixed">
       <origin xyz="-0.0120461582060113 ${dir*0.0196485471789908} -0.00665098451502223" rpy="${dir*1.5707963267949} -1.4636944932668 ${dir*-1.78288465285966}" />
-      <parent link="${prefix}little_1" />
-      <child link="${prefix}little_force_sensor_1" />
+      <parent link="${prefix}pinky_1" />
+      <child link="${prefix}pinky_force_sensor_1" />
      
     </joint>
   </xacro:macro>

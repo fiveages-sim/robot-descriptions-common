@@ -42,8 +42,14 @@ jobs:
         include:
           - arch: amd64
             runner: ubuntu-24.04
+            ros_distro: jazzy
+            image: ros:jazzy-ros-base-noble
           - arch: arm64
             runner: ubuntu-24.04-arm
+            ros_distro: jazzy
+            image: ros:jazzy-ros-base-noble
+    container:
+      image: ${{ matrix.image }}
 
     steps:
       - name: Checkout repository
@@ -57,6 +63,7 @@ jobs:
         env:
           INPUT_TAG: ${{ github.event.inputs.tag }}
           INPUT_ROS_DISTRO: ${{ github.event.inputs.ros_distro }}
+          MATRIX_ROS_DISTRO: ${{ matrix.ros_distro }}
           DEB_ARCH: ${{ matrix.arch }}
         run: |
           set -eo pipefail
@@ -73,9 +80,9 @@ jobs:
             tag="v${tag}"
           fi
 
-          ros_distro="${INPUT_ROS_DISTRO:-$DEFAULT_ROS_DISTRO}"
-          if [[ "${ros_distro}" != "${DEFAULT_ROS_DISTRO}" ]]; then
-            echo "This workflow currently supports only ROS 2 ${DEFAULT_ROS_DISTRO}." >&2
+          ros_distro="${INPUT_ROS_DISTRO:-$MATRIX_ROS_DISTRO}"
+          if [[ "${ros_distro}" != "${MATRIX_ROS_DISTRO}" ]]; then
+            echo "This containerized deb workflow currently supports only ROS 2 ${MATRIX_ROS_DISTRO}." >&2
             echo "Requested: ${ros_distro}" >&2
             exit 1
           fi
@@ -105,24 +112,13 @@ jobs:
             exit 1
           fi
 
-      - name: Install ROS and build tools
+      - name: Install build tools
         shell: bash
         run: |
           set -eo pipefail
 
-          sudo apt-get update
-          sudo apt-get install -y curl gnupg lsb-release software-properties-common
-          sudo add-apt-repository universe
-
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
-            | sudo gpg --dearmor -o /etc/apt/keyrings/ros-archive-keyring.gpg
-
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME}") main" \
-            | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
-          sudo apt-get update
-          sudo apt-get install -y \
+          apt-get update
+          apt-get install -y \
             python3-rosdep \
             python3-colcon-core \
             python3-colcon-common-extensions \
@@ -136,10 +132,9 @@ jobs:
             cmake \
             ros-${{ steps.meta.outputs.ros_distro }}-ament-cmake \
             ros-${{ steps.meta.outputs.ros_distro }}-ament-cmake-core \
-            ros-${{ steps.meta.outputs.ros_distro }}-ament-package \
-            ros-${{ steps.meta.outputs.ros_distro }}-ros-base
+            ros-${{ steps.meta.outputs.ros_distro }}-ament-package
 
-          sudo rosdep init || true
+          rosdep init || true
           rosdep update
 
           source "/opt/ros/${{ steps.meta.outputs.ros_distro }}/setup.bash"
@@ -323,13 +318,14 @@ jobs:
           set -eo pipefail
 
           ls -lh *.deb
-          if ! gh release view "$TAG" > /dev/null 2>&1; then
+          if ! gh release view "$TAG" --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1; then
             gh release create "$TAG" \
+              --repo "${GITHUB_REPOSITORY}" \
               --title "$TAG" \
               --notes "Automated release for Debian packages."
           fi
 
-          gh release upload "$TAG" ./*.deb --clobber
+          gh release upload "$TAG" ./*.deb --repo "${GITHUB_REPOSITORY}" --clobber
 
   verify_common_deb:
     name: verify common deb (${{ matrix.arch }})
@@ -341,8 +337,12 @@ jobs:
         include:
           - arch: amd64
             runner: ubuntu-24.04
+            image: ros:jazzy-ros-base-noble
           - arch: arm64
             runner: ubuntu-24.04-arm
+            image: ros:jazzy-ros-base-noble
+    container:
+      image: ${{ matrix.image }}
 
     steps:
       - name: Resolve verify metadata
@@ -360,24 +360,23 @@ jobs:
           echo "ros_distro=${ROS_DISTRO}" >> "$GITHUB_OUTPUT"
           echo "deb_file=${DEB_FILE_PREFIX}_${VERSION}_${DEB_ARCH}.deb" >> "$GITHUB_OUTPUT"
 
-      - name: Install ROS and base tools
+      - name: Install verification tools
         shell: bash
         run: |
           set -eo pipefail
 
-          sudo apt-get update
-          sudo apt-get install -y curl gnupg lsb-release software-properties-common cmake build-essential
-          sudo add-apt-repository universe
+          apt-get update
+          apt-get install -y ca-certificates curl cmake build-essential
 
-          sudo mkdir -p /etc/apt/keyrings
-          curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
-            | sudo gpg --dearmor -o /etc/apt/keyrings/ros-archive-keyring.gpg
+          mkdir -p -m 755 /etc/apt/keyrings
+          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+            -o /etc/apt/keyrings/githubcli-archive-keyring.gpg
+          chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+            > /etc/apt/sources.list.d/github-cli.list
 
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME}") main" \
-            | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
-
-          sudo apt-get update
-          sudo apt-get install -y "ros-${{ steps.meta.outputs.ros_distro }}-ros-base"
+          apt-get update
+          apt-get install -y gh
 
       - name: Download deb from release
         env:
@@ -418,7 +417,7 @@ jobs:
           deb_file="${{ steps.meta.outputs.deb_file }}"
           ros_distro="${{ steps.meta.outputs.ros_distro }}"
 
-          sudo dpkg -i "./${deb_file}" || sudo apt-get -f install -y
+          dpkg -i "./${deb_file}" || apt-get -f install -y
 
           set +u
           source "/opt/ros/${ros_distro}/setup.bash"

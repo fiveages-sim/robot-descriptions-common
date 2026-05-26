@@ -125,6 +125,8 @@ jobs:
             python3-vcstool \
             python3-pip \
             python3-catkin-pkg-modules \
+            sudo \
+            zstd \
             fakeroot \
             dpkg-dev \
             rsync \
@@ -134,11 +136,47 @@ jobs:
             ros-${{ steps.meta.outputs.ros_distro }}-ament-cmake-core \
             ros-${{ steps.meta.outputs.ros_distro }}-ament-package
 
-          rosdep init || true
-          rosdep update
-
           source "/opt/ros/${{ steps.meta.outputs.ros_distro }}/setup.bash"
           python3 -c "import ament_package; print('ament_package ready:', ament_package.__file__)"
+
+      - name: Prepare rosdep user
+        shell: bash
+        run: |
+          set -eo pipefail
+          if ! id -u rosdep >/dev/null 2>&1; then
+            useradd --create-home --shell /bin/bash rosdep
+          fi
+          mkdir -p /home/rosdep/.ros/rosdep
+          chown -R rosdep:rosdep /home/rosdep/.ros
+          echo "rosdep ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/rosdep
+          chmod 0440 /etc/sudoers.d/rosdep
+
+      - name: Cache rosdep sources
+        id: cache-rosdep
+        uses: actions/cache@v4
+        with:
+          path: /home/rosdep/.ros/rosdep/sources.cache
+          key: rosdep-${{ runner.os }}-${{ matrix.arch }}-${{ steps.meta.outputs.ros_distro }}-${{ hashFiles('**/package.xml') }}
+          restore-keys: |
+            rosdep-${{ runner.os }}-${{ matrix.arch }}-${{ steps.meta.outputs.ros_distro }}-
+            rosdep-${{ runner.os }}-${{ matrix.arch }}-
+
+      - name: Update rosdep sources
+        shell: bash
+        run: |
+          set -eo pipefail
+          chown -R rosdep:rosdep /home/rosdep/.ros
+
+          if [[ ! -f /etc/ros/rosdep/sources.list.d/20-default.list ]]; then
+            PYTHONWARNINGS="ignore:pkg_resources is deprecated as an API:DeprecationWarning" rosdep init
+          fi
+          if [[ "${{ steps.cache-rosdep.outputs.cache-hit }}" == "true" ]]; then
+            echo "Using restored rosdep sources cache."
+          else
+            sudo -H -u rosdep env \
+              PYTHONWARNINGS="ignore:pkg_resources is deprecated as an API:DeprecationWarning" \
+              rosdep update
+          fi
 
       - name: Install common ROS dependencies
         shell: bash
@@ -149,15 +187,20 @@ jobs:
           source "/opt/ros/${ROS_DISTRO}/setup.bash"
 
           ros_python_path="/opt/ros/${ROS_DISTRO}/lib/python$(python3 -c 'import sys; print(str(sys.version_info.major) + "." + str(sys.version_info.minor))')/site-packages"
-          export PYTHONPATH="${ros_python_path}:${PYTHONPATH:-}"
-
-          rosdep install \
-            --from-paths . \
-            --ignore-src \
-            --rosdistro "${ROS_DISTRO}" \
-            --reinstall \
-            -r \
-            -y
+          sudo -H -u rosdep env \
+            GITHUB_WORKSPACE="${GITHUB_WORKSPACE}" \
+            PYTHONPATH="${ros_python_path}:${PYTHONPATH:-}" \
+            PYTHONWARNINGS="ignore:pkg_resources is deprecated as an API:DeprecationWarning" \
+            ROS_DISTRO="${ROS_DISTRO}" \
+            bash -lc '
+              source "/opt/ros/${ROS_DISTRO}/setup.bash"
+              rosdep install \
+                --from-paths "${GITHUB_WORKSPACE}" \
+                --ignore-src \
+                --rosdistro "${ROS_DISTRO}" \
+                -r \
+                -y
+            '
 
       - name: Build common install space
         shell: bash

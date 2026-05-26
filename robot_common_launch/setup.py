@@ -31,7 +31,6 @@ setup(
     maintainer_email='biao876990970@hotmail.com',
     description='Common launch utilities for robots',
     license='BSD-3',
-    tests_require=['pytest'],
     entry_points={
         'console_scripts': [
         ],

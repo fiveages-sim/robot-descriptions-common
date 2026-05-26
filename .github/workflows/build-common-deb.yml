@@ -1,6 +1,7 @@
 name: Build Common Deb
 
-# Runs in https://github.com/fiveages-sim/robot-descriptions-common — repo root is the colcon workspace (no parent submodule).
+# Runs in https://github.com/fiveages-sim/robot-descriptions-common.
+# The repository root is the colcon workspace.
 
 on:
   push:
@@ -21,14 +22,28 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.tag || github.ref_name }}
+  cancel-in-progress: true
+
+env:
+  DEFAULT_ROS_DISTRO: jazzy
+  PACKAGE_NAME: ros-jazzy-robot-descriptions-common
+  DEB_FILE_PREFIX: ros-jazzy-robot-descriptions-common
+  INSTALL_PREFIX: /opt/ros/jazzy
+
 jobs:
-  build-common-deb:
-    runs-on: ubuntu-24.04
-    env:
-      PACKAGE_NAME: robot-descriptions-jazzy-common
-      DEB_FILE_PREFIX: robot-descriptions-jazzy-common
-      INSTALL_PREFIX: /opt/ros/jazzy
-      DEFAULT_ROS_DISTRO: jazzy
+  build_common_deb:
+    name: build common deb (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
 
     steps:
       - name: Checkout repository
@@ -42,6 +57,7 @@ jobs:
         env:
           INPUT_TAG: ${{ github.event.inputs.tag }}
           INPUT_ROS_DISTRO: ${{ github.event.inputs.ros_distro }}
+          DEB_ARCH: ${{ matrix.arch }}
         run: |
           set -eo pipefail
 
@@ -57,21 +73,27 @@ jobs:
             tag="v${tag}"
           fi
 
+          ros_distro="${INPUT_ROS_DISTRO:-$DEFAULT_ROS_DISTRO}"
+          if [[ "${ros_distro}" != "${DEFAULT_ROS_DISTRO}" ]]; then
+            echo "This workflow currently supports only ROS 2 ${DEFAULT_ROS_DISTRO}." >&2
+            echo "Requested: ${ros_distro}" >&2
+            exit 1
+          fi
+
           version="${tag#v}"
           version="${version#V}"
           version="$(printf '%s' "$version" | sed 's/-/~/g')"
-
           if [[ -z "$version" ]]; then
             echo "Unable to derive a package version from tag: $tag" >&2
             exit 1
           fi
 
-          ros_distro="${INPUT_ROS_DISTRO:-$DEFAULT_ROS_DISTRO}"
-          deb_file="${DEB_FILE_PREFIX}_${version}_amd64.deb"
+          deb_file="${DEB_FILE_PREFIX}_${version}_${DEB_ARCH}.deb"
 
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "ros_distro=$ros_distro" >> "$GITHUB_OUTPUT"
+          echo "deb_arch=$DEB_ARCH" >> "$GITHUB_OUTPUT"
           echo "deb_file=$deb_file" >> "$GITHUB_OUTPUT"
 
       - name: Validate workspace
@@ -83,7 +105,7 @@ jobs:
             exit 1
           fi
 
-      - name: Install system tools
+      - name: Install ROS and build tools
         shell: bash
         run: |
           set -eo pipefail
@@ -165,7 +187,11 @@ jobs:
             --base-paths "${GITHUB_WORKSPACE}" \
             --build-base "${build_root}/build" \
             --install-base "${install_root}" \
-            --merge-install
+            --merge-install \
+            --cmake-args \
+            --no-warn-unused-cli \
+            -DBUILD_TESTING=OFF \
+            -DCMAKE_BUILD_TYPE=Release
 
           python3 -c "import sys; exec('''import os\ninstall_root = sys.argv[1]\nruntime_prefix = sys.argv[2]\nfor dirpath, _, filenames in os.walk(install_root):\n    for filename in filenames:\n        path = os.path.join(dirpath, filename)\n        try:\n            with open(path, 'r', encoding='utf-8') as f:\n                content = f.read()\n        except Exception:\n            continue\n        if install_root not in content:\n            continue\n        with open(path, 'w', encoding='utf-8') as f:\n            f.write(content.replace(install_root, runtime_prefix))''')" "$install_root" "$install_prefix"
 
@@ -188,6 +214,12 @@ jobs:
             echo "ament index was not generated in the install space." >&2
             exit 1
           fi
+          for required_pkg in robot_common_launch sensor_models component_models jodell_description; do
+            if [[ ! -d "${install_root}/share/${required_pkg}" ]]; then
+              echo "${required_pkg} was not installed into the package root." >&2
+              exit 1
+            fi
+          done
 
       - name: Build deb package
         id: build
@@ -196,6 +228,7 @@ jobs:
           ROS_DISTRO: ${{ steps.meta.outputs.ros_distro }}
           VERSION: ${{ steps.meta.outputs.version }}
           DEB_FILE: ${{ steps.meta.outputs.deb_file }}
+          DEB_ARCH: ${{ steps.meta.outputs.deb_arch }}
         run: |
           set -eo pipefail
 
@@ -210,8 +243,9 @@ jobs:
           Version: ${VERSION}
           Section: misc
           Priority: optional
-          Architecture: amd64
-          Depends: ros-${ROS_DISTRO}-ros-base
+          Architecture: ${DEB_ARCH}
+          Depends: ros-${ROS_DISTRO}-ros-base, ros-${ROS_DISTRO}-ament-index-python, ros-${ROS_DISTRO}-controller-manager, ros-${ROS_DISTRO}-joint-state-publisher-gui, ros-${ROS_DISTRO}-launch, ros-${ROS_DISTRO}-launch-ros, ros-${ROS_DISTRO}-rclpy, ros-${ROS_DISTRO}-robot-state-publisher, ros-${ROS_DISTRO}-xacro
+          Provides: robot-descriptions-jazzy-common
           Maintainer: ${GITHUB_REPOSITORY} maintainers <github-actions[bot]@users.noreply.github.com>
           Installed-Size: ${installed_size}
           Description: Shared robot_descriptions common ROS packages
@@ -224,22 +258,198 @@ jobs:
           fi
 
           dpkg-deb --root-owner-group --build "$package_root" "$DEB_FILE"
-
           echo "deb_path=${GITHUB_WORKSPACE}/${DEB_FILE}" >> "$GITHUB_OUTPUT"
 
-      - name: Upload deb to release
+      - name: Upload workflow artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-descriptions-common-${{ steps.meta.outputs.version }}-${{ matrix.arch }}
+          path: ${{ steps.meta.outputs.deb_file }}
+          if-no-files-found: error
+          retention-days: 7
+
+  publish_common_deb:
+    name: publish common debs
+    runs-on: ubuntu-24.04
+    needs: build_common_deb
+    outputs:
+      tag: ${{ steps.meta.outputs.tag }}
+      ros_distro: ${{ steps.meta.outputs.ros_distro }}
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - name: Resolve release metadata
+        id: meta
+        shell: bash
+        env:
+          INPUT_TAG: ${{ github.event.inputs.tag }}
+          INPUT_ROS_DISTRO: ${{ github.event.inputs.ros_distro }}
+        run: |
+          set -eo pipefail
+
+          if [[ -n "${INPUT_TAG:-}" ]]; then
+            tag="$INPUT_TAG"
+          elif [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
+            tag="${GITHUB_REF_NAME}"
+          else
+            echo "A release tag is required for workflow_dispatch." >&2
+            exit 1
+          fi
+          if [[ "${tag}" != [vV]* ]]; then
+            tag="v${tag}"
+          fi
+
+          ros_distro="${INPUT_ROS_DISTRO:-$DEFAULT_ROS_DISTRO}"
+          version="${tag#v}"
+          version="${version#V}"
+          version="$(printf '%s' "$version" | sed 's/-/~/g')"
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "ros_distro=$ros_distro" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download built deb artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: robot-descriptions-common-${{ steps.meta.outputs.version }}-*
+          merge-multiple: true
+
+      - name: Publish debs to GitHub Release
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.meta.outputs.tag }}
-          DEB_PATH: ${{ steps.build.outputs.deb_path }}
         run: |
           set -eo pipefail
 
+          ls -lh *.deb
           if ! gh release view "$TAG" > /dev/null 2>&1; then
             gh release create "$TAG" \
               --title "$TAG" \
               --notes "Automated release for Debian packages."
           fi
 
-          gh release upload "$TAG" "$DEB_PATH" --clobber
+          gh release upload "$TAG" ./*.deb --clobber
+
+  verify_common_deb:
+    name: verify common deb (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    needs: publish_common_deb
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+
+    steps:
+      - name: Resolve verify metadata
+        id: meta
+        shell: bash
+        env:
+          TAG: ${{ needs.publish_common_deb.outputs.tag }}
+          VERSION: ${{ needs.publish_common_deb.outputs.version }}
+          ROS_DISTRO: ${{ needs.publish_common_deb.outputs.ros_distro }}
+          DEB_ARCH: ${{ matrix.arch }}
+        run: |
+          set -eo pipefail
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "ros_distro=${ROS_DISTRO}" >> "$GITHUB_OUTPUT"
+          echo "deb_file=${DEB_FILE_PREFIX}_${VERSION}_${DEB_ARCH}.deb" >> "$GITHUB_OUTPUT"
+
+      - name: Install ROS and base tools
+        shell: bash
+        run: |
+          set -eo pipefail
+
+          sudo apt-get update
+          sudo apt-get install -y curl gnupg lsb-release software-properties-common cmake build-essential
+          sudo add-apt-repository universe
+
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key \
+            | sudo gpg --dearmor -o /etc/apt/keyrings/ros-archive-keyring.gpg
+
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(. /etc/os-release && echo "${UBUNTU_CODENAME}") main" \
+            | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+
+          sudo apt-get update
+          sudo apt-get install -y "ros-${{ steps.meta.outputs.ros_distro }}-ros-base"
+
+      - name: Download deb from release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -eo pipefail
+
+          deb_file="${{ steps.meta.outputs.deb_file }}"
+          tag="${{ steps.meta.outputs.tag }}"
+          for attempt in {1..30}; do
+            rm -f "${deb_file}"
+            if gh release download "$tag" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --pattern "${deb_file}"; then
+              break
+            fi
+            echo "Asset ${deb_file} is not available yet (attempt ${attempt}/30); retrying in 20s..."
+            sleep 20
+          done
+
+          if [[ ! -f "${deb_file}" ]]; then
+            echo "Timed out waiting for ${deb_file} in release ${tag}." >&2
+            gh release view "$tag" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --json assets \
+              --jq '.assets[].name' || true
+            exit 1
+          fi
+
+          ls -lh "${deb_file}"
+
+      - name: Install deb and verify package discovery
+        shell: bash
+        run: |
+          set -eo pipefail
+
+          deb_file="${{ steps.meta.outputs.deb_file }}"
+          ros_distro="${{ steps.meta.outputs.ros_distro }}"
+
+          sudo dpkg -i "./${deb_file}" || sudo apt-get -f install -y
+
+          set +u
+          source "/opt/ros/${ros_distro}/setup.bash"
+          set -u
+          export CMAKE_PREFIX_PATH="${INSTALL_PREFIX}:${CMAKE_PREFIX_PATH:-}"
+          export AMENT_PREFIX_PATH="${INSTALL_PREFIX}:${AMENT_PREFIX_PATH:-}"
+
+          python3 - <<'PY'
+          from ament_index_python.packages import get_package_share_directory
+
+          for package_name in [
+              "robot_common_launch",
+              "sensor_models",
+              "component_models",
+              "jodell_description",
+          ]:
+              print(package_name, get_package_share_directory(package_name))
+
+          import robot_common_launch
+          print("robot_common_launch module:", robot_common_launch.__file__)
+          PY
+
+          rm -rf downstream_check
+          mkdir -p downstream_check
+          cat > downstream_check/CMakeLists.txt <<'EOF'
+          cmake_minimum_required(VERSION 3.16)
+          project(robot_descriptions_common_downstream_check)
+
+          find_package(sensor_models REQUIRED)
+          find_package(component_models REQUIRED)
+          find_package(jodell_description REQUIRED)
+          EOF
+
+          cmake -Wno-dev -S downstream_check -B downstream_check/build

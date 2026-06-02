@@ -1,0 +1,37 @@
+# Maps end-effector type keys to controller side templates in robot-descriptions-common.
+# Template paths are relative to the package share root.
+
+rg75:
+  package: jodell_description
+  template: config/ros2_control/templates/rg75.side.yaml
+  category: gripper
+
+ag2f90_c:
+  package: changingtek_description
+  template: config/ros2_control/templates/ag2f90_c.side.yaml
+  category: gripper
+
+ag2f90_c_soft:
+  package: changingtek_description
+  template: config/ros2_control/templates/ag2f90_c.side.yaml
+  category: gripper
+
+ag2f90_d:
+  package: changingtek_description
+  template: config/ros2_control/templates/ag2f90_d.side.yaml
+  category: gripper
+
+linkerhand_o6:
+  package: linkerhand_description
+  template: config/ros2_control/templates/o6.side.yaml
+  category: hand
+
+linkerhand_l6:
+  package: linkerhand_description
+  template: config/ros2_control/templates/l6.side.yaml
+  category: hand
+
+linkerhand_o7:
+  package: linkerhand_description
+  template: config/ros2_control/templates/o7.side.yaml
+  category: hand

@@ -1,12 +1,54 @@
 import launch
 from ament_index_python.packages import get_package_share_directory
 import os
-from launch.substitutions import LaunchConfiguration
 from launch.actions import OpaqueFunction
-from launch import LaunchDescription
 
 # Import robot_common_launch utilities
-from robot_common_launch import get_robot_package_path
+from robot_common_launch import (
+    get_robot_package_path,
+    build_planning_urdf_launch_params,
+    resolve_profile_path,
+    create_robot_profile_launch_arguments,
+)
+
+
+def _resolve_static_urdf_path(robot_pkg_path, robot_name, type_value):
+    """Legacy static URDF under {pkg}/urdf/ (fallback when xacro planning is unavailable)."""
+    urdf_dir = os.path.join(robot_pkg_path, "urdf")
+    if type_value and type_value.strip():
+        type_specific = os.path.join(urdf_dir, f"{robot_name}_{type_value}.urdf")
+        if os.path.isfile(type_specific):
+            return type_specific
+    default_urdf = os.path.join(urdf_dir, f"{robot_name}.urdf")
+    return default_urdf if os.path.isfile(default_urdf) else None
+
+
+# Planning-only launch (no ros2_control); xacro mappings use a fixed hardware placeholder.
+_PLANNING_XACRO_HARDWARE = "mock_components"
+
+
+def _resolve_urdf_file(robot_name, robot_pkg_path, launch_configurations):
+    """Prefer xacro-generated planning URDF; fall back to static urdf/ files."""
+    profile_path = resolve_profile_path(launch_configurations) or None
+    type_value = launch_configurations.get("type", "")
+
+    planning_params = build_planning_urdf_launch_params(
+        robot_name,
+        launch_configurations,
+        _PLANNING_XACRO_HARDWARE,
+        profile_path,
+    )
+
+    if planning_params.get("planning_urdf_variant") == "xacro":
+        cached = (planning_params.get("planning_urdf_path") or "").strip()
+        if cached and os.path.isfile(cached):
+            return cached, "xacro"
+
+    static_urdf = _resolve_static_urdf_path(robot_pkg_path, robot_name, type_value)
+    if static_urdf:
+        return static_urdf, "static"
+
+    return None, ""
 
 
 def _detect_pinocchio_version():
@@ -75,6 +117,7 @@ def generate_launch_description():
     ros2 launch robot_common_launch manipulator_ocs2.launch.py robot_name:=piper type:=long_arm
     ros2 launch robot_common_launch manipulator_ocs2.launch.py robot_name:=cr5 task_file:=task_custom
     ros2 launch robot_common_launch manipulator_ocs2.launch.py robot_name:=cr5 type:=red task_file:=task_red
+    ros2 launch robot_common_launch manipulator_ocs2.launch.py robot_name:=m6_ccs type:=rg75
     """
     
     # 机器人名称参数
@@ -147,24 +190,13 @@ def generate_launch_description():
             print(f"❌ Error: Could not find {robot_name_value}_description package")
             return []
         
-        # 获取 URDF 文件路径
-        urdf_dir = os.path.join(robot_pkg_path, "urdf")
-        if type_value and type_value.strip():
-            # Try type-specific URDF first
-            type_specific_urdf = os.path.join(urdf_dir, f"{robot_name_value}_{type_value}.urdf")
-            if os.path.exists(type_specific_urdf):
-                urdf_file_value = type_specific_urdf
-            else:
-                # Fallback to default URDF
-                urdf_file_value = os.path.join(urdf_dir, f"{robot_name_value}.urdf")
-        else:
-            # Use default URDF
-            urdf_file_value = os.path.join(urdf_dir, f"{robot_name_value}.urdf")
-        
-        if not os.path.exists(urdf_file_value):
-            print(f"❌ Error: Could not find URDF file: {urdf_file_value}")
+        urdf_file_value, urdf_source = _resolve_urdf_file(
+            robot_name_value, robot_pkg_path, context.launch_configurations
+        )
+        if not urdf_file_value:
+            print(f"❌ Error: No planning URDF (xacro or static) for robot '{robot_name_value}'")
             return []
-        print(f"📁 URDF: {urdf_file_value}")
+        print(f"📁 URDF ({urdf_source}): {urdf_file_value}")
         
         # 构建任务文件路径
         task_file_path = os.path.join(
@@ -229,5 +261,6 @@ def generate_launch_description():
         enable_joystick,
         joystick_device,
         task_file,
-        OpaqueFunction(function=launch_setup)
-    ]) 
+        *create_robot_profile_launch_arguments(),
+        OpaqueFunction(function=launch_setup),
+    ])

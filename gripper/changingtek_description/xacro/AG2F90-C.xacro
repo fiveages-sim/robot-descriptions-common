@@ -4,7 +4,25 @@
 	<xacro:arg name="collider" default="convex"/>
 	<xacro:property name="collider_type" value="$(arg collider)"/>
 
-	<xacro:macro name="AG2F90-C" params="name use_flange:=false pad:=default">
+	<!-- Simplified collision envelope (migrated from m6_ccs arm link7; gripper_base +Z frame). -->
+	<xacro:macro name="AG2F90_simple_collision">
+		<xacro:if value="${collider_type == 'simple'}">
+			<collision>
+				<origin xyz="0 0 0.11"/>
+				<geometry>
+					<cylinder length="0.138392" radius="0.041707"/>
+				</geometry>
+			</collision>
+			<collision>
+				<origin xyz="0 0 0.22"/>
+				<geometry>
+					<cylinder length="0.08" radius="0.021707"/>
+				</geometry>
+			</collision>
+		</xacro:if>
+	</xacro:macro>
+
+	<xacro:macro name="AG2F90-C" params="name use_flange:=false pad:=default kinematic_only:=false">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 		<xacro:property name="PI" value="3.1415926535897931"/>
 
@@ -58,8 +76,10 @@
 					</geometry>
 				</collision>
 			</xacro:if>
+			<xacro:AG2F90_simple_collision/>
 		</link>
 
+		<xacro:unless value="${kinematic_only}">
 		<link name="${prefix}left_1_link">
 			<inertial>
 				<origin xyz="-1.28088127539536E-18 0.0252734640095115 -0.00214040614650292"/>
@@ -464,6 +484,7 @@
 			<parent link="${prefix}right_up_link"/>
 			<child link="${prefix}right_Pad_link"/>
 		</joint>
+		</xacro:unless>
 
 		<link name="${prefix}eef"/>
 		<joint name="${prefix}eef_joint" type="fixed">

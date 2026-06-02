@@ -23,12 +23,19 @@ from ament_index_python.packages import get_package_share_directory
 
 # Import robot_common_launch utilities
 from robot_common_launch import (
-    load_robot_config, 
-    get_robot_package_path, 
-    get_gz_bridge_config_path, 
+    load_robot_config,
+    get_robot_package_path,
+    get_gz_bridge_config_path,
     get_gz_image_bridge_topics,
     get_ros2_control_robot_description,
-    create_rmw_zenohd_node
+    create_rmw_zenohd_node,
+    create_robot_profile_launch_arguments,
+    resolve_profile_path,
+    resolve_control_sides,
+    resolve_control_overlay,
+    resolve_compose_type_key,
+    load_robot_profile,
+    write_temp_ros2_control_yaml,
 )
 
 
@@ -88,40 +95,45 @@ def generate_launch_description():
     
 
     def launch_setup(context, *args, **kwargs):
-        robot_name = context.launch_configurations['robot']
-        robot_type = context.launch_configurations['type']
-        # IncludeLaunchDescription 常传入 str(bool)，即 'True'/'False'；与字面量 'true' 比较会恒为假。
-        _use_sim_raw = context.launch_configurations['use_sim_time'].strip().lower()
+        configs = context.launch_configurations
+        robot_name = configs['robot']
+        robot_type = configs['type']
+        _use_sim_raw = configs['use_sim_time'].strip().lower()
         use_sim_time = _use_sim_raw in ('true', '1', 'yes')
-        world = context.launch_configurations['world']
-        world_package = context.launch_configurations['world_package']
-        hardware = context.launch_configurations['hardware']
-        remappings_str = context.launch_configurations.get('remappings', '')
-        ctrl_mode = context.launch_configurations.get('ctrl_mode', '')
-        
-        # 根据 hardware 参数自动判断是否使用 Gazebo
+        world = configs['world']
+        world_package = configs['world_package']
+        hardware = configs['hardware']
+        remappings_str = configs.get('remappings', '')
+
+        robot_profile_path = resolve_profile_path(configs)
+        profile = load_robot_profile(robot_profile_path) if robot_profile_path else {}
+        control_left, control_right = resolve_control_sides(configs, profile)
+        ws_root = os.environ.get('FA_W2_WS', '').strip()
+        if not ws_root:
+            colcon_prefix = os.environ.get('COLCON_PREFIX_PATH', '').split(':')[0]
+            if colcon_prefix and '/install' in colcon_prefix:
+                ws_root = os.path.abspath(colcon_prefix.split('/install')[0])
+        overlay_path = resolve_control_overlay(configs, profile, ws_root=ws_root or None)
+        _, _, resolved_right = resolve_compose_type_key(robot_type, control_left, control_right)
+        asymmetric = bool(control_left and resolved_right and control_left != resolved_right)
+
         use_gazebo = hardware == 'gz'
-        
-        # 生成机器人描述
+
         robot_pkg_path = get_robot_package_path(robot_name)
         if robot_pkg_path is None:
             print(f"[ERROR] Cannot create robot description without package path for robot '{robot_name}'")
             return []
-        
-        # 构建 xacro mappings
-        mappings = {
-            'ros2_control_hardware_type': hardware,
-            'ctrl_mode': ctrl_mode
-        }
-        if robot_type and robot_type.strip():
-            mappings["type"] = robot_type
-        
-        # 如果是 Gazebo 模式，添加 gazebo 映射
+
         if use_gazebo:
-            print(f"[INFO] Gazebo mode enabled")
-        
-        # 生成 ros2_control robot_description（使用统一的函数，带缓存机制）
-        robot_description = get_ros2_control_robot_description(robot_name, robot_type, hardware)
+            print("[INFO] Gazebo mode enabled")
+
+        robot_description = get_ros2_control_robot_description(
+            robot_name,
+            robot_type=robot_type,
+            hardware=hardware,
+            launch_configurations=configs,
+            robot_profile=robot_profile_path or None,
+        )
         
         if robot_description is None:
             print(f"[ERROR] Failed to generate robot_description for '{robot_name}'")
@@ -220,16 +232,19 @@ def generate_launch_description():
             
             nodes.append(gz_spawn_entity)
         else:
-            # ros2_control_node (仅在非Gazebo模式下)
-            ros2_controllers_config, ros2_controllers_path = load_robot_config(robot_name, "ros2_control", robot_type)
-            if ros2_controllers_path is not None:
-                # 默认 remappings
+            ros2_controllers_config, ros2_controllers_path = load_robot_config(
+                robot_name,
+                "ros2_control",
+                robot_type,
+                control_left=control_left,
+                control_right=control_right,
+                control_overlay_path=overlay_path,
+            )
+            if ros2_controllers_path is not None or ros2_controllers_config is not None:
                 default_remappings = [
                     ("/controller_manager/robot_description", "/robot_description"),
                 ]
-                
-                # 解析传入的 remappings 参数
-                # 格式: "from1:to1;from2:to2"
+
                 additional_remappings = []
                 if remappings_str and remappings_str.strip():
                     try:
@@ -239,57 +254,50 @@ def generate_launch_description():
                                 additional_remappings.append((from_topic.strip(), to_topic.strip()))
                     except Exception as e:
                         print(f"[WARN] Failed to parse remappings '{remappings_str}': {e}")
-                
-                # 合并默认和额外的 remappings
+
                 all_remappings = default_remappings + additional_remappings
-                
-                # 利用load_robot_config已经处理过的结果来判断
-                # load_robot_config已经处理了回退逻辑，返回的路径就是最终使用的配置文件路径
-                # 只要不是默认配置文件名（ros2_controllers.yaml），就说明使用了type-specific配置
-                # 这包括完整匹配（如ccs_left_rg75.yaml）和渐进匹配（如ccs_left.yaml或ccs.yaml）
-                config_filename = os.path.basename(ros2_controllers_path)
+
+                config_filename = os.path.basename(ros2_controllers_path or "")
                 default_config_filename = "ros2_controllers.yaml"
-                is_type_specific_config = (config_filename != default_config_filename)
-                
-                # 检查配置文件中是否存在robot_type
+                is_type_specific_config = bool(
+                    ros2_controllers_path and config_filename != default_config_filename
+                )
+
                 config_has_robot_type = False
                 if ros2_controllers_config is not None:
                     try:
-                        # 检查ocs2_arm_controller的ros__parameters中是否有robot_type
                         config_robot_type = ros2_controllers_config.get('ocs2_arm_controller', {}).get('ros__parameters', {}).get('robot_type')
-                        config_has_robot_type = (config_robot_type is not None)
+                        config_has_robot_type = config_robot_type is not None
                     except Exception:
                         pass
-                
-                # 构建参数列表。common.yaml is loaded first so the selected
-                # robot-type config can override shared defaults when needed.
-                node_parameters = []
-                common_config_path = os.path.join(os.path.dirname(ros2_controllers_path), 'common.yaml')
-                if os.path.exists(common_config_path):
-                    node_parameters.append(common_config_path)
-                    print(f"[INFO] Loading common ros2_control defaults from: {common_config_path}")
 
-                node_parameters.extend([
-                    ros2_controllers_path,
-                    {'use_sim_time': use_sim_time},
-                ])
-                
-                # 决定是否传递launch参数中的robot_type
-                # 1. 如果使用默认配置，传递launch参数中的robot_type
-                # 2. 如果使用type-specific配置但配置文件中没有robot_type，传递launch参数中的robot_type
-                # 3. 如果使用type-specific配置且配置文件中有robot_type，不传递launch参数（使用配置文件中的值）
-                if not is_type_specific_config:
-                    # 使用默认配置，需要传递launch参数中的robot_type
+                node_parameters = []
+                use_merged_dict = asymmetric or bool(overlay_path)
+                if use_merged_dict and ros2_controllers_config is not None:
+                    merged_config_path = write_temp_ros2_control_yaml(ros2_controllers_config)
+                    node_parameters.append(merged_config_path)
+                    print("[INFO] Using merged ros2_control config file (compose/overlay)")
+                else:
+                    common_config_path = os.path.join(
+                        os.path.dirname(ros2_controllers_path), 'common.yaml'
+                    )
+                    if os.path.exists(common_config_path):
+                        node_parameters.append(common_config_path)
+                        print(f"[INFO] Loading common ros2_control defaults from: {common_config_path}")
+                    if ros2_controllers_path:
+                        node_parameters.append(ros2_controllers_path)
+
+                node_parameters.append({'use_sim_time': use_sim_time})
+
+                if not is_type_specific_config and not asymmetric:
                     if robot_type and robot_type.strip():
                         node_parameters.append({'robot_type': robot_type})
                         print(f"[INFO] Using launch arg robot_type '{robot_type}' (fallback to default config)")
-                elif not config_has_robot_type:
-                    # 使用type-specific配置但配置文件中没有robot_type，传递launch参数中的robot_type
+                elif not config_has_robot_type and not asymmetric:
                     if robot_type and robot_type.strip():
                         node_parameters.append({'robot_type': robot_type})
-                        print(f"[INFO] Using launch arg robot_type '{robot_type}' (type-specific config '{config_filename}' has no robot_type)")
-                else:
-                    # 使用type-specific配置且配置文件中有robot_type，使用配置文件中的值
+                        print(f"[INFO] Using launch arg robot_type '{robot_type}' (type-specific config has no robot_type)")
+                elif config_has_robot_type:
                     print(f"[INFO] Using robot_type from config file '{config_filename}'")
                 
                 ros2_control_node = Node(
@@ -329,5 +337,6 @@ def generate_launch_description():
         world_package_arg,
         hardware_arg,
         remappings_arg,
+    ] + create_robot_profile_launch_arguments() + [
         OpaqueFunction(function=launch_setup)
     ])

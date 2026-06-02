@@ -4,11 +4,19 @@ Common robot utilities for launch files.
 This module provides utility functions for robot path management and configuration loading.
 """
 
+import hashlib
 import os
 import re
+import tempfile
 import yaml
 import xacro
 from ament_index_python.packages import get_package_share_directory
+
+from .control_compose import compose_control_config, resolve_compose_type_key
+from .launch_arg_utils import build_xacro_mappings, resolve_profile_path
+
+ARM_MOUNT_KEYS = ("arm_half_spacing", "arm_mount_z")
+_DESKTOP_MOUNT_TYPES = frozenset({"desktop", "desktop_90c"})
 
 # 全局缓存字典，避免重复读取配置文件
 _config_cache = {}
@@ -61,6 +69,83 @@ def get_robot_package_path(robot_name):
     except Exception as e:
         print(f"[ERROR] Failed to get package path for '{robot_pkg}': {e}")
         return None
+
+
+def load_arm_mount_defaults(robot_name: str, effective_type: str = "") -> dict:
+    """Load arm mount parameters from {robot}_description/config/xacro/mount*.yaml."""
+    robot_pkg_path = get_robot_package_path(robot_name)
+    if robot_pkg_path is None:
+        return {}
+
+    config_dir = os.path.join(robot_pkg_path, "config", "xacro")
+    mount_path = os.path.join(config_dir, "mount.yaml")
+    if effective_type in _DESKTOP_MOUNT_TYPES:
+        desktop_path = os.path.join(config_dir, "mount_desktop.yaml")
+        if os.path.isfile(desktop_path):
+            mount_path = desktop_path
+
+    if not os.path.isfile(mount_path):
+        return {}
+
+    try:
+        with open(mount_path, "r", encoding="utf-8") as handle:
+            data = yaml.safe_load(handle) or {}
+    except OSError as exc:
+        print(f"[WARN] Failed to read arm mount config '{mount_path}': {exc}")
+        return {}
+
+    return {
+        key: str(data[key]).strip()
+        for key in ARM_MOUNT_KEYS
+        if key in data and data[key] is not None and str(data[key]).strip()
+    }
+
+
+def apply_host_arm_mount_config(
+    mappings: dict,
+    host_robot_name: str,
+    effective_type: str = "",
+) -> dict:
+    """
+  Apply arm mount from {host}/config/xacro/mount.yaml (single source per host robot).
+
+  Launch xacro_arm_half_spacing / xacro_arm_mount_z override unset keys only.
+  """
+    host = (host_robot_name or "").strip()
+    if not host:
+        return mappings
+
+    defaults = load_arm_mount_defaults(host, effective_type)
+    if not defaults:
+        print(
+            f"[WARN] No arm mount config at config/xacro/mount.yaml for '{host}' "
+            f"(type={effective_type or 'default'})"
+        )
+        return mappings
+
+    for key, value in defaults.items():
+        if not str(mappings.get(key, "") or "").strip():
+            mappings[key] = value
+
+    if all(str(mappings.get(k, "") or "").strip() for k in ARM_MOUNT_KEYS):
+        print(
+            f"[INFO] Arm mount from {host} package: "
+            f"half_spacing={mappings['arm_half_spacing']}, z={mappings['arm_mount_z']}"
+        )
+    return mappings
+
+
+def merge_arm_mount_defaults(
+    mappings: dict,
+    robot_name: str,
+    source_robot_name: str = "",
+) -> dict:
+    """Backward-compatible alias."""
+    return apply_host_arm_mount_config(
+        mappings,
+        source_robot_name or robot_name,
+        str(mappings.get("type", "") or "").strip(),
+    )
 
 
 def _generate_progressive_type_candidates(robot_type):
@@ -117,97 +202,117 @@ def _deep_merge_dicts(base, override):
     return merged
 
 
-def load_robot_config(robot_name, config_type="ros2_control", robot_type=""):
+def write_temp_ros2_control_yaml(config_dict):
+    """Write merged ros2_control config to a temp YAML file for ros2_control_node."""
+    fd, path = tempfile.mkstemp(suffix=".yaml", prefix="ros2_control_merged_")
+    with os.fdopen(fd, "w", encoding="utf-8") as handle:
+        yaml.safe_dump(config_dict, handle, default_flow_style=False, sort_keys=False)
+    print(f"[INFO] Wrote merged ros2_control config: {path}")
+    return path
+
+
+def load_robot_config(
+    robot_name,
+    config_type="ros2_control",
+    robot_type="",
+    control_left="",
+    control_right="",
+    control_overlay_path="",
+):
     """
-    Get robot configuration from ROS2 controller configuration file.
-    
-    支持渐进名称匹配：当type为'ccs_left_rg75'时，会依次尝试：
-    1. ccs_left_rg75.yaml
-    2. ccs_left.yaml
-    3. ccs.yaml
-    4. 默认配置文件
-    
-    Args:
-        robot_name (str): Name of the robot (e.g., 'cr5', 'arx5', etc.)
-        config_type (str): Type of configuration file (default: 'ros2_control')
-        robot_type (str): Robot type/variant (e.g., 'x5', 'r5', 'robotiq85', 'ccs_left_rg75', etc.)
-        
-    Returns:
-        tuple: (config_dict, config_path) or (None, None) if failed
-        
-    Example:
-        >>> config, path = load_robot_config('cr5', 'ros2_control', 'x5')
-        >>> if config:
-        ...     print(f"Loaded config from: {path}")
+    Load ros2_control config with optional per-side compose and overlay merge.
+
+    Merge order: common.yaml + type variant (or compose) + control_overlay file.
     """
-    # 创建缓存键
-    cache_key = f"{robot_name}_{config_type}_{robot_type}"
-    
-    # 检查缓存
+    effective_type, left, right = resolve_compose_type_key(robot_type, control_left, control_right)
+    asymmetric = bool(left and right and left != right)
+
+    cache_key = (
+        f"{robot_name}_{config_type}_{effective_type}_{left}_{right}_{control_overlay_path}"
+    )
     if cache_key in _config_cache:
         return _config_cache[cache_key]
-    
+
     robot_pkg_path = get_robot_package_path(robot_name)
     if robot_pkg_path is None:
         return None, None
-        
+
     try:
-        # 确定配置目录
         if config_type == "ros2_control":
             config_dir = os.path.join(robot_pkg_path, "config", "ros2_control")
             default_config_file = "ros2_controllers.yaml"
         else:
             config_dir = os.path.join(robot_pkg_path, "config", config_type)
             default_config_file = f"{config_type}.yaml"
-        
+
         config_path = None
         config_file = None
-        
-        # 如果提供了robot_type，尝试渐进匹配
-        if robot_type and robot_type.strip():
-            type_candidates = _generate_progressive_type_candidates(robot_type)
-            
-            # 依次尝试每个候选type
+
+        if effective_type and effective_type.strip() and not asymmetric:
+            type_candidates = _generate_progressive_type_candidates(effective_type)
             for candidate_type in type_candidates:
                 candidate_file = f"{candidate_type}.yaml"
                 candidate_path = os.path.join(config_dir, candidate_file)
-                
                 if os.path.exists(candidate_path):
                     config_path = candidate_path
                     config_file = candidate_file
                     print(f"[INFO] Using {config_type} config file (progressive match): {config_file}")
                     break
-            
-            # 如果渐进匹配都没有找到，使用默认配置
             if config_path is None:
                 config_file = default_config_file
                 config_path = os.path.join(config_dir, config_file)
                 print(f"[INFO] Progressive type matching failed, using default: {config_file}")
         else:
-            # 没有提供robot_type，直接使用默认配置
             config_file = default_config_file
             config_path = os.path.join(config_dir, config_file)
-            
+            if asymmetric:
+                print(f"[INFO] Asymmetric EEF compose: {left} + {right}, base config: {config_file}")
+
         print(f"[INFO] Reading {config_type} config from: {config_path}")
-        
+
         common_config_path = os.path.join(config_dir, "common.yaml")
         common_config = {}
         if config_type == "ros2_control" and os.path.exists(common_config_path):
-            with open(common_config_path, 'r') as file:
+            with open(common_config_path, "r") as file:
                 common_config = yaml.safe_load(file) or {}
             print(f"[INFO] Reading common {config_type} config from: {common_config_path}")
 
-        with open(config_path, 'r') as file:
+        with open(config_path, "r") as file:
             config = yaml.safe_load(file) or {}
 
         config = _deep_merge_dicts(common_config, config)
-        
-        # 缓存结果
+
+        if asymmetric:
+            for controller_name in list(config.keys()):
+                if controller_name.endswith("_gripper_controller") or controller_name.endswith(
+                    "_hand_controller"
+                ):
+                    config.pop(controller_name, None)
+                if controller_name == "controller_manager":
+                    cm_params = config.get("controller_manager", {}).get("ros__parameters", {})
+                    if isinstance(cm_params, dict):
+                        for cm_name in list(cm_params.keys()):
+                            if cm_name.endswith("_gripper_controller") or cm_name.endswith(
+                                "_hand_controller"
+                            ):
+                                cm_params.pop(cm_name, None)
+
+        if asymmetric:
+            composed = compose_control_config(left, right, robot_name, base_config=config)
+            if composed:
+                config = _deep_merge_dicts(config, composed)
+                print(f"[INFO] Merged composed control config for {left} + {right}")
+
+        if control_overlay_path and os.path.isfile(control_overlay_path):
+            with open(control_overlay_path, "r") as file:
+                overlay = yaml.safe_load(file) or {}
+            config = _deep_merge_dicts(config, overlay)
+            print(f"[INFO] Merged control overlay: {control_overlay_path}")
+
         result = (config, config_path)
         _config_cache[cache_key] = result
-            
         return result
-        
+
     except FileNotFoundError:
         print(f"[WARN] {config_type} config file not found for robot '{robot_name}'")
         return None, None
@@ -292,76 +397,274 @@ def get_gz_bridge_config_path(robot_name):
         return None
 
 
-def get_ros2_control_robot_description(robot_name, robot_type="", hardware="mock_components"):
+def _mappings_cache_key(robot_name, hardware, mappings):
+    items = sorted((str(k), str(v)) for k, v in mappings.items())
+    return f"{robot_name}_{hardware}_{items}"
+
+
+def get_ros2_control_robot_description(
+    robot_name,
+    robot_type="",
+    hardware="mock_components",
+    mappings=None,
+    launch_configurations=None,
+    robot_profile=None,
+):
     """
-    生成 ros2_control 的 robot_description。
-    
-    这个函数用于生成包含 ros2_control 接口的机器人描述，可以在多个地方复用，
-    避免重复生成相同的 robot_description。使用缓存机制，相同参数的调用会返回缓存的结果。
-    
-    Args:
-        robot_name (str): Name of the robot (e.g., 'cr5', 'arx5', etc.)
-        robot_type (str): Robot type/variant (e.g., 'x5', 'r5', etc.)
-        hardware (str): Hardware type (e.g., 'gz', 'mock_components', 'real', etc.)
-        
-    Returns:
-        str: URDF/XML 格式的机器人描述字符串，如果失败则返回 None
-        
-    Example:
-        >>> robot_description = get_ros2_control_robot_description('cr5', 'x5', 'mock_components')
-        >>> if robot_description:
-        ...     print("Robot description generated successfully")
+    Generate ros2_control robot_description from xacro with optional mappings dict
+    or launch profile / prefixed arguments.
     """
     global _robot_description_cache
-    
-    # 创建缓存键
-    cache_key = f"{robot_name}_{robot_type}_{hardware}"
-    
-    # 检查缓存
+
+    if mappings is None:
+        if launch_configurations is not None:
+            profile_path = robot_profile or resolve_profile_path(launch_configurations)
+            mappings = build_xacro_mappings(hardware, launch_configurations, profile_path or None)
+        else:
+            mappings = {"ros2_control_hardware_type": hardware}
+            if robot_type and robot_type.strip():
+                mappings["type"] = robot_type
+            if hardware == "gz":
+                mappings["gazebo"] = "true"
+
+    cache_key = _mappings_cache_key(robot_name, hardware, mappings)
     if cache_key in _robot_description_cache:
         return _robot_description_cache[cache_key]
-    
+
     robot_pkg_path = get_robot_package_path(robot_name)
     if robot_pkg_path is None:
         return None
-    
+
     try:
         robot_description_file_path = os.path.join(
-            robot_pkg_path,
-            "xacro",
-            "ros2_control",
-            "robot.xacro"
+            robot_pkg_path, "xacro", "ros2_control", "robot.xacro"
         )
-        
         if not os.path.exists(robot_description_file_path):
             print(f"[WARN] ros2_control xacro file not found: {robot_description_file_path}")
             return None
-        
-        # 构建 xacro mappings
-        mappings = {
-            'ros2_control_hardware_type': hardware,
-        }
-        if robot_type and robot_type.strip():
-            mappings["type"] = robot_type
-        
-        # 如果是 Gazebo 模式，添加 gazebo 映射
-        if hardware == 'gz':
-            mappings['gazebo'] = 'true'
-        
+
         robot_description_config = xacro.process_file(
             robot_description_file_path,
-            mappings=mappings
+            mappings=mappings,
         )
-        
         robot_description = robot_description_config.toxml()
-        
-        # 缓存结果
         _robot_description_cache[cache_key] = robot_description
-        
         return robot_description
-        
+
     except Exception as e:
         print(f"[ERROR] Failed to generate ros2_control robot_description for '{robot_name}': {e}")
+        return None
+
+
+def get_planning_urdf_cache_dir(robot_name):
+    """Writable cache directory for xacro-generated planning URDF files.
+
+    Defaults to /tmp so reboot clears stale xacro caches. Override with
+    OCS2_PLANNING_URDF_DIR when a persistent cache is desired.
+    """
+    if override := os.environ.get("OCS2_PLANNING_URDF_DIR", "").strip():
+        base = override
+    else:
+        base = "/tmp"
+    cache_dir = os.path.join(base, "ocs2_ros2", robot_name, "planning_urdf")
+    os.makedirs(cache_dir, exist_ok=True)
+    return cache_dir
+
+
+def write_planning_urdf_cache(robot_name, urdf_content, cache_key=""):
+    """Write planning URDF XML to cache; returns absolute file path."""
+    if not urdf_content:
+        return ""
+    suffix = cache_key if cache_key else "default"
+    cache_path = os.path.join(get_planning_urdf_cache_dir(robot_name), f"{suffix}.urdf")
+    with open(cache_path, "w", encoding="utf-8") as handle:
+        handle.write(urdf_content)
+    print(f"[INFO] Wrote planning URDF cache: {cache_path}")
+    return os.path.abspath(cache_path)
+
+
+PLANNING_SCOPE_ARMS = "arms"
+PLANNING_SCOPE_FULL = "full"
+
+
+def _resolve_planning_scope(planning_robot_name, launch_configurations, planning_scope=""):
+    configs = launch_configurations or {}
+    scope = (planning_scope or configs.get("planning_scope", "")).strip().lower()
+    if scope in (PLANNING_SCOPE_ARMS, PLANNING_SCOPE_FULL):
+        return scope
+    if planning_robot_name == "m6_ccs":
+        return PLANNING_SCOPE_ARMS
+    return PLANNING_SCOPE_FULL
+
+
+def _resolve_planning_robot_name(planning_robot_name, planning_scope):
+    """Use ocs2_arm_controller.robot_name from config; do not override per scope."""
+    return planning_robot_name
+
+
+def _planning_xacro_mappings(
+    hardware,
+    launch_configurations,
+    robot_profile=None,
+    planning_scope=PLANNING_SCOPE_FULL,
+):
+    """Xacro mappings for OCS2 planning URDF (kinematic tree without EEF/chassis actuation DOF)."""
+    configs = launch_configurations or {}
+
+    mappings = build_xacro_mappings(hardware, configs, robot_profile)
+    mappings.pop("ros2_control_hardware_type", None)
+    mappings.pop("gazebo", None)
+    # Planning URDF: freeze chassis wheels/steer and EEF actuation in xacro (not via .info removeJoints).
+    mappings["eef_fixed_joints"] = "true"
+    mappings["chassis_joints_movable"] = "false"
+
+    if planning_scope == PLANNING_SCOPE_ARMS:
+        for key in ("chassis", "variant"):
+            mappings.pop(key, None)
+        left_type = mappings.get("left_type", "").strip()
+        right_type = mappings.get("right_type", "").strip()
+        if left_type and right_type:
+            mappings.pop("type", None)
+        elif not mappings.get("type", "").strip():
+            mappings["type"] = "dual"
+        if not all(str(mappings.get(k, "") or "").strip() for k in ARM_MOUNT_KEYS):
+            host = configs.get("robot", "").strip()
+            print(
+                f"[WARN] planning_scope=arms: arm mount unset; "
+                f"define config/xacro/mount.yaml on host robot '{host or '?'}'"
+            )
+
+    configs = launch_configurations or {}
+    use_base = (
+        configs.get("planning_use_base_urdf", "").strip().lower() in ("true", "1", "yes")
+        or configs.get("planning_urdf_variant", "").strip().lower() == "base"
+    )
+    if use_base:
+        for key in ("type", "left_type", "right_type"):
+            mappings.pop(key, None)
+        mappings["type"] = "dual"
+
+    return mappings
+
+
+def _planning_urdf_cache_key(mappings, planning_scope=PLANNING_SCOPE_FULL):
+    items = "|".join(f"{k}={v}" for k, v in sorted(mappings.items()))
+    items += f"|schema=v8|scope={planning_scope}"
+    return hashlib.sha256(items.encode("utf-8")).hexdigest()[:16]
+
+
+def build_planning_urdf_launch_params(
+    planning_robot_name,
+    launch_configurations,
+    hardware="mock_components",
+    robot_profile=None,
+    planning_scope="",
+):
+    """
+    Generate planning URDF from xacro/robot.xacro and return controller params.
+
+    planning_scope:
+      - arms  : split-body OCS2 — dual arms from arm_base (m6_ccs xacro)
+      - full  : full-body WBC — whole robot (e.g. fiveages_w2 xacro)
+
+    Returns dict with planning_urdf_variant / planning_urdf_path, or empty dict
+    when xacro planning URDF cannot be generated.
+    """
+    configs = launch_configurations or {}
+
+    profile_path = robot_profile
+    if not profile_path:
+        profile_path = resolve_profile_path(configs) or None
+
+    scope = _resolve_planning_scope(planning_robot_name, configs, planning_scope)
+    effective_robot_name = _resolve_planning_robot_name(planning_robot_name, scope)
+    host_robot = configs.get("robot", "").strip()
+    if scope == PLANNING_SCOPE_ARMS and host_robot and host_robot != effective_robot_name:
+        print(
+            f"[INFO] planning_scope={scope}: arm module '{effective_robot_name}' "
+            f"with mount from host '{host_robot}'"
+        )
+    elif effective_robot_name != planning_robot_name:
+        print(
+            f"[INFO] planning_scope={scope}: using '{effective_robot_name}' "
+            f"planning URDF (launch/config robot: {planning_robot_name})"
+        )
+
+    mappings = _planning_xacro_mappings(hardware, configs, profile_path, scope)
+
+    robot_pkg_path = get_robot_package_path(effective_robot_name)
+    if robot_pkg_path is None:
+        return {}
+
+    planning_xacro = os.path.join(robot_pkg_path, "xacro", "robot.xacro")
+    if not os.path.isfile(planning_xacro):
+        print(f"[INFO] No planning xacro at {planning_xacro}, using static URDF")
+        return {}
+
+    cache_key = _planning_urdf_cache_key(mappings, scope)
+    cache_path = os.path.join(get_planning_urdf_cache_dir(effective_robot_name), f"{cache_key}.urdf")
+    if os.path.isfile(cache_path):
+        print(f"[INFO] Reusing cached planning URDF: {cache_path}")
+        return {
+            "planning_urdf_variant": "xacro",
+            "planning_urdf_path": cache_path,
+        }
+
+    urdf_xml = get_planning_robot_description(
+        effective_robot_name,
+        launch_configurations=configs,
+        robot_profile=profile_path,
+        hardware=hardware,
+        planning_scope=scope,
+    )
+    if not urdf_xml:
+        print(f"[WARN] Failed to generate planning URDF from xacro for '{effective_robot_name}'")
+        return {}
+
+    written_path = write_planning_urdf_cache(effective_robot_name, urdf_xml, cache_key)
+    if not written_path:
+        return {}
+
+    return {
+        "planning_urdf_variant": "xacro",
+        "planning_urdf_path": written_path,
+    }
+
+
+def get_planning_robot_description(
+    robot_name,
+    launch_configurations=None,
+    robot_profile=None,
+    hardware="mock_components",
+    planning_scope="",
+):
+    """Generate kinematic planning URDF from xacro/robot.xacro (no ros2_control)."""
+    profile_path = robot_profile
+    if not profile_path and launch_configurations is not None:
+        profile_path = resolve_profile_path(launch_configurations) or None
+
+    scope = _resolve_planning_scope(robot_name, launch_configurations or {}, planning_scope)
+    effective_robot_name = _resolve_planning_robot_name(robot_name, scope)
+    mappings = _planning_xacro_mappings(
+        hardware,
+        launch_configurations or {},
+        profile_path,
+        scope,
+    )
+
+    robot_pkg_path = get_robot_package_path(effective_robot_name)
+    if robot_pkg_path is None:
+        return None
+
+    planning_xacro = os.path.join(robot_pkg_path, "xacro", "robot.xacro")
+    if not os.path.exists(planning_xacro):
+        print(f"[WARN] Planning xacro not found: {planning_xacro}")
+        return None
+
+    try:
+        return xacro.process_file(planning_xacro, mappings=mappings).toxml()
+    except Exception as e:
+        print(f"[ERROR] Failed to generate planning robot_description for '{robot_name}': {e}")
         return None
 
 

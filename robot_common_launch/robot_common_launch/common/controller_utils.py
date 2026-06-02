@@ -37,7 +37,14 @@ def _extract_joints_from_urdf(robot_description):
         return set()
 
 
-def detect_controllers(robot_name, robot_type="", patterns=None, robot_description=None):
+def detect_controllers(
+    robot_name,
+    robot_type="",
+    patterns=None,
+    robot_description=None,
+    control_left="",
+    control_right="",
+):
     """
     Detect controllers from ROS2 controller configuration.
     
@@ -67,7 +74,13 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
     if patterns is None:
         patterns = ['hand', 'gripper']
     
-    config, _ = load_robot_config(robot_name, "ros2_control", robot_type)
+    config, _ = load_robot_config(
+        robot_name,
+        "ros2_control",
+        robot_type,
+        control_left=control_left,
+        control_right=control_right,
+    )
     
     if config is None:
         print(f"[WARN] No controllers will be detected for robot '{robot_name}'")
@@ -91,7 +104,12 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
         # Check if controller name matches any pattern
         if any(pattern.lower() in controller_name.lower() for pattern in patterns):
             # Extract controller type and parameters
-            controller_type = controller_config.get('type', '')
+            if isinstance(controller_config, str):
+                controller_type = controller_config
+            elif isinstance(controller_config, dict):
+                controller_type = controller_config.get('type', '')
+            else:
+                controller_type = ''
             
             # 如果提供了 robot_description，检查配置中的 joint 是否存在
             if robot_description and available_joints:

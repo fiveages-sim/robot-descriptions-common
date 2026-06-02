@@ -2,8 +2,36 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
     <xacro:arg name="collider" default="convex"/>
     <xacro:property name="collider_type" value="$(arg collider)"/>
-    
-    <xacro:macro name="RG75-300" params="name use_flange:=false pad:=default">
+
+    <!-- Simplified collision envelope (migrated from m6_ccs arm link7; gripper_base +Z frame). -->
+    <xacro:macro name="RG75_simple_collision" params="pad">
+        <xacro:if value="${collider_type == 'simple'}">
+            <collision>
+                <origin xyz="0 0 0.11"/>
+                <geometry>
+                    <cylinder length="0.138392" radius="0.05"/>
+                </geometry>
+            </collision>
+            <xacro:if value="${pad == 'heavy_carry'}">
+                <collision>
+                    <origin xyz="0 0 0.32"/>
+                    <geometry>
+                        <box size="0.1 0.1 0.08"/>
+                    </geometry>
+                </collision>
+            </xacro:if>
+            <xacro:if value="${pad == 'default' or pad == 'leapmotor' or pad == 'none' or pad == 'soft'}">
+                <collision>
+                    <origin xyz="0 0 0.22"/>
+                    <geometry>
+                        <cylinder length="0.08" radius="0.021707"/>
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </xacro:if>
+    </xacro:macro>
+
+    <xacro:macro name="RG75-300" params="name use_flange:=false pad:=default kinematic_only:=false">
         <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
         <xacro:property name="PI" value="3.1415926535897931"/>
         <xacro:property name="use_default_support" value="${pad == 'default' or pad == 'leapmotor' or pad == 'none'}"/>
@@ -32,6 +60,7 @@
                     </geometry>
                 </collision>
             </xacro:if>
+            <xacro:RG75_simple_collision pad="${pad}"/>
         </link>
 
         <xacro:if value="${use_flange}">
@@ -59,6 +88,14 @@
                         </geometry>
                     </collision>
                 </xacro:if>
+                <xacro:if value="${collider_type == 'simple'}">
+                    <collision>
+                        <origin xyz="0 0 0.015"/>
+                        <geometry>
+                            <cylinder length="0.03" radius="0.045"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
 
             </link>
             <joint name="${prefix}flange_joint" type="fixed">
@@ -67,6 +104,21 @@
             </joint>
         </xacro:if>
 
+        <xacro:if value="${kinematic_only}">
+            <link name="${prefix}eef"/>
+            <joint name="${prefix}eef_joint" type="fixed">
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}eef"/>
+                <xacro:if value="${pad == 'default' or pad == 'leapmotor' or pad == 'none'}">
+                    <origin xyz="0 0 0.22"/>
+                </xacro:if>
+                <xacro:if value="${pad == 'heavy_carry'}">
+                    <origin xyz="-0.2 0 0.42525" rpy="0 ${PI/2} ${PI}"/>
+                </xacro:if>
+            </joint>
+        </xacro:if>
+
+        <xacro:unless value="${kinematic_only}">
         <link name="${prefix}left_finger">
             <inertial>
                 <origin xyz="-0.00622314924233969 -0.0138600974249246 -0.000918462021462396"/>
@@ -448,6 +500,8 @@
                 </xacro:if>
             </joint>
         </xacro:if>
+
+        </xacro:unless>
 
     </xacro:macro>
 </robot>

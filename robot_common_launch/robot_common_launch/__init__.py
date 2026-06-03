@@ -15,6 +15,7 @@ from .common.robot_utils import (
     write_temp_ros2_control_yaml,
     parse_task_info,
     prepare_arms_target_manager_parameters,
+    extract_info_file_name_from_config,
 )
 from .common.controller_utils import detect_controllers, create_controller_spawners
 from .common.launch_arg_utils import (
@@ -64,6 +65,7 @@ __all__ = [
     'resolve_compose_type_key',
     'parse_task_info',
     'prepare_arms_target_manager_parameters',
+    'extract_info_file_name_from_config',
     'detect_controllers', 
     'create_controller_spawners',
     'process_xacro',

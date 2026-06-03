@@ -127,12 +127,13 @@ def _deep_merge_dicts(base, override):
     return merged
 
 
-def write_temp_ros2_control_yaml(config_dict):
+def write_temp_ros2_control_yaml(config_dict, *, quiet: bool = False):
     """Write merged ros2_control config to a temp YAML file for ros2_control_node."""
     fd, path = tempfile.mkstemp(suffix=".yaml", prefix="ros2_control_merged_")
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
         yaml.safe_dump(config_dict, handle, default_flow_style=False, sort_keys=False)
-    print(f"[INFO] Wrote merged ros2_control config: {path}")
+    if not quiet:
+        print(f"[INFO] Wrote merged ros2_control config: {path}")
     return path
 
 
@@ -197,14 +198,19 @@ def load_robot_config(
             if asymmetric:
                 print(f"[INFO] Asymmetric EEF compose: {left} + {right}, base config: {config_file}")
 
-        print(f"[INFO] Reading {config_type} config from: {config_path}")
-
         common_config_path = os.path.join(config_dir, "common.yaml")
         common_config = {}
         if config_type == "ros2_control" and os.path.exists(common_config_path):
             with open(common_config_path, "r") as file:
                 common_config = yaml.safe_load(file) or {}
-            print(f"[INFO] Reading common {config_type} config from: {common_config_path}")
+
+        if common_config:
+            print(
+                f"[INFO] Loaded {config_type} config: {config_path} "
+                f"(+ {common_config_path})"
+            )
+        else:
+            print(f"[INFO] Loaded {config_type} config: {config_path}")
 
         with open(config_path, "r") as file:
             config = yaml.safe_load(file) or {}

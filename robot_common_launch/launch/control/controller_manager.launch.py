@@ -14,6 +14,7 @@ gz sim -g
 """
 
 import os
+import yaml
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -92,7 +93,17 @@ def generate_launch_description():
         description='Topic remappings for ros2_control_node (format: "from1:to1;from2:to2")'
     )
 
-    
+    ocs2_planning_param_file_arg = DeclareLaunchArgument(
+        'ocs2_planning_param_file',
+        default_value='',
+        description='Optional YAML with ocs2_*_controller planning_urdf_* (loaded before controller init)',
+    )
+
+    ros2_controllers_override_arg = DeclareLaunchArgument(
+        'ros2_controllers_override',
+        default_value='',
+        description='Pre-merged ros2_control YAML from parent launch (avoids duplicate load/merge)',
+    )
 
     def launch_setup(context, *args, **kwargs):
         configs = context.launch_configurations
@@ -226,14 +237,20 @@ def generate_launch_description():
             
             nodes.append(gz_spawn_entity)
         else:
-            ros2_controllers_config, ros2_controllers_path = load_robot_config(
-                robot_name,
-                "ros2_control",
-                robot_type,
-                control_left=control_left,
-                control_right=control_right,
-                control_patch=control_patch,
-            )
+            ros2_override = configs.get('ros2_controllers_override', '').strip()
+            if ros2_override and os.path.isfile(ros2_override):
+                with open(ros2_override, 'r', encoding='utf-8') as handle:
+                    ros2_controllers_config = yaml.safe_load(handle) or {}
+                ros2_controllers_path = ros2_override
+            else:
+                ros2_controllers_config, ros2_controllers_path = load_robot_config(
+                    robot_name,
+                    "ros2_control",
+                    robot_type,
+                    control_left=control_left,
+                    control_right=control_right,
+                    control_patch=control_patch,
+                )
             if ros2_controllers_path is not None or ros2_controllers_config is not None:
                 default_remappings = [
                     ("/controller_manager/robot_description", "/robot_description"),
@@ -267,7 +284,9 @@ def generate_launch_description():
 
                 node_parameters = []
                 use_merged_dict = asymmetric or bool(control_patch)
-                if use_merged_dict and ros2_controllers_config is not None:
+                if ros2_override and ros2_controllers_config is not None:
+                    node_parameters.append(ros2_override)
+                elif use_merged_dict and ros2_controllers_config is not None:
                     merged_config_path = write_temp_ros2_control_yaml(ros2_controllers_config)
                     node_parameters.append(merged_config_path)
                     print("[INFO] Using merged ros2_control config file (compose/patch)")
@@ -282,6 +301,10 @@ def generate_launch_description():
                         node_parameters.append(ros2_controllers_path)
 
                 node_parameters.append({'use_sim_time': use_sim_time})
+
+                planning_param_file = configs.get('ocs2_planning_param_file', '').strip()
+                if planning_param_file and os.path.isfile(planning_param_file):
+                    node_parameters.append(planning_param_file)
 
                 if not is_type_specific_config and not asymmetric:
                     if robot_type and robot_type.strip():
@@ -331,6 +354,8 @@ def generate_launch_description():
         world_package_arg,
         hardware_arg,
         remappings_arg,
+        ocs2_planning_param_file_arg,
+        ros2_controllers_override_arg,
     ] + create_robot_profile_launch_arguments() + [
         OpaqueFunction(function=launch_setup)
     ])

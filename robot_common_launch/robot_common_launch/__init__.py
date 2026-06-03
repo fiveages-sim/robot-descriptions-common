@@ -21,6 +21,8 @@ from .common.controller_utils import (
     detect_controllers,
     create_controller_spawners,
     wrap_spawner_controller_params,
+    write_spawner_controller_param_file,
+    prepare_ros2_controllers_override_path,
 )
 from .common.launch_arg_utils import (
     build_xacro_mappings,
@@ -82,6 +84,8 @@ __all__ = [
     'detect_controllers', 
     'create_controller_spawners',
     'wrap_spawner_controller_params',
+    'write_spawner_controller_param_file',
+    'prepare_ros2_controllers_override_path',
     'process_xacro',
     'get_default_type_from_xacro',
     'create_visualization_nodes',

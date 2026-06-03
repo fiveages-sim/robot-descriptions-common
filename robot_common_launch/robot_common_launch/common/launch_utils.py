@@ -82,10 +82,10 @@ def create_visualization_nodes(robot_description, rviz_config_file):
         list: Node 对象列表
     """
     return [
+        # rviz2 executable hosts multiple rclcpp nodes; avoid name= remaps to one name.
         Node(
             package='rviz2',
             executable='rviz2',
-            name='rviz2',
             output='screen',
             arguments=["-d", rviz_config_file]
         ),

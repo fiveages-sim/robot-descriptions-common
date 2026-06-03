@@ -41,6 +41,8 @@ CORE_LAUNCH_KEYS = frozenset({
     "enable_body",
     "enable_arms_target_manager",
     "planning_use_base_urdf",
+    "ocs2_planning_param_file",
+    "ros2_controllers_override",
 })
 
 

@@ -210,6 +210,11 @@ def compose_control_config(
     return composed
 
 
+def is_compose_asymmetric(control_left: str, control_right: str) -> bool:
+    """True when per-side compose is required (incl. one bare arm + one EEF)."""
+    return control_left.strip() != control_right.strip()
+
+
 def resolve_compose_type_key(
     launch_type: str,
     control_left: str,
@@ -221,13 +226,15 @@ def resolve_compose_type_key(
     """
     left = control_left.strip()
     right = control_right.strip()
-    if left and right and left != right:
+    lt = launch_type.strip()
+
+    if is_compose_asymmetric(left, right):
         return "", left, right
-    if launch_type.strip():
-        t = launch_type.strip()
-        return t, left or t, right or t
+
+    if lt:
+        return lt, left or lt, right or lt
+
     if left:
         return left, left, left
-    if right:
-        return right, right, right
+
     return "", "", ""

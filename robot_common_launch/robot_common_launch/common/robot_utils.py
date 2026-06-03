@@ -13,7 +13,11 @@ import yaml
 import xacro
 from ament_index_python.packages import get_package_share_directory
 
-from .control_compose import compose_control_config, resolve_compose_type_key
+from .control_compose import (
+    compose_control_config,
+    is_compose_asymmetric,
+    resolve_compose_type_key,
+)
 from .launch_arg_utils import build_xacro_mappings, resolve_profile_path
 
 # 全局缓存字典，避免重复读取配置文件
@@ -146,7 +150,7 @@ def load_robot_config(
     Merge order: common.yaml + type variant (or compose) + control.patch from robot profile.
     """
     effective_type, left, right = resolve_compose_type_key(robot_type, control_left, control_right)
-    asymmetric = bool(left and right and left != right)
+    asymmetric = is_compose_asymmetric(left, right)
     patch = control_patch if isinstance(control_patch, dict) else {}
     patch_stamp = (
         hashlib.md5(json.dumps(patch, sort_keys=True).encode()).hexdigest() if patch else ""

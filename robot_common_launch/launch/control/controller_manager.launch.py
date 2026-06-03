@@ -33,7 +33,7 @@ from robot_common_launch import (
     resolve_profile_path,
     resolve_control_sides,
     resolve_control_patch,
-    resolve_compose_type_key,
+    is_compose_asymmetric,
     load_robot_profile,
     write_temp_ros2_control_yaml,
 )
@@ -109,8 +109,7 @@ def generate_launch_description():
         profile = load_robot_profile(robot_profile_path) if robot_profile_path else {}
         control_left, control_right = resolve_control_sides(configs, profile)
         control_patch = resolve_control_patch(profile)
-        _, _, resolved_right = resolve_compose_type_key(robot_type, control_left, control_right)
-        asymmetric = bool(control_left and resolved_right and control_left != resolved_right)
+        asymmetric = is_compose_asymmetric(control_left, control_right)
 
         use_gazebo = hardware == 'gz'
 

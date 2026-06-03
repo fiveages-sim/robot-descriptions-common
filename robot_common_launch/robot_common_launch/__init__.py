@@ -30,7 +30,11 @@ from .common.launch_arg_utils import (
     should_use_base_planning_urdf,
     load_robot_profile,
 )
-from .common.control_compose import compose_control_config, resolve_compose_type_key
+from .common.control_compose import (
+    compose_control_config,
+    is_compose_asymmetric,
+    resolve_compose_type_key,
+)
 from .common.launch_utils import (
     process_xacro, 
     get_default_type_from_xacro,
@@ -66,6 +70,7 @@ __all__ = [
     'should_use_base_planning_urdf',
     'load_robot_profile',
     'compose_control_config',
+    'is_compose_asymmetric',
     'resolve_compose_type_key',
     'parse_task_info',
     'prepare_arms_target_manager_parameters',

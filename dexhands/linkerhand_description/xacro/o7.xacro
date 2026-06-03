@@ -61,6 +61,13 @@
 			</collision>
 		</link>
 
+		<link name="${prefix}eef"/>
+		<joint name="${prefix}eef_joint" type="fixed">
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}eef"/>
+			<origin xyz="0.03 0. 0.1"/>
+		</joint>
+
 		<!-- ========================================== -->
 		<!-- 拇指部分 (Thumb) -->
 		<!-- ========================================== -->

@@ -17,7 +17,11 @@ from .common.robot_utils import (
     prepare_arms_target_manager_parameters,
     extract_info_file_name_from_config,
 )
-from .common.controller_utils import detect_controllers, create_controller_spawners
+from .common.controller_utils import (
+    detect_controllers,
+    create_controller_spawners,
+    wrap_spawner_controller_params,
+)
 from .common.launch_arg_utils import (
     build_xacro_mappings,
     forward_robot_launch_args,
@@ -77,6 +81,7 @@ __all__ = [
     'extract_info_file_name_from_config',
     'detect_controllers', 
     'create_controller_spawners',
+    'wrap_spawner_controller_params',
     'process_xacro',
     'get_default_type_from_xacro',
     'create_visualization_nodes',

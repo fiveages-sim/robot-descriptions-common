@@ -5,7 +5,22 @@ This module provides utility functions for controller detection and management.
 """
 
 import xml.etree.ElementTree as ET
+from typing import Any, Dict
+
 from launch_ros.actions import Node
+
+
+def wrap_spawner_controller_params(
+    controller_name: str, ros_parameters: Dict[str, Any]
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    """
+    Wrap parameters for ``controller_manager spawner``.
+
+    ROS 2 Jazzy spawner only forwards ``--params-file`` entries that contain
+    ``<controller_name>: {ros__parameters: ...}``. Flat dicts are ignored by the
+    controller plugin (e.g. ``planning_urdf_path`` never reaches ocs2_arm_controller).
+    """
+    return {controller_name: {"ros__parameters": dict(ros_parameters)}}
 
 
 def _extract_joints_from_urdf(robot_description):

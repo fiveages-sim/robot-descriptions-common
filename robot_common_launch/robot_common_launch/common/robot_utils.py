@@ -429,6 +429,8 @@ def get_ros2_control_robot_description(
                 mappings["type"] = robot_type
             if hardware == "gz":
                 mappings["gazebo"] = "true"
+    # ros2_control: EEF stays actuated for adaptive_gripper_controller; OCS2 uses planning URDF only.
+    mappings["eef_fixed_joints"] = "false"
 
     cache_key = _mappings_cache_key(robot_name, hardware, mappings)
     if cache_key in _robot_description_cache:
@@ -560,7 +562,7 @@ def _planning_xacro_mappings(
 
 def _planning_urdf_cache_key(mappings, planning_scope=PLANNING_SCOPE_FULL):
     items = "|".join(f"{k}={v}" for k, v in sorted(mappings.items()))
-    items += f"|schema=v10|scope={planning_scope}"
+    items += f"|schema=v13|scope={planning_scope}"
     return hashlib.sha256(items.encode("utf-8")).hexdigest()[:16]
 
 

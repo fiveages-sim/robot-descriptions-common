@@ -186,12 +186,15 @@ def create_common_launch_arguments():
     Returns:
         list: DeclareLaunchArgument 对象列表
     """
+    from .launch_arg_utils import create_eef_side_launch_arguments
+
     return [
         DeclareLaunchArgument(
             'type',
             default_value='',
             description='Type parameter for xacro (empty means no type parameter passed to xacro)'
         ),
+        *create_eef_side_launch_arguments(),
         DeclareLaunchArgument(
             'collider',
             default_value='',
@@ -207,11 +210,22 @@ def create_common_launch_arguments():
 
 def build_visualization_xacro_mappings(robot_name: str, launch_configurations: dict) -> dict:
     """Xacro mappings for RViz-only launches (no ros2_control / robot_profile)."""
+    from .launch_arg_utils import _cli_launch_value, resolve_side_eef_types
+
     mappings = {}
-    for key in ("type", "collider", "direction"):
+    for key in ("collider", "direction"):
         value = launch_configurations.get(key, "")
         if value and str(value).strip():
             mappings[key] = str(value).strip()
+
+    launch_type = _cli_launch_value(launch_configurations, "type")
+    side_left, side_right = resolve_side_eef_types(launch_configurations, None)
+    if launch_type:
+        mappings["type"] = launch_type
+    if side_left:
+        mappings["left_type"] = side_left
+    if side_right:
+        mappings["right_type"] = side_right
     return mappings
 
 

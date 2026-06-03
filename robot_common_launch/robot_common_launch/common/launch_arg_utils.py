@@ -19,6 +19,8 @@ REAL_HARDWARE = frozenset({"real", "real_usb"})
 CORE_LAUNCH_KEYS = frozenset({
     "robot",
     "type",
+    "left_type",
+    "right_type",
     "hardware",
     "use_sim_time",
     "world",
@@ -74,7 +76,7 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
 
     New schema (recommended):
       platform:  chassis / variant / arm_ctrl_mode — always apply (incl. quick_start [模板])
-      defaults.end_effectors: default EEF for「本机配置」only; overridden by type:= / xacro_* templates
+      defaults.end_effectors: default EEF for「本机配置」only; overridden by type:= / left_type:= / right_type:=
       control.patch: inline ros2_control overrides (deep-merged after compose)
     """
     if not isinstance(data, dict) or not data:
@@ -156,6 +158,55 @@ def resolve_profile_path(launch_configurations: Dict[str, str]) -> str:
     return ""
 
 
+def _cli_launch_value(launch_configurations: Dict[str, str], key: str) -> str:
+    """Read a launch arg from LaunchConfiguration or ``key:=value`` on the CLI."""
+    value = str(launch_configurations.get(key, "") or "").strip()
+    if value:
+        return value
+    prefix = f"{key}:="
+    for token in sys.argv:
+        if token.startswith(prefix):
+            return token[len(prefix) :].strip()
+    return ""
+
+
+def resolve_side_eef_types(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+) -> Tuple[str, str]:
+    """
+    Per-side end-effector type keys for URDF xacro and ros2_control compose.
+
+    Symmetric: ``type:=rg75`` when ``left_type`` / ``right_type`` are unset.
+    Asymmetric: ``left_type:=rg75 right_type:=linkerhand_o7`` (do not pass ``type:=``).
+    """
+    left = _cli_launch_value(launch_configurations, "left_type")
+    right = _cli_launch_value(launch_configurations, "right_type")
+    launch_type = _cli_launch_value(launch_configurations, "type")
+
+    if launch_type and not left and not right:
+        return launch_type, launch_type
+
+    if profile:
+        control_section = profile.get("control") or {}
+        if isinstance(control_section, dict):
+            if not left:
+                left = str(control_section.get("left", "") or "").strip()
+            if not right:
+                right = str(control_section.get("right", "") or "").strip()
+        xacro_section = profile.get("xacro") or {}
+        if isinstance(xacro_section, dict):
+            xl = str(xacro_section.get("left_type", "") or "").strip()
+            xr = str(xacro_section.get("right_type", "") or "").strip()
+            xt = str(xacro_section.get("type", "") or "").strip()
+            if not left:
+                left = xl or xt
+            if not right:
+                right = xr or xt
+
+    return left, right
+
+
 def resolve_control_patch(profile: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """ros2_control overrides from robot.local.yaml control.patch (deep-merged after compose)."""
     if not profile:
@@ -171,30 +222,8 @@ def resolve_control_sides(
     launch_configurations: Dict[str, str],
     profile: Optional[Dict[str, Any]] = None,
 ) -> Tuple[str, str]:
-    control_args = extract_prefixed_args(launch_configurations, CONTROL_PREFIX)
-    left = control_args.get("left", "")
-    right = control_args.get("right", "")
-    launch_type = launch_configurations.get("type", "").strip()
-    # Symmetric menu template (type:= only): override profile left/right for ros2_control compose.
-    if launch_type and not left and not right:
-        return launch_type, launch_type
-    if profile:
-        control_section = profile.get("control") or {}
-        if isinstance(control_section, dict):
-            if not left:
-                left = str(control_section.get("left", "") or "")
-            if not right:
-                right = str(control_section.get("right", "") or "")
-        xacro_section = profile.get("xacro") or {}
-        if isinstance(xacro_section, dict):
-            xl = str(xacro_section.get("left_type", "") or "")
-            xr = str(xacro_section.get("right_type", "") or "")
-            xt = str(xacro_section.get("type", "") or "")
-            if not left:
-                left = xl or xt
-            if not right:
-                right = xr or xt
-    return left.strip(), right.strip()
+    """Alias for :func:`resolve_side_eef_types` (ros2_control compose)."""
+    return resolve_side_eef_types(launch_configurations, profile)
 
 
 def is_asymmetric_eef(left_type: str, right_type: str, launch_type: str) -> bool:
@@ -238,6 +267,8 @@ def build_xacro_mappings(
             mappings[str(key)] = str(value).strip()
 
     xacro_overrides = extract_prefixed_args(launch_configurations, XACRO_PREFIX)
+    for key in ("type", "left_type", "right_type"):
+        xacro_overrides.pop(key, None)
     mappings.update(xacro_overrides)
 
     if hardware in REAL_HARDWARE:
@@ -248,9 +279,8 @@ def build_xacro_mappings(
                     mappings[str(key)] = str(value).strip()
         mappings.update(extract_prefixed_args(launch_configurations, HARDWARE_PREFIX))
 
-    launch_type = launch_configurations.get("type", "").strip()
-    explicit_left = str(xacro_overrides.get("left_type", "") or "").strip()
-    explicit_right = str(xacro_overrides.get("right_type", "") or "").strip()
+    launch_type = _cli_launch_value(launch_configurations, "type")
+    side_left, side_right = resolve_side_eef_types(launch_configurations, profile)
 
     if launch_type:
         mappings["type"] = launch_type
@@ -259,18 +289,18 @@ def build_xacro_mappings(
         if xt:
             mappings["type"] = xt
 
-    if explicit_left:
-        mappings["left_type"] = explicit_left
-    elif launch_type and not explicit_left and not explicit_right:
+    if side_left:
+        mappings["left_type"] = side_left
+    elif launch_type and not side_left and not side_right:
         mappings.pop("left_type", None)
     else:
         left_type = str(profile_xacro.get("left_type", "") or "").strip()
         if left_type:
             mappings["left_type"] = left_type
 
-    if explicit_right:
-        mappings["right_type"] = explicit_right
-    elif launch_type and not explicit_left and not explicit_right:
+    if side_right:
+        mappings["right_type"] = side_right
+    elif launch_type and not side_left and not side_right:
         mappings.pop("right_type", None)
     else:
         right_type = str(profile_xacro.get("right_type", "") or "").strip()
@@ -297,17 +327,35 @@ def forward_robot_launch_args(context, extra_core_keys: Optional[List[str]] = No
     for key, value in configs.items():
         if value is None:
             continue
-        if key in core or key.startswith((XACRO_PREFIX, HARDWARE_PREFIX, CONTROL_PREFIX)):
+        if key in core or key.startswith((XACRO_PREFIX, HARDWARE_PREFIX)):
             args.append((key, str(value)))
             seen.add(key)
 
-    for prefix in (XACRO_PREFIX, HARDWARE_PREFIX, CONTROL_PREFIX):
+    for prefix in (XACRO_PREFIX, HARDWARE_PREFIX):
         for name, value in extract_prefixed_args(configs, prefix, argv=sys.argv).items():
             full_key = f"{prefix}{name}"
             if full_key not in seen:
                 args.append((full_key, value))
                 seen.add(full_key)
     return args
+
+
+def create_eef_side_launch_arguments():
+    from launch.actions import DeclareLaunchArgument
+
+    return [
+        DeclareLaunchArgument(
+            "left_type",
+            default_value="",
+            description="Left end-effector type key (rg75, ag2f90_c, linkerhand_o7, …). "
+            "Use with right_type for asymmetric setups; do not pass type:=.",
+        ),
+        DeclareLaunchArgument(
+            "right_type",
+            default_value="",
+            description="Right end-effector type key. See left_type.",
+        ),
+    ]
 
 
 def create_robot_profile_launch_arguments():
@@ -324,4 +372,5 @@ def create_robot_profile_launch_arguments():
             default_value="",
             description="If true, OCS2 planning uses base {robot}.urdf without type suffix",
         ),
+        *create_eef_side_launch_arguments(),
     ]

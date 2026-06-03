@@ -200,13 +200,15 @@ def build_xacro_mappings(
     if "collider" not in mappings:
         mappings["collider"] = "simple"
 
-    robot_name = (launch_configurations.get("robot") or "").strip()
-    if robot_name:
+    mount_robot = (
+        launch_configurations.get("robot") or launch_configurations.get("robot_name") or ""
+    ).strip()
+    if mount_robot:
         from .robot_utils import apply_host_arm_mount_config
 
         apply_host_arm_mount_config(
             mappings,
-            robot_name,
+            mount_robot,
             str(mappings.get("type", "") or "").strip(),
         )
 

@@ -507,6 +507,7 @@ def _planning_xacro_mappings(
     launch_configurations,
     robot_profile=None,
     planning_scope=PLANNING_SCOPE_FULL,
+    planning_robot_name="",
 ):
     """Xacro mappings for OCS2 planning URDF (kinematic tree without EEF/chassis actuation DOF)."""
     configs = launch_configurations or {}
@@ -529,10 +530,17 @@ def _planning_xacro_mappings(
             mappings["type"] = "dual"
         if not all(str(mappings.get(k, "") or "").strip() for k in ARM_MOUNT_KEYS):
             host = configs.get("robot", "").strip()
-            print(
-                f"[WARN] planning_scope=arms: arm mount unset; "
-                f"define config/xacro/mount.yaml on host robot '{host or '?'}'"
+            mount_robot = host or (planning_robot_name or "").strip()
+            apply_host_arm_mount_config(
+                mappings,
+                mount_robot,
+                str(mappings.get("type", "") or "").strip(),
             )
+            if not all(str(mappings.get(k, "") or "").strip() for k in ARM_MOUNT_KEYS):
+                print(
+                    f"[WARN] planning_scope=arms: arm mount still unset; "
+                    f"define config/xacro/mount.yaml on '{mount_robot or '?'}'"
+                )
 
     configs = launch_configurations or {}
     use_base = (
@@ -590,7 +598,9 @@ def build_planning_urdf_launch_params(
             f"planning URDF (launch/config robot: {planning_robot_name})"
         )
 
-    mappings = _planning_xacro_mappings(hardware, configs, profile_path, scope)
+    mappings = _planning_xacro_mappings(
+        hardware, configs, profile_path, scope, effective_robot_name
+    )
 
     robot_pkg_path = get_robot_package_path(effective_robot_name)
     if robot_pkg_path is None:
@@ -650,6 +660,7 @@ def get_planning_robot_description(
         launch_configurations or {},
         profile_path,
         scope,
+        effective_robot_name,
     )
 
     robot_pkg_path = get_robot_package_path(effective_robot_name)

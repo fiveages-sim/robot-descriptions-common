@@ -1,6 +1,7 @@
 import launch
 from ament_index_python.packages import get_package_share_directory
 import os
+from launch import LaunchDescription
 from launch.actions import OpaqueFunction
 
 # Import robot_common_launch utilities

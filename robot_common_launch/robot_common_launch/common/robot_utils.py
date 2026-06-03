@@ -260,7 +260,8 @@ def extract_info_file_name_from_config(config, launch_mode=None, default="task")
     if mode == "full_body":
         order = ("ocs2_wbc_controller", "ocs2_arm_controller")
     elif mode in ("split_body", "demo"):
-        order = ("ocs2_arm_controller", "ocs2_wbc_controller")
+        # Do not fall back to ocs2_wbc (e.g. fixed_base on humanoid); planning uses arm .info only.
+        order = ("ocs2_arm_controller",)
     else:
         order = ("ocs2_wbc_controller", "ocs2_arm_controller")
 
@@ -725,7 +726,7 @@ def prepare_arms_target_manager_parameters(
     task_file_path,
     config_file_path=None,
     marker_fixed_frame=None,
-    hand_controllers=None
+    hand_controllers=None,
 ):
     """
     准备 ArmsTargetManager 节点的参数。
@@ -812,7 +813,7 @@ def prepare_arms_target_manager_parameters(
     # 添加 hand_controllers 参数（如果提供）
     if hand_controllers:
         override_params['hand_controllers'] = hand_controllers
-    
+
     parameters.append(override_params)
     
     return parameters

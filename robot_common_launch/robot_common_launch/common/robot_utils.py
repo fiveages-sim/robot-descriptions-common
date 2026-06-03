@@ -5,6 +5,7 @@ This module provides utility functions for robot path management and configurati
 """
 
 import hashlib
+import json
 import os
 import re
 import tempfile
@@ -217,18 +218,22 @@ def load_robot_config(
     robot_type="",
     control_left="",
     control_right="",
-    control_overlay_path="",
+    control_patch=None,
 ):
     """
-    Load ros2_control config with optional per-side compose and overlay merge.
+    Load ros2_control config with optional per-side compose and profile patch merge.
 
-    Merge order: common.yaml + type variant (or compose) + control_overlay file.
+    Merge order: common.yaml + type variant (or compose) + control.patch from robot profile.
     """
     effective_type, left, right = resolve_compose_type_key(robot_type, control_left, control_right)
     asymmetric = bool(left and right and left != right)
+    patch = control_patch if isinstance(control_patch, dict) else {}
+    patch_stamp = (
+        hashlib.md5(json.dumps(patch, sort_keys=True).encode()).hexdigest() if patch else ""
+    )
 
     cache_key = (
-        f"{robot_name}_{config_type}_{effective_type}_{left}_{right}_{control_overlay_path}"
+        f"{robot_name}_{config_type}_{effective_type}_{left}_{right}_{patch_stamp}"
     )
     if cache_key in _config_cache:
         return _config_cache[cache_key]
@@ -303,11 +308,9 @@ def load_robot_config(
                 config = _deep_merge_dicts(config, composed)
                 print(f"[INFO] Merged composed control config for {left} + {right}")
 
-        if control_overlay_path and os.path.isfile(control_overlay_path):
-            with open(control_overlay_path, "r") as file:
-                overlay = yaml.safe_load(file) or {}
-            config = _deep_merge_dicts(config, overlay)
-            print(f"[INFO] Merged control overlay: {control_overlay_path}")
+        if patch:
+            config = _deep_merge_dicts(config, patch)
+            print("[INFO] Merged control.patch from robot profile")
 
         result = (config, config_path)
         _config_cache[cache_key] = result

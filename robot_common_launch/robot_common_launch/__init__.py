@@ -23,7 +23,7 @@ from .common.launch_arg_utils import (
     create_robot_profile_launch_arguments,
     resolve_profile_path,
     resolve_control_sides,
-    resolve_control_overlay,
+    resolve_control_patch,
     should_use_base_planning_urdf,
     load_robot_profile,
 )
@@ -57,7 +57,7 @@ __all__ = [
     'create_robot_profile_launch_arguments',
     'resolve_profile_path',
     'resolve_control_sides',
-    'resolve_control_overlay',
+    'resolve_control_patch',
     'should_use_base_planning_urdf',
     'load_robot_profile',
     'compose_control_config',

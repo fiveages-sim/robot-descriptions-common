@@ -65,6 +65,75 @@ def extract_prefixed_args(
     return result
 
 
+_PLATFORM_XACRO_KEYS = ("chassis", "variant", "chassis_joints_movable")
+
+
+def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Normalize robot profile to {xacro, hardware, control} for launch code.
+
+    New schema (recommended):
+      platform:  chassis / variant / arm_ctrl_mode — always apply (incl. quick_start [模板])
+      defaults.end_effectors: default EEF for「本机配置」only; overridden by type:= / xacro_* templates
+      control.patch: inline ros2_control overrides (deep-merged after compose)
+    """
+    if not isinstance(data, dict) or not data:
+        return {}
+
+    platform = data.get("platform")
+    defaults = data.get("defaults")
+    if not isinstance(platform, dict) and not isinstance(defaults, dict):
+        return data
+
+    legacy_x = data.get("xacro") if isinstance(data.get("xacro"), dict) else {}
+    legacy_hw = data.get("hardware") if isinstance(data.get("hardware"), dict) else {}
+    legacy_c = data.get("control") if isinstance(data.get("control"), dict) else {}
+
+    xacro: Dict[str, Any] = {}
+    hardware = dict(legacy_hw)
+    control: Dict[str, Any] = {}
+
+    plat = platform if isinstance(platform, dict) else {}
+    for key in _PLATFORM_XACRO_KEYS:
+        if key in plat:
+            xacro[key] = plat[key]
+        elif key in legacy_x:
+            xacro[key] = legacy_x[key]
+
+    arm_mode = plat.get("arm_ctrl_mode") or legacy_hw.get("arm_ctrl_mode")
+    if arm_mode is not None and str(arm_mode).strip():
+        hardware["arm_ctrl_mode"] = str(arm_mode).strip()
+
+    if isinstance(defaults, dict):
+        raw_eef = defaults.get("end_effectors")
+        eef = raw_eef if isinstance(raw_eef, dict) else defaults
+        if isinstance(eef, dict):
+            sym = str(eef.get("type", "") or "").strip()
+            left = str(eef.get("left", "") or eef.get("left_type", "") or "").strip()
+            right = str(eef.get("right", "") or eef.get("right_type", "") or "").strip()
+            if sym:
+                xacro["type"] = sym
+            if left:
+                xacro["left_type"] = left
+                control["left"] = left
+            if right:
+                xacro["right_type"] = right
+                control["right"] = right
+    else:
+        for key in ("type", "left_type", "right_type"):
+            if legacy_x.get(key) is not None:
+                xacro[key] = legacy_x[key]
+        for key in ("left", "right"):
+            if legacy_c.get(key):
+                control[key] = legacy_c[key]
+
+    patch = legacy_c.get("patch")
+    if isinstance(patch, dict) and patch:
+        control["patch"] = patch
+
+    return {"xacro": xacro, "hardware": hardware, "control": control}
+
+
 def load_robot_profile(profile_path: str) -> Dict[str, Any]:
     if not profile_path or not os.path.isfile(profile_path):
         return {}
@@ -72,7 +141,7 @@ def load_robot_profile(profile_path: str) -> Dict[str, Any]:
         data = yaml.safe_load(handle) or {}
     if not isinstance(data, dict):
         return {}
-    return data
+    return normalize_robot_profile(data)
 
 
 def resolve_profile_path(launch_configurations: Dict[str, str]) -> str:
@@ -82,25 +151,15 @@ def resolve_profile_path(launch_configurations: Dict[str, str]) -> str:
     return ""
 
 
-def resolve_control_overlay(
-    launch_configurations: Dict[str, str],
-    profile: Optional[Dict[str, Any]] = None,
-    ws_root: Optional[str] = None,
-) -> str:
-    overlay = extract_prefixed_args(launch_configurations, CONTROL_PREFIX).get("overlay", "")
-    if not overlay and profile:
-        control_section = profile.get("control") or {}
-        if isinstance(control_section, dict):
-            overlay = str(control_section.get("overlay", "") or "")
-    if not overlay:
-        return ""
-    if os.path.isabs(overlay):
-        return overlay if os.path.isfile(overlay) else ""
-    if ws_root:
-        candidate = os.path.join(ws_root, overlay)
-        if os.path.isfile(candidate):
-            return os.path.abspath(candidate)
-    return overlay if os.path.isfile(overlay) else ""
+def resolve_control_patch(profile: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """ros2_control overrides from robot.local.yaml control.patch (deep-merged after compose)."""
+    if not profile:
+        return {}
+    control_section = profile.get("control") or {}
+    if not isinstance(control_section, dict):
+        return {}
+    patch = control_section.get("patch")
+    return dict(patch) if isinstance(patch, dict) else {}
 
 
 def resolve_control_sides(
@@ -110,6 +169,10 @@ def resolve_control_sides(
     control_args = extract_prefixed_args(launch_configurations, CONTROL_PREFIX)
     left = control_args.get("left", "")
     right = control_args.get("right", "")
+    launch_type = launch_configurations.get("type", "").strip()
+    # Symmetric menu template (type:= only): override profile left/right for ros2_control compose.
+    if launch_type and not left and not right:
+        return launch_type, launch_type
     if profile:
         control_section = profile.get("control") or {}
         if isinstance(control_section, dict):
@@ -169,7 +232,8 @@ def build_xacro_mappings(
         if value is not None and str(value).strip():
             mappings[str(key)] = str(value).strip()
 
-    mappings.update(extract_prefixed_args(launch_configurations, XACRO_PREFIX))
+    xacro_overrides = extract_prefixed_args(launch_configurations, XACRO_PREFIX)
+    mappings.update(xacro_overrides)
 
     if hardware in REAL_HARDWARE:
         profile_hardware = profile.get("hardware") or {}
@@ -180,6 +244,9 @@ def build_xacro_mappings(
         mappings.update(extract_prefixed_args(launch_configurations, HARDWARE_PREFIX))
 
     launch_type = launch_configurations.get("type", "").strip()
+    explicit_left = str(xacro_overrides.get("left_type", "") or "").strip()
+    explicit_right = str(xacro_overrides.get("right_type", "") or "").strip()
+
     if launch_type:
         mappings["type"] = launch_type
     elif "type" not in mappings:
@@ -187,12 +254,23 @@ def build_xacro_mappings(
         if xt:
             mappings["type"] = xt
 
-    left_type = mappings.get("left_type", "") or str(profile_xacro.get("left_type", "") or "").strip()
-    right_type = mappings.get("right_type", "") or str(profile_xacro.get("right_type", "") or "").strip()
-    if left_type:
-        mappings["left_type"] = left_type
-    if right_type:
-        mappings["right_type"] = right_type
+    if explicit_left:
+        mappings["left_type"] = explicit_left
+    elif launch_type and not explicit_left and not explicit_right:
+        mappings.pop("left_type", None)
+    else:
+        left_type = str(profile_xacro.get("left_type", "") or "").strip()
+        if left_type:
+            mappings["left_type"] = left_type
+
+    if explicit_right:
+        mappings["right_type"] = explicit_right
+    elif launch_type and not explicit_left and not explicit_right:
+        mappings.pop("right_type", None)
+    else:
+        right_type = str(profile_xacro.get("right_type", "") or "").strip()
+        if right_type:
+            mappings["right_type"] = right_type
 
     if hardware == "gz":
         mappings["gazebo"] = "true"

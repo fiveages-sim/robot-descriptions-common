@@ -32,7 +32,7 @@ from robot_common_launch import (
     create_robot_profile_launch_arguments,
     resolve_profile_path,
     resolve_control_sides,
-    resolve_control_overlay,
+    resolve_control_patch,
     resolve_compose_type_key,
     load_robot_profile,
     write_temp_ros2_control_yaml,
@@ -108,12 +108,7 @@ def generate_launch_description():
         robot_profile_path = resolve_profile_path(configs)
         profile = load_robot_profile(robot_profile_path) if robot_profile_path else {}
         control_left, control_right = resolve_control_sides(configs, profile)
-        ws_root = os.environ.get('FA_W2_WS', '').strip()
-        if not ws_root:
-            colcon_prefix = os.environ.get('COLCON_PREFIX_PATH', '').split(':')[0]
-            if colcon_prefix and '/install' in colcon_prefix:
-                ws_root = os.path.abspath(colcon_prefix.split('/install')[0])
-        overlay_path = resolve_control_overlay(configs, profile, ws_root=ws_root or None)
+        control_patch = resolve_control_patch(profile)
         _, _, resolved_right = resolve_compose_type_key(robot_type, control_left, control_right)
         asymmetric = bool(control_left and resolved_right and control_left != resolved_right)
 
@@ -238,7 +233,7 @@ def generate_launch_description():
                 robot_type,
                 control_left=control_left,
                 control_right=control_right,
-                control_overlay_path=overlay_path,
+                control_patch=control_patch,
             )
             if ros2_controllers_path is not None or ros2_controllers_config is not None:
                 default_remappings = [
@@ -272,11 +267,11 @@ def generate_launch_description():
                         pass
 
                 node_parameters = []
-                use_merged_dict = asymmetric or bool(overlay_path)
+                use_merged_dict = asymmetric or bool(control_patch)
                 if use_merged_dict and ros2_controllers_config is not None:
                     merged_config_path = write_temp_ros2_control_yaml(ros2_controllers_config)
                     node_parameters.append(merged_config_path)
-                    print("[INFO] Using merged ros2_control config file (compose/overlay)")
+                    print("[INFO] Using merged ros2_control config file (compose/patch)")
                 else:
                     common_config_path = os.path.join(
                         os.path.dirname(ros2_controllers_path), 'common.yaml'

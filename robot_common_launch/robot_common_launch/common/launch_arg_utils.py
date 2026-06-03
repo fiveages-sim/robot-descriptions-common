@@ -82,7 +82,12 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
 
     platform = data.get("platform")
     defaults = data.get("defaults")
-    if not isinstance(platform, dict) and not isinstance(defaults, dict):
+    has_control = isinstance(data.get("control"), dict)
+    if (
+        not isinstance(platform, dict)
+        and not isinstance(defaults, dict)
+        and not has_control
+    ):
         return data
 
     legacy_x = data.get("xacro") if isinstance(data.get("xacro"), dict) else {}
@@ -277,18 +282,6 @@ def build_xacro_mappings(
 
     if "collider" not in mappings:
         mappings["collider"] = "simple"
-
-    mount_robot = (
-        launch_configurations.get("robot") or launch_configurations.get("robot_name") or ""
-    ).strip()
-    if mount_robot:
-        from .robot_utils import apply_host_arm_mount_config
-
-        apply_host_arm_mount_config(
-            mappings,
-            mount_robot,
-            str(mappings.get("type", "") or "").strip(),
-        )
 
     return mappings
 

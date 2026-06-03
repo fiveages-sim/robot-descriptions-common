@@ -205,6 +205,16 @@ def create_common_launch_arguments():
     ]
 
 
+def build_visualization_xacro_mappings(robot_name: str, launch_configurations: dict) -> dict:
+    """Xacro mappings for RViz-only launches (no ros2_control / robot_profile)."""
+    mappings = {}
+    for key in ("type", "collider", "direction"):
+        value = launch_configurations.get(key, "")
+        if value and str(value).strip():
+            mappings[key] = str(value).strip()
+    return mappings
+
+
 def create_visualization_launch_description(
     robot_param_name='robot',
     robot_default_value='go1',
@@ -227,15 +237,19 @@ def create_visualization_launch_description(
     """
     def launch_setup(context, *args, **kwargs):
         robot_value = context.launch_configurations[robot_param_name]
-        
-        # 收集所有可能的 xacro 参数
-        xacro_params = {}
-        for arg_name in ['type', 'collider', 'direction']:
-            if arg_name in context.launch_configurations:
-                xacro_params[arg_name] = context.launch_configurations[arg_name]
-        
-        # 处理 xacro
-        robot_description = process_xacro(robot_value, xacro_filename, **xacro_params)
+        mappings = build_visualization_xacro_mappings(
+            robot_value, context.launch_configurations
+        )
+
+        package_description = robot_value + "_description"
+        pkg_path = get_package_share_directory(package_description)
+        xacro_file = os.path.join(pkg_path, "xacro", xacro_filename)
+        if "type" not in mappings:
+            default_type = get_default_type_from_xacro(xacro_file)
+            if default_type:
+                mappings["type"] = default_type
+
+        robot_description = xacro.process_file(xacro_file, mappings=mappings).toxml()
         
         # 获取 RViz 配置文件
         rviz_config_file = os.path.join(
@@ -264,7 +278,7 @@ def create_visualization_launch_description(
     
     # 添加通用参数
     args.extend(create_common_launch_arguments())
-    
+
     # 添加额外参数
     if additional_args:
         args.extend(additional_args)

@@ -16,9 +16,6 @@ from ament_index_python.packages import get_package_share_directory
 from .control_compose import compose_control_config, resolve_compose_type_key
 from .launch_arg_utils import build_xacro_mappings, resolve_profile_path
 
-ARM_MOUNT_KEYS = ("arm_half_spacing", "arm_mount_z")
-_DESKTOP_MOUNT_TYPES = frozenset({"desktop", "desktop_90c"})
-
 # 全局缓存字典，避免重复读取配置文件
 _config_cache = {}
 
@@ -70,83 +67,6 @@ def get_robot_package_path(robot_name):
     except Exception as e:
         print(f"[ERROR] Failed to get package path for '{robot_pkg}': {e}")
         return None
-
-
-def load_arm_mount_defaults(robot_name: str, effective_type: str = "") -> dict:
-    """Load arm mount parameters from {robot}_description/config/xacro/mount*.yaml."""
-    robot_pkg_path = get_robot_package_path(robot_name)
-    if robot_pkg_path is None:
-        return {}
-
-    config_dir = os.path.join(robot_pkg_path, "config", "xacro")
-    mount_path = os.path.join(config_dir, "mount.yaml")
-    if effective_type in _DESKTOP_MOUNT_TYPES:
-        desktop_path = os.path.join(config_dir, "mount_desktop.yaml")
-        if os.path.isfile(desktop_path):
-            mount_path = desktop_path
-
-    if not os.path.isfile(mount_path):
-        return {}
-
-    try:
-        with open(mount_path, "r", encoding="utf-8") as handle:
-            data = yaml.safe_load(handle) or {}
-    except OSError as exc:
-        print(f"[WARN] Failed to read arm mount config '{mount_path}': {exc}")
-        return {}
-
-    return {
-        key: str(data[key]).strip()
-        for key in ARM_MOUNT_KEYS
-        if key in data and data[key] is not None and str(data[key]).strip()
-    }
-
-
-def apply_host_arm_mount_config(
-    mappings: dict,
-    host_robot_name: str,
-    effective_type: str = "",
-) -> dict:
-    """
-  Apply arm mount from {host}/config/xacro/mount.yaml (single source per host robot).
-
-  Launch xacro_arm_half_spacing / xacro_arm_mount_z override unset keys only.
-  """
-    host = (host_robot_name or "").strip()
-    if not host:
-        return mappings
-
-    defaults = load_arm_mount_defaults(host, effective_type)
-    if not defaults:
-        print(
-            f"[WARN] No arm mount config at config/xacro/mount.yaml for '{host}' "
-            f"(type={effective_type or 'default'})"
-        )
-        return mappings
-
-    for key, value in defaults.items():
-        if not str(mappings.get(key, "") or "").strip():
-            mappings[key] = value
-
-    if all(str(mappings.get(k, "") or "").strip() for k in ARM_MOUNT_KEYS):
-        print(
-            f"[INFO] Arm mount from {host} package: "
-            f"half_spacing={mappings['arm_half_spacing']}, z={mappings['arm_mount_z']}"
-        )
-    return mappings
-
-
-def merge_arm_mount_defaults(
-    mappings: dict,
-    robot_name: str,
-    source_robot_name: str = "",
-) -> dict:
-    """Backward-compatible alias."""
-    return apply_host_arm_mount_config(
-        mappings,
-        source_robot_name or robot_name,
-        str(mappings.get("type", "") or "").strip(),
-    )
 
 
 def _generate_progressive_type_candidates(robot_type):
@@ -327,35 +247,55 @@ def load_robot_config(
         return None, None
 
 
-def get_info_file_name(robot_name, robot_type="", config_type="ros2_control"):
+def extract_info_file_name_from_config(config, launch_mode=None, default="task"):
     """
-    Get info_file_name from ROS2 controller configuration, fallback to 'task'.
-    
-    Args:
-        robot_name (str): Name of the robot
-        robot_type (str): Robot type/variant
-        config_type (str): Type of configuration file
-        
-    Returns:
-        str: Info file name (default: 'task')
-        
-    Example:
-        >>> info_file = get_info_file_name('cr5', 'x5')
-        >>> print(info_file)
-        'task'
+    Read OCS2 task .info stem from merged ros2_control config.
+
+    launch_mode: full_body → wbc; split_body / demo → arm; None → wbc then arm.
     """
-    config, _ = load_robot_config(robot_name, config_type, robot_type)
-    
-    if config is None:
-        return 'task'
-    
-    try:
-        # Extract info_file_name from ocs2_arm_controller parameters
-        info_file_name = config.get('ocs2_arm_controller', {}).get('ros__parameters', {}).get('info_file_name', 'task')
-        return info_file_name
-    except KeyError as e:
-        print(f"[WARN] Key error in config for robot '{robot_name}': {e}, using default 'task'")
-        return 'task'
+    if not isinstance(config, dict):
+        return default
+
+    mode = (launch_mode or "").strip()
+    if mode == "full_body":
+        order = ("ocs2_wbc_controller", "ocs2_arm_controller")
+    elif mode in ("split_body", "demo"):
+        order = ("ocs2_arm_controller", "ocs2_wbc_controller")
+    else:
+        order = ("ocs2_wbc_controller", "ocs2_arm_controller")
+
+    for controller_key in order:
+        params = config.get(controller_key, {}).get("ros__parameters", {})
+        if not isinstance(params, dict):
+            continue
+        name = str(params.get("info_file_name", "") or "").strip()
+        if name:
+            return name.removesuffix(".info")
+    return default
+
+
+def get_info_file_name(
+    robot_name,
+    robot_type="",
+    config_type="ros2_control",
+    control_left="",
+    control_right="",
+    control_patch=None,
+):
+    """
+    Get info_file_name from merged ROS2 controller configuration, fallback to 'task'.
+
+    Uses the same merge order as load_robot_config (compose + control.patch).
+    """
+    config, _ = load_robot_config(
+        robot_name,
+        config_type,
+        robot_type,
+        control_left=control_left,
+        control_right=control_right,
+        control_patch=control_patch,
+    )
+    return extract_info_file_name_from_config(config, launch_mode=None)
 
 
 def get_gz_bridge_config_path(robot_name):
@@ -533,19 +473,6 @@ def _planning_xacro_mappings(
             mappings.pop("type", None)
         elif not mappings.get("type", "").strip():
             mappings["type"] = "dual"
-        if not all(str(mappings.get(k, "") or "").strip() for k in ARM_MOUNT_KEYS):
-            host = configs.get("robot", "").strip()
-            mount_robot = host or (planning_robot_name or "").strip()
-            apply_host_arm_mount_config(
-                mappings,
-                mount_robot,
-                str(mappings.get("type", "") or "").strip(),
-            )
-            if not all(str(mappings.get(k, "") or "").strip() for k in ARM_MOUNT_KEYS):
-                print(
-                    f"[WARN] planning_scope=arms: arm mount still unset; "
-                    f"define config/xacro/mount.yaml on '{mount_robot or '?'}'"
-                )
 
     configs = launch_configurations or {}
     use_base = (
@@ -591,13 +518,7 @@ def build_planning_urdf_launch_params(
 
     scope = _resolve_planning_scope(planning_robot_name, configs, planning_scope)
     effective_robot_name = _resolve_planning_robot_name(planning_robot_name, scope)
-    host_robot = configs.get("robot", "").strip()
-    if scope == PLANNING_SCOPE_ARMS and host_robot and host_robot != effective_robot_name:
-        print(
-            f"[INFO] planning_scope={scope}: arm module '{effective_robot_name}' "
-            f"with mount from host '{host_robot}'"
-        )
-    elif effective_robot_name != planning_robot_name:
+    if effective_robot_name != planning_robot_name:
         print(
             f"[INFO] planning_scope={scope}: using '{effective_robot_name}' "
             f"planning URDF (launch/config robot: {planning_robot_name})"

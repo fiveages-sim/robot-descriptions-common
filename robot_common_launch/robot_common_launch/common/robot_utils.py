@@ -557,7 +557,7 @@ def _planning_xacro_mappings(
 
 def _planning_urdf_cache_key(mappings, planning_scope=PLANNING_SCOPE_FULL):
     items = "|".join(f"{k}={v}" for k, v in sorted(mappings.items()))
-    items += f"|schema=v8|scope={planning_scope}"
+    items += f"|schema=v10|scope={planning_scope}"
     return hashlib.sha256(items.encode("utf-8")).hexdigest()[:16]
 
 

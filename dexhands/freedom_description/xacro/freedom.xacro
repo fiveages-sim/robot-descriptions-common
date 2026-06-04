@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:macro name="FreedomHand" params="name direction:=1 fixed_joints:=false">
+		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
+
+		<link name="${prefix}hand_base">
+			<inertial>
+				<origin xyz="${direction*0.0011834} 0.067737 -0.00084264" rpy="0 0 0"/>
+				<mass value="2.6054"/>
+				<inertia ixx="0.0028949" ixy="${direction*-1.3394E-05}" ixz="${direction*-4.6804E-05}" iyy="0.001553" iyz="2.5477E-05" izz="0.003805"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/base.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/base.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}thumb_proximal">
+			<inertial>
+				<origin xyz="${direction*-0.010939} -0.0075415 0.010599" rpy="0 0 0"/>
+				<mass value="0.084877"/>
+				<inertia ixx="7.453E-06" ixy="${direction*-3.6228E-07}" ixz="${direction*2.2145E-06}" iyy="9.4316E-06" iyz="3.0013E-07" izz="8.5666E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l1.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l1.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}thumb_middle">
+			<inertial>
+				<origin xyz="${direction*3.5348E-08} -0.014575 0.017417" rpy="0 0 0"/>
+				<mass value="0.19122"/>
+				<inertia ixx="4.6251E-05" ixy="${direction*1.6945E-10}" ixz="${direction*-1.7717E-10}" iyy="2.9221E-05" iyz="1.3251E-05" izz="2.9428E-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l2.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l2.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}thumb_distal">
+			<inertial>
+				<origin xyz="${direction*-0.00554498401549265} -0.0149955274515526 0.0035969189079702" rpy="0 0 0"/>
+				<mass value="0.0765973981118237"/>
+				<inertia ixx="8.30144603842501E-06" ixy="${direction*-9.5356750093881E-10}" ixz="${direction*2.55365645942459E-09}" iyy="5.68394938581324E-06" iyz="1.93897381475041E-06" izz="6.38402311957504E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l3.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.529411764705882 0.549019607843137 0.549019607843137 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l3.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}index_proximal">
+			<inertial>
+				<origin xyz="${direction*0.00536263110062123} 0.015915507510902 0.00310112212569524" rpy="0 0 0"/>
+				<mass value="0.0683287847420413"/>
+				<inertia ixx="7.25253389599054E-06" ixy="${direction*-5.70124291271522E-12}" ixz="${direction*-9.36000971588422E-13}" iyy="2.81440005855269E-06" iyz="-2.68021038981231E-07" izz="7.37351998350572E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.529411764705882 0.549019607843137 0.549019607843137 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}index_distal">
+			<inertial>
+				<origin xyz="${direction*0.00449704681207759} 0.0252319167423484 0.00730236996720031" rpy="0 0 0"/>
+				<mass value="0.0755273947118296"/>
+				<inertia ixx="1.57108941986939E-05" ixy="${direction*-2.97479691158278E-09}" ixz="${direction*-3.98319473259322E-10}" iyy="3.22620679324468E-06" iyz="-3.07209826969602E-06" izz="1.50311395511445E-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.529411764705882 0.549019607843137 0.549019607843137 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}middle_proximal">
+			<inertial>
+				<origin xyz="${direction*0.0044996} 0.016013 0.0025531" rpy="0 0 0"/>
+				<mass value="0.068329"/>
+				<inertia ixx="7.2525E-06" ixy="${direction*-5.6916E-12}" ixz="${direction*-5.7717E-14}" iyy="2.8014E-06" iyz="-1.1101E-07" izz="7.3865E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}middle_distal">
+			<inertial>
+				<origin xyz="${direction*0.0044971} 0.025545 0.0061173" rpy="0 0 0"/>
+				<mass value="0.075527"/>
+				<inertia ixx="1.5711E-05" ixy="${direction*-3.0001E-09}" ixz="${direction*-2.5828E-10}" iyy="2.9656E-06" iyz="-2.5086E-06" izz="1.5292E-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}ring_proximal">
+			<inertial>
+				<origin xyz="${direction*0.0044996} 0.016172 0.0011738" rpy="0 0 0"/>
+				<mass value="0.068329"/>
+				<inertia ixx="7.2525E-06" ixy="${direction*-5.4925E-12}" ixz="${direction*1.7039E-12}" iyy="2.816E-06" iyz="2.8147E-07" izz="7.3719E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}ring_distal">
+			<inertial>
+				<origin xyz="${direction*0.0044978} 0.024578 0.0092678" rpy="0 0 0"/>
+				<mass value="0.075531"/>
+				<inertia ixx="1.5711E-05" ixy="${direction*-2.7048E-09}" ixz="${direction*-5.3112E-10}" iyy="3.7823E-06" iyz="-3.9614E-06" izz="1.4476E-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}pinky_proximal">
+			<inertial>
+				<origin xyz="${direction*0.0053626} 0.016172 0.0011738" rpy="0 0 0"/>
+				<mass value="0.068329"/>
+				<inertia ixx="7.2525E-06" ixy="${direction*-5.4925E-12}" ixz="${direction*1.7039E-12}" iyy="2.816E-06" iyz="2.8147E-07" izz="7.3719E-06"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<link name="${prefix}pinky_distal">
+			<inertial>
+				<origin xyz="${direction*0.0044978} 0.024578 0.0092678" rpy="0 0 0"/>
+				<mass value="0.075531"/>
+				<inertia ixx="1.5711E-05" ixy="${direction*-2.7048E-09}" ixz="${direction*-5.3112E-10}" iyy="3.7823E-06" iyz="-3.9614E-06" izz="1.4476E-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+				<material name="">
+					<color rgba="0.52941 0.54902 0.54902 1"/>
+				</material>
+			</visual>
+			<collision>
+				<geometry>
+					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+				</geometry>
+			</collision>
+		</link>
+
+		<joint name="${prefix}thumb_joint1" type="${joint_type}">
+			<origin xyz="${direction*-0.027617} 0.067519 0.010096" rpy="0 0 ${direction*-0.087266}"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}thumb_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 ${direction} 0"/>
+				<limit lower="0" upper="0.785" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}thumb_joint2" type="${joint_type}">
+			<origin xyz="${direction*-0.020804} -0.0022275 0.019453" rpy="-1.5708 ${direction*-0.82598} 0"/>
+			<parent link="${prefix}thumb_proximal"/>
+			<child link="${prefix}thumb_middle"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="-1 0 0"/>
+				<limit lower="0" upper="0.29" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}thumb_joint3" type="${joint_type}">
+			<origin xyz="${direction*0.0055478} -0.030486 0.041387" rpy="0 0 0"/>
+			<parent link="${prefix}thumb_middle"/>
+			<child link="${prefix}thumb_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="-1 0 0"/>
+				<limit lower="0" upper="0.44" effort="100" velocity="1"/>
+				<mimic joint="${prefix}thumb_joint2" multiplier="1.5172" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}index_joint" type="${joint_type}">
+			<origin xyz="${direction*-0.035982} 0.1374 0.001" rpy="0 0 0"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}index_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.24" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}index_dip" type="${joint_type}">
+			<origin xyz="${direction*0.00086299} 0.03196 0.0029665" rpy="0 0 0"/>
+			<parent link="${prefix}index_proximal"/>
+			<child link="${prefix}index_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.57" effort="100" velocity="1"/>
+				<mimic joint="${prefix}index_joint" multiplier="1.2661" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}middle_joint" type="${joint_type}">
+			<origin xyz="${direction*-0.013119} 0.1374 0.001" rpy="0 0 0"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}middle_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.24" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}middle_dip" type="${joint_type}">
+			<origin xyz="0 0.032043 0.001868" rpy="0 0 0"/>
+			<parent link="${prefix}middle_proximal"/>
+			<child link="${prefix}middle_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.57" effort="100" velocity="1"/>
+				<mimic joint="${prefix}middle_joint" multiplier="1.2661" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}ring_joint" type="${joint_type}">
+			<origin xyz="${direction*0.0088806} 0.1374 0.001" rpy="0 0 0"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}ring_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.24" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}ring_dip" type="${joint_type}">
+			<origin xyz="0 0.032085 -0.00088032" rpy="0 0 0"/>
+			<parent link="${prefix}ring_proximal"/>
+			<child link="${prefix}ring_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.57" effort="100" velocity="1"/>
+				<mimic joint="${prefix}ring_joint" multiplier="1.2661" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}pinky_joint" type="${joint_type}">
+			<origin xyz="${direction*0.030018} 0.13417 0.001" rpy="0 0 0"/>
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}pinky_proximal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.24" effort="100" velocity="1"/>
+			</xacro:unless>
+		</joint>
+
+		<joint name="${prefix}pinky_dip" type="${joint_type}">
+			<origin xyz="${direction*0.00086299} 0.032085 -0.00088032" rpy="0 0 0"/>
+			<parent link="${prefix}pinky_proximal"/>
+			<child link="${prefix}pinky_distal"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="1 0 0"/>
+				<limit lower="0" upper="1.57" effort="100" velocity="1"/>
+				<mimic joint="${prefix}pinky_joint" multiplier="1.2661" offset="0"/>
+			</xacro:unless>
+		</joint>
+
+	</xacro:macro>
+
+</robot>

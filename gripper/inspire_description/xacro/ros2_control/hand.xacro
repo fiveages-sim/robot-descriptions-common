@@ -5,6 +5,10 @@
   <xacro:arg name="type" default="RH56E2"/>
   <xacro:arg name="direction" default="1"/>
   <xacro:arg name="gazebo" default="false"/>
+  <xacro:arg name="serial_port" default="/dev/ttyUSB0"/>
+  <xacro:arg name="baudrate" default="115200"/>
+  <xacro:arg name="can_interface" default="can0"/>
+  <xacro:arg name="read_feedback" default="true"/>
 
   <xacro:include filename="$(find inspire_description)/xacro/hand.xacro"/>
 
@@ -22,6 +26,30 @@
         <param name="joint_states_topic">/isaac/joint_states</param>
         <param name="sum_wrapped_joint_states">false</param>
         <param name="initialize_commands_from_state">true</param>
+      </xacro:if>
+      <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
+        <plugin>modbus_ros2_control/InspireHandHardware</plugin>
+        <param name="serial_port">$(arg serial_port)</param>
+        <param name="baudrate">$(arg baudrate)</param>
+        <xacro:if value="${$(arg direction) == 1}">
+          <param name="hand_side">left</param>
+        </xacro:if>
+        <xacro:if value="${$(arg direction) == -1}">
+          <param name="hand_side">right</param>
+        </xacro:if>
+        <param name="read_feedback">$(arg read_feedback)</param>
+      </xacro:if>
+      <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <plugin>can_ros2_control/InspireCanfdHardware</plugin>
+        <param name="can_interface">$(arg can_interface)</param>
+        <xacro:if value="${$(arg direction) == 1}">
+          <param name="hand_side">left</param>
+        </xacro:if>
+        <xacro:if value="${$(arg direction) == -1}">
+          <param name="hand_side">right</param>
+        </xacro:if>
+        <param name="read_feedback">$(arg read_feedback)</param>
+        <param name="feedback_timeout_ms">2</param>
       </xacro:if>
     </hardware>
 

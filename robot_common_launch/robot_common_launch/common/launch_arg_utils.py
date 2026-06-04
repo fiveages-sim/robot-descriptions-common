@@ -80,6 +80,24 @@ def extract_prefixed_args(
 _PLATFORM_XACRO_KEYS = ("chassis", "variant", "chassis_joints_movable")
 
 
+def create_platform_launch_arguments():
+    """Launch args for humanoid / mobile-base xacro (not used by bare manipulators)."""
+    from launch.actions import DeclareLaunchArgument
+
+    return [
+        DeclareLaunchArgument(
+            "chassis",
+            default_value="",
+            description="Xacro chassis model key (robot-specific). Empty means no chassis parameter passed to xacro.",
+        ),
+        DeclareLaunchArgument(
+            "chassis_joints_movable",
+            default_value="",
+            description="Xacro flag for movable chassis joints (true/false). Empty means no chassis_joints_movable parameter passed to xacro.",
+        ),
+    ]
+
+
 def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Normalize robot profile to {xacro, hardware, control} for launch code.

@@ -35,3 +35,13 @@ linkerhand_o7:
   package: linkerhand_description
   template: config/ros2_control/templates/o7.side.yaml
   category: hand
+
+freedom_v1:
+  package: freedom_description
+  template: config/ros2_control/templates/freedom.side.yaml
+  category: hand
+
+inspire_e2:
+  package: inspire_description
+  template: config/ros2_control/templates/rh56e2.side.yaml
+  category: hand

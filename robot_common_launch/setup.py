@@ -23,6 +23,7 @@ setup(
         (os.path.join('share', package_name, 'config/nav2'), glob('config/nav2/*.*', recursive=True)),
         (os.path.join('share', package_name, 'config/cartographer'), glob('config/cartographer/*.*', recursive=True)),
         (os.path.join('share', package_name, 'config/gazebo'), glob('config/gazebo/*.*', recursive=True)),
+        (os.path.join('share', package_name, 'config'), glob('config/eef_control_registry.yaml')),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/**/*.sdf', recursive=True)),
     ] + maps_data_files,
     install_requires=['setuptools'],

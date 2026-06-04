@@ -4,8 +4,69 @@ Common controller utilities for launch files.
 This module provides utility functions for controller detection and management.
 """
 
+import os
+import tempfile
 import xml.etree.ElementTree as ET
+from typing import Any, Dict, Optional
+
+import yaml
 from launch_ros.actions import Node
+
+
+def wrap_spawner_controller_params(
+    controller_name: str, ros_parameters: Dict[str, Any]
+) -> Dict[str, Dict[str, Dict[str, Any]]]:
+    """
+    Wrap parameters for ``controller_manager spawner``.
+
+    ROS 2 Jazzy spawner only forwards ``--params-file`` entries that contain
+    ``<controller_name>: {ros__parameters: ...}``. Flat dicts are ignored by the
+    controller plugin (e.g. ``planning_urdf_path`` never reaches ocs2_arm_controller).
+    """
+    return {controller_name: {"ros__parameters": dict(ros_parameters)}}
+
+
+def prepare_ros2_controllers_override_path(
+    config: Optional[Dict[str, Any]],
+    control_left: str = "",
+    control_right: str = "",
+    control_patch: Optional[Dict[str, Any]] = None,
+) -> str:
+    """Write merged config once for controller_manager when compose/patch was applied."""
+    if not config:
+        return ""
+    from .control_compose import is_compose_asymmetric
+    from .robot_utils import write_temp_ros2_control_yaml
+
+    if not is_compose_asymmetric(control_left, control_right) and not control_patch:
+        return ""
+    return write_temp_ros2_control_yaml(config, quiet=True)
+
+
+def write_spawner_controller_param_file(
+    controller_name: str,
+    ros_parameters: Dict[str, Any],
+    *,
+    quiet: bool = False,
+) -> str:
+    """
+    Write a YAML file for ``spawner -p`` / ``--param-file`` (ROS 2 Jazzy).
+
+    Prefer this over ``Node(parameters=[...])``: launch-generated param files are
+    often flat under ``/**`` and are ignored by controller_manager spawner.
+    """
+    fd, path = tempfile.mkstemp(
+        prefix=f"{controller_name}_spawner_",
+        suffix=".yaml",
+        dir="/tmp",
+    )
+    os.close(fd)
+    payload = wrap_spawner_controller_params(controller_name, ros_parameters)
+    with open(path, "w", encoding="utf-8") as handle:
+        yaml.safe_dump(payload, handle, default_flow_style=False)
+    if not quiet:
+        print(f"[INFO] Spawner param file for {controller_name}: {path}")
+    return path
 
 
 def _extract_joints_from_urdf(robot_description):
@@ -37,7 +98,16 @@ def _extract_joints_from_urdf(robot_description):
         return set()
 
 
-def detect_controllers(robot_name, robot_type="", patterns=None, robot_description=None):
+def detect_controllers(
+    robot_name,
+    robot_type="",
+    patterns=None,
+    robot_description=None,
+    control_left="",
+    control_right="",
+    control_patch=None,
+    ros2_control_config=None,
+):
     """
     Detect controllers from ROS2 controller configuration.
     
@@ -66,8 +136,18 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
     
     if patterns is None:
         patterns = ['hand', 'gripper']
-    
-    config, _ = load_robot_config(robot_name, "ros2_control", robot_type)
+
+    if ros2_control_config is not None:
+        config = ros2_control_config
+    else:
+        config, _ = load_robot_config(
+            robot_name,
+            "ros2_control",
+            robot_type,
+            control_left=control_left,
+            control_right=control_right,
+            control_patch=control_patch,
+        )
     
     if config is None:
         print(f"[WARN] No controllers will be detected for robot '{robot_name}'")
@@ -91,7 +171,12 @@ def detect_controllers(robot_name, robot_type="", patterns=None, robot_descripti
         # Check if controller name matches any pattern
         if any(pattern.lower() in controller_name.lower() for pattern in patterns):
             # Extract controller type and parameters
-            controller_type = controller_config.get('type', '')
+            if isinstance(controller_config, str):
+                controller_type = controller_config
+            elif isinstance(controller_config, dict):
+                controller_type = controller_config.get('type', '')
+            else:
+                controller_type = ''
             
             # 如果提供了 robot_description，检查配置中的 joint 是否存在
             if robot_description and available_joints:

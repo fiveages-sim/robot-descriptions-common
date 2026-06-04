@@ -1,0 +1,7 @@
+{side}_gripper_controller:
+  ros__parameters:
+    joint: {side_}gripper_joint
+    use_effort_interface: false
+
+joint_state_extra_joints:
+  - {side_}gripper_joint

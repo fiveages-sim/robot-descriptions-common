@@ -82,10 +82,10 @@ def create_visualization_nodes(robot_description, rviz_config_file):
         list: Node 对象列表
     """
     return [
+        # rviz2 executable hosts multiple rclcpp nodes; avoid name= remaps to one name.
         Node(
             package='rviz2',
             executable='rviz2',
-            name='rviz2',
             output='screen',
             arguments=["-d", rviz_config_file]
         ),
@@ -186,12 +186,15 @@ def create_common_launch_arguments():
     Returns:
         list: DeclareLaunchArgument 对象列表
     """
+    from .launch_arg_utils import create_eef_side_launch_arguments
+
     return [
         DeclareLaunchArgument(
             'type',
             default_value='',
             description='Type parameter for xacro (empty means no type parameter passed to xacro)'
         ),
+        *create_eef_side_launch_arguments(),
         DeclareLaunchArgument(
             'collider',
             default_value='',
@@ -203,6 +206,27 @@ def create_common_launch_arguments():
             description='Direction parameter for xacro (empty means no direction parameter passed to xacro)'
         ),
     ]
+
+
+def build_visualization_xacro_mappings(robot_name: str, launch_configurations: dict) -> dict:
+    """Xacro mappings for RViz-only launches (no ros2_control / robot_profile)."""
+    from .launch_arg_utils import _cli_launch_value, resolve_side_eef_types
+
+    mappings = {}
+    for key in ("collider", "direction"):
+        value = launch_configurations.get(key, "")
+        if value and str(value).strip():
+            mappings[key] = str(value).strip()
+
+    launch_type = _cli_launch_value(launch_configurations, "type")
+    side_left, side_right = resolve_side_eef_types(launch_configurations, None)
+    if launch_type:
+        mappings["type"] = launch_type
+    if side_left:
+        mappings["left_type"] = side_left
+    if side_right:
+        mappings["right_type"] = side_right
+    return mappings
 
 
 def create_visualization_launch_description(
@@ -227,15 +251,19 @@ def create_visualization_launch_description(
     """
     def launch_setup(context, *args, **kwargs):
         robot_value = context.launch_configurations[robot_param_name]
-        
-        # 收集所有可能的 xacro 参数
-        xacro_params = {}
-        for arg_name in ['type', 'collider', 'direction']:
-            if arg_name in context.launch_configurations:
-                xacro_params[arg_name] = context.launch_configurations[arg_name]
-        
-        # 处理 xacro
-        robot_description = process_xacro(robot_value, xacro_filename, **xacro_params)
+        mappings = build_visualization_xacro_mappings(
+            robot_value, context.launch_configurations
+        )
+
+        package_description = robot_value + "_description"
+        pkg_path = get_package_share_directory(package_description)
+        xacro_file = os.path.join(pkg_path, "xacro", xacro_filename)
+        if "type" not in mappings:
+            default_type = get_default_type_from_xacro(xacro_file)
+            if default_type:
+                mappings["type"] = default_type
+
+        robot_description = xacro.process_file(xacro_file, mappings=mappings).toxml()
         
         # 获取 RViz 配置文件
         rviz_config_file = os.path.join(
@@ -264,7 +292,7 @@ def create_visualization_launch_description(
     
     # 添加通用参数
     args.extend(create_common_launch_arguments())
-    
+
     # 添加额外参数
     if additional_args:
         args.extend(additional_args)

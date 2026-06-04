@@ -33,6 +33,7 @@ from .common.launch_arg_utils import (
     resolve_control_sides,
     resolve_control_patch,
     create_eef_side_launch_arguments,
+    create_platform_launch_arguments,
     should_use_base_planning_urdf,
     load_robot_profile,
 )
@@ -73,6 +74,7 @@ __all__ = [
     'resolve_control_sides',
     'resolve_control_patch',
     'create_eef_side_launch_arguments',
+    'create_platform_launch_arguments',
     'should_use_base_planning_urdf',
     'load_robot_profile',
     'compose_control_config',

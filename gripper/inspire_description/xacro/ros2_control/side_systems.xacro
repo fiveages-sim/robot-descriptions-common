@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find inspire_description)/xacro/ros2_control/RH56E2.xacro"/>
+
+  <xacro:macro name="inspire_rs485_side_system" params="side serial_port baudrate:=115200 slave_id:=auto read_feedback:=true">
+    <ros2_control name="inspire_e2_${side}_system" type="system">
+      <hardware>
+        <plugin>modbus_ros2_control/InspireHandHardware</plugin>
+        <param name="serial_port">${serial_port}</param>
+        <param name="hand_side">${side}</param>
+        <param name="baudrate">${baudrate}</param>
+        <param name="slave_id">${slave_id}</param>
+        <param name="read_feedback">${read_feedback}</param>
+      </hardware>
+      <xacro:inspire_rh56e2_interfaces name="${side}_hand"/>
+    </ros2_control>
+  </xacro:macro>
+
+</robot>

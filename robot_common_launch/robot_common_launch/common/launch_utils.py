@@ -205,7 +205,66 @@ def create_common_launch_arguments():
             default_value='',
             description='Direction parameter for xacro (empty means no direction parameter passed to xacro)'
         ),
+        DeclareLaunchArgument(
+            'skin',
+            default_value='',
+            description='Xacro skin key for visual meshes (robot-specific). Empty means no skin parameter passed to xacro.',
+        ),
+        DeclareLaunchArgument(
+            'variant',
+            default_value='',
+            description='Xacro OEM / visual sub-variant (robot-specific; not the chassis model selector). Empty means no variant parameter passed to xacro.',
+        ),
     ]
+
+
+def build_visualization_xacro_mappings(robot_name: str, launch_configurations: dict) -> dict:
+    """Xacro mappings for RViz-only launches; merges robot_profile platform keys when set."""
+    from .launch_arg_utils import (
+        XACRO_PREFIX,
+        _PLATFORM_XACRO_KEYS,
+        _cli_launch_value,
+        extract_prefixed_args,
+        load_robot_profile,
+        resolve_profile_path,
+        resolve_side_eef_types,
+    )
+
+    profile_path = resolve_profile_path(launch_configurations)
+    if not profile_path:
+        profile_path = _cli_launch_value(launch_configurations, "robot_profile")
+        if profile_path and not os.path.isfile(profile_path):
+            profile_path = ""
+    profile = load_robot_profile(profile_path) if profile_path else {}
+    profile_xacro = profile.get("xacro") or {}
+    if not isinstance(profile_xacro, dict):
+        profile_xacro = {}
+
+    mappings: dict = {}
+    for key in _PLATFORM_XACRO_KEYS:
+        value = profile_xacro.get(key)
+        if value is not None and str(value).strip():
+            mappings[key] = str(value).strip()
+
+    for key in ("collider", "direction", "skin", *_PLATFORM_XACRO_KEYS):
+        value = _cli_launch_value(launch_configurations, key)
+        if value and str(value).strip():
+            mappings[key] = str(value).strip()
+
+    xacro_overrides = extract_prefixed_args(launch_configurations, XACRO_PREFIX)
+    for key in ("type", "left_type", "right_type"):
+        xacro_overrides.pop(key, None)
+    mappings.update(xacro_overrides)
+
+    launch_type = _cli_launch_value(launch_configurations, "type")
+    side_left, side_right = resolve_side_eef_types(launch_configurations, profile)
+    if launch_type:
+        mappings["type"] = launch_type
+    if side_left:
+        mappings["left_type"] = side_left
+    if side_right:
+        mappings["right_type"] = side_right
+    return mappings
 
 
 def build_visualization_xacro_mappings(robot_name: str, launch_configurations: dict) -> dict:
@@ -292,6 +351,18 @@ def create_visualization_launch_description(
     
     # 添加通用参数
     args.extend(create_common_launch_arguments())
+    args.extend([
+        DeclareLaunchArgument(
+            "robot_profile",
+            default_value="",
+            description="Path to robot.local.yaml (platform variant/chassis for visualization)",
+        ),
+        DeclareLaunchArgument(
+            "use_profile_eef",
+            default_value="true",
+            description="Apply defaults.end_effectors from robot_profile when set",
+        ),
+    ])
 
     # 添加额外参数
     if additional_args:

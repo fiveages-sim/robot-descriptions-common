@@ -10,6 +10,12 @@ import yaml
 from ament_index_python.packages import get_package_share_directory
 
 _REGISTRY_CACHE: Optional[Dict[str, Dict[str, str]]] = None
+_REGISTRY_DEFAULTS_KEY = "_defaults"
+_BUILTIN_GRIPPER_DEFAULT = {
+    "package": "robot_common_launch",
+    "template": "config/ros2_control/templates/gripper.side.yaml",
+    "category": "gripper",
+}
 
 _MOTION_CONTROLLER_SECTIONS = (
     "ocs2_wbc_controller",
@@ -81,6 +87,66 @@ def _load_registry() -> Dict[str, Dict[str, str]]:
     return _REGISTRY_CACHE
 
 
+def _is_registry_eef_entry(entry: Any) -> bool:
+    return isinstance(entry, dict) and "template" in entry
+
+
+_PASSIVE_EEF_TYPES = frozenset({"suction_cup"})
+
+
+def _is_passive_eef_type(eef_type: str) -> bool:
+    """End effectors with no ros2_control joints or controllers."""
+    return eef_type.strip().lower() in _PASSIVE_EEF_TYPES
+
+
+def _is_probable_hand_type(eef_type: str) -> bool:
+    """Heuristic: unregistered hand-like keys should not get gripper fallback."""
+    normalized = eef_type.strip().lower()
+    if not normalized or normalized == "none":
+        return False
+    if normalized.startswith("linkerhand"):
+        return True
+    if "hand" in normalized and "gripper" not in normalized:
+        return True
+    if "suction" in normalized:
+        return True
+    return False
+
+
+def _gripper_default_entry(registry: Dict[str, Any]) -> Dict[str, Any]:
+    defaults = registry.get(_REGISTRY_DEFAULTS_KEY, {})
+    entry = defaults.get("gripper") if isinstance(defaults, dict) else None
+    if _is_registry_eef_entry(entry):
+        return copy.deepcopy(entry)
+    return copy.deepcopy(_BUILTIN_GRIPPER_DEFAULT)
+
+
+def has_explicit_registry_entry(eef_type: str) -> bool:
+    registry = _load_registry()
+    return _is_registry_eef_entry(registry.get(eef_type.strip()))
+
+
+def resolve_registry_entry(eef_type: str) -> Optional[Dict[str, Any]]:
+    """Resolve EEF registry entry; unregistered grippers fall back to _defaults.gripper."""
+    normalized = eef_type.strip()
+    if not normalized or normalized == "none":
+        return None
+
+    registry = _load_registry()
+    entry = registry.get(normalized)
+    if _is_registry_eef_entry(entry):
+        return copy.deepcopy(entry)
+
+    if _is_probable_hand_type(normalized):
+        return None
+
+    print(
+        f"[INFO] EEF type '{normalized}' not in eef_control_registry; "
+        "using default gripper side template"
+    )
+    return _gripper_default_entry(registry)
+
+
 def _apply_side_placeholders(content: str, side: str) -> str:
     side_prefix = f"{side}_"
     return (
@@ -89,11 +155,7 @@ def _apply_side_placeholders(content: str, side: str) -> str:
     )
 
 
-def _load_side_template_content(eef_type: str) -> Optional[str]:
-    registry = _load_registry()
-    entry = registry.get(eef_type)
-    if not entry:
-        return None
+def _load_side_template_content_from_entry(entry: Dict[str, Any]) -> Optional[str]:
     package = entry["package"]
     template_rel = entry["template"]
     template_path = os.path.join(get_package_share_directory(package), template_rel)
@@ -104,16 +166,84 @@ def _load_side_template_content(eef_type: str) -> Optional[str]:
         return handle.read()
 
 
+def _controller_key_for_category(side: str, category: str) -> str:
+    if category == "hand":
+        return f"{side}_hand_controller"
+    return f"{side}_gripper_controller"
+
+
+def _apply_registry_params(fragment: Dict[str, Any], side: str, entry: Dict[str, str]) -> None:
+    extra_params = entry.get("params")
+    if not extra_params or not isinstance(extra_params, dict):
+        return
+    controller_key = _controller_key_for_category(side, entry.get("category", "gripper"))
+    controller = fragment.get(controller_key)
+    if not isinstance(controller, dict):
+        return
+    params = controller.setdefault("ros__parameters", {})
+    if isinstance(params, dict):
+        params.update(extra_params)
+
+
 def _side_fragment(eef_type: str, side: str) -> Dict[str, Any]:
-    raw = _load_side_template_content(eef_type)
+    registry_entry = resolve_registry_entry(eef_type)
+    if not registry_entry:
+        return {}
+    raw = _load_side_template_content_from_entry(registry_entry)
     if not raw:
         return {}
     side_yaml = _apply_side_placeholders(raw, side)
     try:
-        return yaml.safe_load(side_yaml) or {}
+        fragment = yaml.safe_load(side_yaml) or {}
     except yaml.YAMLError as exc:
         print(f"[WARN] Failed to parse side template for {eef_type} ({side}): {exc}")
         return {}
+    _apply_registry_params(fragment, side, registry_entry)
+    return fragment
+
+
+def _enrich_fragment_from_robot_type_config(
+    fragment: Dict[str, Any],
+    side: str,
+    eef_type: str,
+    robot_name: str,
+    category: str,
+) -> Dict[str, Any]:
+    """Merge per-type ros2_control params from the robot package (symmetric load)."""
+    if not fragment or not robot_name or category != "gripper":
+        return fragment
+
+    from .robot_utils import load_robot_config
+
+    cfg, _ = load_robot_config(
+        robot_name,
+        "ros2_control",
+        eef_type,
+        control_left=eef_type,
+        control_right=eef_type,
+    )
+    if not cfg:
+        return fragment
+
+    side_extract = _extract_side_from_robot_yaml(cfg, side, category)
+    if not side_extract:
+        return fragment
+
+    controller_key = _controller_key_for_category(side, category)
+    side_controller = side_extract.get(controller_key)
+    fragment_controller = fragment.get(controller_key)
+    if isinstance(side_controller, dict) and isinstance(fragment_controller, dict):
+        side_params = side_controller.get("ros__parameters", {})
+        if isinstance(side_params, dict):
+            params = fragment_controller.setdefault("ros__parameters", {})
+            if isinstance(params, dict):
+                params.update(side_params)
+
+    extra = side_extract.get("joint_state_extra_joints")
+    if extra:
+        fragment["joint_state_extra_joints"] = extra
+
+    return fragment
 
 
 def _extract_side_from_robot_yaml(config: Dict[str, Any], side: str, category: str) -> Dict[str, Any]:
@@ -163,21 +293,27 @@ def compose_control_config(
     base_config: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Build merged control yaml dict from per-side EEF types."""
-    registry = _load_registry()
     composed: Dict[str, Any] = {}
     fragments: List[Dict[str, Any]] = []
 
     for side, eef_type in (("left", left_type), ("right", right_type)):
-        if not eef_type or eef_type == "none":
+        if not eef_type or eef_type == "none" or _is_passive_eef_type(eef_type):
             continue
         fragment = _side_fragment(eef_type, side)
+        entry = resolve_registry_entry(eef_type)
+        category = entry.get("category", "gripper") if entry else "gripper"
+        if fragment and robot_name and not has_explicit_registry_entry(eef_type):
+            fragment = _enrich_fragment_from_robot_type_config(
+                fragment, side, eef_type, robot_name, category
+            )
         if not fragment and robot_name:
             # Fallback to robot package symmetric yaml extraction
-            from .robot_utils import load_robot_config, get_robot_package_path
+            from .robot_utils import load_robot_config
 
             cfg, _ = load_robot_config(robot_name, "ros2_control", eef_type)
             if cfg:
-                category = registry.get(eef_type, {}).get("category", "gripper")
+                entry = resolve_registry_entry(eef_type)
+                category = entry.get("category", "gripper") if entry else "gripper"
                 fragment = _extract_side_from_robot_yaml(cfg, side, category)
         if fragment:
             composed = _deep_merge_dicts(composed, fragment)
@@ -185,18 +321,11 @@ def compose_control_config(
 
     if fragments:
         cm = composed.setdefault("controller_manager", {}).setdefault("ros__parameters", {})
-        for side, eef_type in (("left", left_type), ("right", right_type)):
-            if not eef_type or eef_type == "none":
-                continue
-            category = registry.get(eef_type, {}).get("category", "gripper")
-            if category == "hand":
-                cm[f"{side}_hand_controller"] = {
-                    "type": "basic_joint_controller/BasicJointController",
-                }
-            else:
-                cm[f"{side}_gripper_controller"] = {
-                    "type": "adaptive_gripper_controller/AdaptiveGripperController",
-                }
+        for key in composed:
+            if key.endswith("_gripper_controller"):
+                cm[key] = {"type": "adaptive_gripper_controller/AdaptiveGripperController"}
+            elif key.endswith("_hand_controller"):
+                cm[key] = {"type": "basic_joint_controller/BasicJointController"}
 
         joint_list = _merge_joint_state_lists(fragments, base_config)
         composed["joint_state_broadcaster"] = {

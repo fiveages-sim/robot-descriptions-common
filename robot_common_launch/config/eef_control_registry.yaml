@@ -1,25 +1,18 @@
 # Maps end-effector type keys to controller side templates in robot-descriptions-common.
 # Template paths are relative to the package share root.
+#
+# Grippers following {side_}gripper_joint use _defaults.gripper automatically.
+# Per-type controller params come from the robot package ros2_control/<type>.yaml
+# (or common.yaml) during asymmetric compose — no registry entry needed.
+#
+# Passive end effectors (e.g. suction_cup) have no ros2_control joints — omit from registry.
+# Register a type here only for actuated non-gripper templates (dexterous hands, etc.).
 
-rg75:
-  package: jodell_description
-  template: config/ros2_control/templates/rg75.side.yaml
-  category: gripper
-
-ag2f90_c:
-  package: changingtek_description
-  template: config/ros2_control/templates/ag2f90_c.side.yaml
-  category: gripper
-
-ag2f90_c_soft:
-  package: changingtek_description
-  template: config/ros2_control/templates/ag2f90_c.side.yaml
-  category: gripper
-
-ag2f90_d:
-  package: changingtek_description
-  template: config/ros2_control/templates/ag2f90_d.side.yaml
-  category: gripper
+_defaults:
+  gripper:
+    package: robot_common_launch
+    template: config/ros2_control/templates/gripper.side.yaml
+    category: gripper
 
 linkerhand_o6:
   package: linkerhand_description

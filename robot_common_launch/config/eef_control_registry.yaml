@@ -41,6 +41,11 @@ freedom_v1:
   template: config/ros2_control/templates/freedom.side.yaml
   category: hand
 
+freedom_v2:
+  package: freedom_description
+  template: config/ros2_control/templates/freedomv2.side.yaml
+  category: hand
+
 inspire_e2:
   package: inspire_description
   template: config/ros2_control/templates/rh56e2.side.yaml

@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
-<robot name="Freedom_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="Freedom" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-    <xacro:arg name="type" default="freedom"/>
+    <xacro:arg name="type" default="freedomv2"/>
     <xacro:arg name="direction" default="1"/>
     <xacro:arg name="gazebo" default="false"/>
     <xacro:arg name="serial_port" default="/dev/ttyACM0"/>
     <xacro:arg name="slave_id" default="auto"/>
     <xacro:arg name="baudrate" default="115200"/>
+    <xacro:arg name="command_speed" default="100"/>
     <xacro:arg name="can_interface" default="can0"/>
     <xacro:arg name="device_id" default="auto"/>
 
@@ -42,6 +43,7 @@
                 <plugin>modbus_ros2_control/FreedomRS485Hardware</plugin>
                 <param name="serial_port">$(arg serial_port)</param>
                 <param name="slave_id">$(arg slave_id)</param>
+                <param name="protocol_version">$(arg type)</param>
                 <xacro:if value="${'$(arg direction)' == '1'}">
                     <param name="hand_side">left</param>
                 </xacro:if>
@@ -49,8 +51,9 @@
                     <param name="hand_side">right</param>
                 </xacro:unless>
                 <param name="baudrate">$(arg baudrate)</param>
+                <param name="command_speed">$(arg command_speed)</param>
                 <param name="read_feedback">true</param>
-                <param name="feedback_timeout_ms">20</param>
+                <param name="feedback_timeout_ms">50</param>
             </xacro:if>
 
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
@@ -70,8 +73,14 @@
             </xacro:if>
         </hardware>
 
-        <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedom.xacro"/>
-        <xacro:freedom_interfaces name=""/>
+        <xacro:if value="${'$(arg type)' == 'freedomv1' or '$(arg type)' == 'freedom_v1' or '$(arg type)' == 'freedom'}">
+            <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedomv1.xacro"/>
+            <xacro:freedomv1_interfaces name=""/>
+        </xacro:if>
+        <xacro:if value="${'$(arg type)' == 'freedomv2' or '$(arg type)' == 'freedom_v2'}">
+            <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedomv2.xacro"/>
+            <xacro:freedomv2_interfaces name=""/>
+        </xacro:if>
     </ros2_control>
 
     <xacro:arg name="gazebo" default="false"/>

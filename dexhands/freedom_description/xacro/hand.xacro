@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<robot name="Freedom_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="Freedom" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<xacro:arg name="type" default="freedom"/>
+	<xacro:arg name="type" default="freedomv2"/>
 	<xacro:arg name="direction" default="1"/>
 
-	<xacro:include filename="$(find freedom_description)/xacro/freedom.xacro"/>
-	<xacro:FreedomHand name="" direction="$(arg direction)"/>
+	<xacro:if value="${'$(arg type)' == 'freedomv1' or '$(arg type)' == 'freedom_v1' or '$(arg type)' == 'freedom'}">
+		<xacro:include filename="$(find freedom_description)/xacro/freedomv1.xacro"/>
+		<xacro:FreedomHandV1 name="" direction="$(arg direction)"/>
+	</xacro:if>
+
+	<xacro:if value="${'$(arg type)' == 'freedomv2' or '$(arg type)' == 'freedom_v2'}">
+		<xacro:include filename="$(find freedom_description)/xacro/freedomv2.xacro"/>
+		<xacro:FreedomHandV2 name="" direction="$(arg direction)"/>
+	</xacro:if>
 
 </robot>

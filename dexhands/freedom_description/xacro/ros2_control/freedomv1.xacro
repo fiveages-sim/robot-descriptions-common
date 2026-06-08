@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="freedom_interfaces" params="name">
+  <xacro:macro name="freedomv1_interfaces" params="name">
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 
     <joint name="${prefix}thumb_joint1">
@@ -58,6 +58,10 @@
       <state_interface name="effort"/>
     </joint>
 
+  </xacro:macro>
+
+  <xacro:macro name="freedom_interfaces" params="name">
+    <xacro:freedomv1_interfaces name="${name}"/>
   </xacro:macro>
 
 </robot>

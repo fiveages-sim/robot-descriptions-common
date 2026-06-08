@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<xacro:macro name="FreedomHand" params="name direction:=1 fixed_joints:=false">
+	<xacro:macro name="FreedomHandV1" params="name direction:=1 fixed_joints:=false">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
 
@@ -13,7 +13,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/base.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/base.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -21,7 +21,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/base.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/base.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -34,7 +34,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l1.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l1.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -42,7 +42,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l1.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l1.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -55,7 +55,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l2.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l2.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -63,7 +63,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l2.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l2.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -76,7 +76,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l3.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l3.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.529411764705882 0.549019607843137 0.549019607843137 1"/>
@@ -84,7 +84,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l3.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l3.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -97,7 +97,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.529411764705882 0.549019607843137 0.549019607843137 1"/>
@@ -105,7 +105,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -118,7 +118,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.529411764705882 0.549019607843137 0.549019607843137 1"/>
@@ -126,7 +126,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -139,7 +139,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -147,7 +147,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -160,7 +160,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -168,7 +168,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -181,7 +181,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -189,7 +189,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -202,7 +202,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -210,7 +210,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -223,7 +223,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -231,7 +231,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l4.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l4.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -244,7 +244,7 @@
 			</inertial>
 			<visual>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 				<material name="">
 					<color rgba="0.52941 0.54902 0.54902 1"/>
@@ -252,7 +252,7 @@
 			</visual>
 			<collision>
 				<geometry>
-					<mesh filename="file://$(find freedom_description)/meshes/freedom/l5.glb" scale="${direction} 1 1"/>
+					<mesh filename="file://$(find freedom_description)/meshes/freedomv1/l5.glb" scale="${direction} 1 1"/>
 				</geometry>
 			</collision>
 		</link>
@@ -372,6 +372,10 @@
 			</xacro:unless>
 		</joint>
 
+	</xacro:macro>
+
+	<xacro:macro name="FreedomHand" params="name direction:=1 fixed_joints:=false">
+		<xacro:FreedomHandV1 name="${name}" direction="${direction}" fixed_joints="${fixed_joints}"/>
 	</xacro:macro>
 
 </robot>

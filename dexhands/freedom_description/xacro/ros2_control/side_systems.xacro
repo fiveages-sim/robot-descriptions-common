@@ -1,20 +1,28 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedom.xacro"/>
+  <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedomv1.xacro"/>
+  <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedomv2.xacro"/>
 
-  <xacro:macro name="freedom_rs485_side_system" params="side serial_port slave_id:=auto baudrate:=115200">
-    <ros2_control name="freedom_v1_${side}_system" type="system">
+  <xacro:macro name="freedom_rs485_side_system" params="side serial_port slave_id:=auto baudrate:=115200 type:=freedomv1 command_speed:=100">
+    <ros2_control name="${type}_${side}_system" type="system">
       <hardware>
         <plugin>modbus_ros2_control/FreedomRS485Hardware</plugin>
         <param name="serial_port">${serial_port}</param>
         <param name="hand_side">${side}</param>
         <param name="slave_id">${slave_id}</param>
         <param name="baudrate">${baudrate}</param>
+        <param name="protocol_version">${type}</param>
+        <param name="command_speed">${command_speed}</param>
         <param name="read_feedback">true</param>
-        <param name="feedback_timeout_ms">20</param>
+        <param name="feedback_timeout_ms">50</param>
       </hardware>
-      <xacro:freedom_interfaces name="${side}_hand"/>
+      <xacro:if value="${type == 'freedomv2' or type == 'freedom_v2'}">
+        <xacro:freedomv2_interfaces name="${side}_hand"/>
+      </xacro:if>
+      <xacro:unless value="${type == 'freedomv2' or type == 'freedom_v2'}">
+        <xacro:freedom_interfaces name="${side}_hand"/>
+      </xacro:unless>
     </ros2_control>
   </xacro:macro>
 

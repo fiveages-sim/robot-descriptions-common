@@ -1,0 +1,9 @@
+# Generic per-side adaptive gripper fragment.
+# Placeholders: {side} -> left|right, {side_} -> left_|right_
+# Convention: actuated joint is always {side_}gripper_joint (see control_compose._is_eef_joint).
+{side}_gripper_controller:
+  ros__parameters:
+    joint: {side_}gripper_joint
+
+joint_state_extra_joints:
+  - {side_}gripper_joint

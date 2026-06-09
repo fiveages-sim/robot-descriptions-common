@@ -23,9 +23,10 @@
 <robot xmlns:xacro="http://ros.org/wiki/xacro" name="hitbot_gripper">
 
   <xacro:macro name="Gripper"
-    params="name collider_type:=simple">
+    params="name collider_type:=simple kinematic_only:=false">
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
     <xacro:property name="M_PI" value="3.1415926535897931" />
+    <xacro:property name="actuated_joint_type" value="${'fixed' if str(kinematic_only).lower() == 'true' else 'revolute'}"/>
 
     <link name="${prefix}gripper_base">
       <inertial>
@@ -65,7 +66,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}gripper_joint" type="revolute">
+    <joint name="${prefix}gripper_joint" type="${actuated_joint_type}">
       <origin xyz="0.12183 -0.02 0" rpy="${M_PI} 0 ${-M_PI/4}" />
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link1" />
@@ -91,13 +92,15 @@
       </collision>
     </link>
 
-    <joint name="${prefix}gripper_joint2" type="revolute">
+    <joint name="${prefix}gripper_joint2" type="${actuated_joint_type}">
       <origin xyz="0.1368 -0.01 0" rpy="${M_PI} 0 ${-M_PI/4}" />
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link2" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <xacro:unless value="${str(kinematic_only).lower() == 'true'}">
       <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
+      </xacro:unless>
     </joint>
 
     <link name="${prefix}gripper_link3">
@@ -119,13 +122,15 @@
       </collision>
     </link>
 
-    <joint name="${prefix}gripper_joint3" type="revolute">
+    <joint name="${prefix}gripper_joint3" type="${actuated_joint_type}">
       <origin xyz="0.065 0 0" rpy="0 0 ${-M_PI/4}" />
       <parent link="${prefix}gripper_link2" />
       <child link="${prefix}gripper_link3" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <xacro:unless value="${str(kinematic_only).lower() == 'true'}">
       <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
+      </xacro:unless>
     </joint>
 
     <link name="${prefix}gripper_link4">
@@ -147,13 +152,15 @@
       </collision>
     </link>
 
-    <joint name="${prefix}gripper_joint4" type="revolute">
+    <joint name="${prefix}gripper_joint4" type="${actuated_joint_type}">
       <origin xyz="0.121833370678203 0.0199999993241963 0" rpy="${M_PI} 0 ${M_PI/4}" />
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link4" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <xacro:unless value="${str(kinematic_only).lower() == 'true'}">
       <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
+      </xacro:unless>
     </joint>
 
     <link name="${prefix}gripper_link5">
@@ -174,13 +181,15 @@
       </collision>
     </link>
 
-    <joint name="${prefix}gripper_joint5" type="revolute">
+    <joint name="${prefix}gripper_joint5" type="${actuated_joint_type}">
       <origin xyz="0.1368 0.01 0" rpy="${M_PI} 0 ${M_PI/4}" />
       <parent link="${prefix}gripper_base" />
       <child link="${prefix}gripper_link5" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" />
+      <xacro:unless value="${str(kinematic_only).lower() == 'true'}">
       <mimic joint="${prefix}gripper_joint" multiplier="-1.0"/>
+      </xacro:unless>
     </joint>
 
     <link name="${prefix}gripper_link6">
@@ -202,13 +211,15 @@
       </collision>
     </link>
 
-    <joint name="${prefix}gripper_joint6" type="revolute">
+    <joint name="${prefix}gripper_joint6" type="${actuated_joint_type}">
       <origin xyz="0.065 0 0" rpy="0 0 ${M_PI/4}" />
       <parent link="${prefix}gripper_link5" />
       <child link="${prefix}gripper_link6" />
       <axis xyz="0 0 -1" />
       <limit lower="0" upper="0.75" velocity="3" effort="2" /> 
+      <xacro:unless value="${str(kinematic_only).lower() == 'true'}">
       <mimic joint="${prefix}gripper_joint" multiplier="1.0"/>
+      </xacro:unless>
     </joint>
 
     <!-- Tool Center Point -->

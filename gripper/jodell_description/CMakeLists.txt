@@ -4,7 +4,7 @@ project(jodell_description)
 find_package(ament_cmake REQUIRED)
 
 install(
-        DIRECTORY meshes xacro config
+        DIRECTORY meshes xacro
         DESTINATION share/${PROJECT_NAME}/
 )
 

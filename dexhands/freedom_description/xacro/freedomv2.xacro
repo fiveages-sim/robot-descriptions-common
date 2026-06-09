@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<xacro:macro name="FreedomHandV2" params="name direction:=1 fixed_joints:=false">
+	<xacro:macro name="FreedomHandV2" params="name direction:=1 fixed_joints:=false enable_dip_joints:=false">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
 
@@ -264,17 +264,22 @@
 					</geometry>
 				</collision>
 			</link>
-			<joint name="${prefix}index_dip" type="${joint_type}">
-				<origin xyz="0.032003 -0.0025 0" rpy="0 0 0.41015"/>
-				<parent link="${prefix}f_link2_2"/>
-				<child link="${prefix}f_link2_3"/>
-				<xacro:unless value="${fixed_joints}">
+				<xacro:if value="${enable_dip_joints}">
+				<joint name="${prefix}index_joint2" type="revolute">
+					<origin xyz="0.032003 -0.0025 0" rpy="0 0 0.41015"/>
+					<parent link="${prefix}f_link2_2"/>
+					<child link="${prefix}f_link2_3"/>
 					<axis xyz="0 0 1"/>
-				</xacro:unless>
-				<xacro:unless value="${fixed_joints}">
 					<limit lower="0" upper="1.204" effort="10" velocity="1.5"/>
+				</joint>
+				</xacro:if>
+				<xacro:unless value="${enable_dip_joints}">
+				<joint name="${prefix}index_dip" type="fixed">
+					<origin xyz="0.032003 -0.0025 0" rpy="0 0 0.41015"/>
+					<parent link="${prefix}f_link2_2"/>
+					<child link="${prefix}f_link2_3"/>
+				</joint>
 				</xacro:unless>
-			</joint>
 			<link name="${prefix}f_link3_1">
 				<inertial>
 					<origin xyz="0.00431549531692993 -3.59544548608516E-05 -0.000293519581500951" rpy="0 0 0"/>
@@ -357,17 +362,22 @@
 					</geometry>
 				</collision>
 			</link>
-			<joint name="${prefix}middle_dip" type="${joint_type}">
-				<origin xyz="0.032003 -0.0025 0" rpy="0 0 0.41015"/>
-				<parent link="${prefix}f_link3_2"/>
-				<child link="${prefix}f_link3_3"/>
-				<xacro:unless value="${fixed_joints}">
+				<xacro:if value="${enable_dip_joints}">
+				<joint name="${prefix}middle_joint2" type="revolute">
+					<origin xyz="0.032003 -0.0025 0" rpy="0 0 0.41015"/>
+					<parent link="${prefix}f_link3_2"/>
+					<child link="${prefix}f_link3_3"/>
 					<axis xyz="0 0 1"/>
-				</xacro:unless>
-				<xacro:unless value="${fixed_joints}">
 					<limit lower="0" upper="1.204" effort="10" velocity="1.5"/>
+				</joint>
+				</xacro:if>
+				<xacro:unless value="${enable_dip_joints}">
+				<joint name="${prefix}middle_dip" type="fixed">
+					<origin xyz="0.032003 -0.0025 0" rpy="0 0 0.41015"/>
+					<parent link="${prefix}f_link3_2"/>
+					<child link="${prefix}f_link3_3"/>
+				</joint>
 				</xacro:unless>
-			</joint>
 			<link name="${prefix}f_link4_1">
 				<inertial>
 					<origin xyz="0.00431549531692992 -3.5954454860869E-05 -0.000293519581500958" rpy="0 0 0"/>
@@ -805,17 +815,22 @@
 					</geometry>
 				</collision>
 			</link>
-			<joint name="${prefix}index_dip" type="${joint_type}">
-				<origin xyz="0.032002535301686 -0.00250000000000612 0" rpy="0 0 0.410152374218668"/>
-				<parent link="${prefix}f_link2_2"/>
-				<child link="${prefix}f_link2_3"/>
-				<xacro:unless value="${fixed_joints}">
+				<xacro:if value="${enable_dip_joints}">
+				<joint name="${prefix}index_joint2" type="revolute">
+					<origin xyz="0.032002535301686 -0.00250000000000612 0" rpy="0 0 0.410152374218668"/>
+					<parent link="${prefix}f_link2_2"/>
+					<child link="${prefix}f_link2_3"/>
 					<axis xyz="0 0 1"/>
-				</xacro:unless>
-				<xacro:unless value="${fixed_joints}">
 					<limit lower="0" upper="1.204" effort="10" velocity="1.5"/>
+				</joint>
+				</xacro:if>
+				<xacro:unless value="${enable_dip_joints}">
+				<joint name="${prefix}index_dip" type="fixed">
+					<origin xyz="0.032002535301686 -0.00250000000000612 0" rpy="0 0 0.410152374218668"/>
+					<parent link="${prefix}f_link2_2"/>
+					<child link="${prefix}f_link2_3"/>
+				</joint>
 				</xacro:unless>
-			</joint>
 			<link name="${prefix}f_link3_1">
 				<inertial>
 					<origin xyz="0.004315493815505 -3.59548813347894E-05 -0.000293519316875105" rpy="0 0 0"/>
@@ -898,17 +913,22 @@
 					</geometry>
 				</collision>
 			</link>
-			<joint name="${prefix}middle_dip" type="${joint_type}">
-				<origin xyz="0.0320025353016867 -0.00250000000000624 0" rpy="0 0 0.410152374218668"/>
-				<parent link="${prefix}f_link3_2"/>
-				<child link="${prefix}f_link3_3"/>
-				<xacro:unless value="${fixed_joints}">
+				<xacro:if value="${enable_dip_joints}">
+				<joint name="${prefix}middle_joint2" type="revolute">
+					<origin xyz="0.0320025353016867 -0.00250000000000624 0" rpy="0 0 0.410152374218668"/>
+					<parent link="${prefix}f_link3_2"/>
+					<child link="${prefix}f_link3_3"/>
 					<axis xyz="0 0 1"/>
-				</xacro:unless>
-				<xacro:unless value="${fixed_joints}">
 					<limit lower="0" upper="1.204" effort="10" velocity="1.5"/>
+				</joint>
+				</xacro:if>
+				<xacro:unless value="${enable_dip_joints}">
+				<joint name="${prefix}middle_dip" type="fixed">
+					<origin xyz="0.0320025353016867 -0.00250000000000624 0" rpy="0 0 0.410152374218668"/>
+					<parent link="${prefix}f_link3_2"/>
+					<child link="${prefix}f_link3_3"/>
+				</joint>
 				</xacro:unless>
-			</joint>
 			<link name="${prefix}f_link4_1">
 				<inertial>
 					<origin xyz="0.00431549381550499 -3.59548813348015E-05 -0.000293519316875095" rpy="0 0 0"/>

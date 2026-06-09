@@ -4,7 +4,7 @@ This package contains the URDF and related files for the Freedom dexterous hand.
 
 Supported model types:
 
-- default / `freedomv2` / `freedom_v2`: Freedom V2 model migrated from `freedom_hand_description`.
+- default / `freedomv2` / `freedom_v2`: Freedom V2 7-DOF model.
 - `freedomv1` / `freedom_v1` / `freedom`: original cleaned Freedom model.
 
 
@@ -61,8 +61,8 @@ ros2 launch robot_common_launch hand.launch.py hand:=freedom direction:=1
   hand with `direction`, while link and joint names are normalized by removing
   the original `l_` / `r_` prefixes.
 - V1 contains 11 revolute joints. ROS2 control exposes 6 main control DOFs.
-- V2 uses the common dexhand control naming: 3 thumb joints, 2 index joints,
-  2 middle joints, 1 ring joint, and 1 pinky joint.
+- V2 uses the common dexhand control naming: 3 thumb joints,
+  1 index joint, 1 middle joint, 1 ring joint, and 1 pinky joint.
 
 ## 4. ROS2 Control
 
@@ -96,16 +96,16 @@ commanded by `hand_joint_controller`:
 
 ### 4.3 Freedom V2 Controlled Joints
 
-V2 exposes 9 semantic control joints:
+`freedomv2` / `freedom_v2` exposes 7 semantic control joints. The original
+protocol still has 9 slots; the unused `index_joint2` / `middle_joint2` protocol
+slots are held at zero by the hardware driver.
 
 ```text
 thumb_joint1
 thumb_joint2
 thumb_joint3
 index_joint
-index_dip
 middle_joint
-middle_dip
 ring_joint
 pinky_joint
 ```
@@ -150,9 +150,10 @@ By default, `direction:=1` selects the left hand with ID `0`, and
 `direction:=-1` selects the right hand with ID `1`. The default serial port is
 `/dev/ttyACM0`.
 
-The RS485 hardware driver supports both the V1 6-DOF protocol and the V2
-9-DOF protocol. V2 uses the custom `0x06` motion command with angle, speed,
-and current-limit bytes for each controlled joint.
+The RS485 hardware driver supports the V1 6-DOF protocol and the V2 9-slot
+protocol. `freedomv2` controls 7 of those V2 slots and holds the two unused
+slots at zero. V2 uses the custom `0x06` motion command with angle, speed, and
+current-limit bytes for each protocol slot.
 
 Left hand (`direction:=1`, default):
 

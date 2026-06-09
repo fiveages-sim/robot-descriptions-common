@@ -16,9 +16,7 @@ joint_state_broadcaster:
       - thumb_joint2
       - thumb_joint3
       - index_joint
-      - index_dip
       - middle_joint
-      - middle_dip
       - ring_joint
       - pinky_joint
     interfaces:
@@ -35,9 +33,7 @@ hand_joint_controller:
       - thumb_joint2
       - thumb_joint3
       - index_joint
-      - index_dip
       - middle_joint
-      - middle_dip
       - ring_joint
       - pinky_joint
 
@@ -47,8 +43,8 @@ hand_joint_controller:
       - position
       - velocity
 
-    home_1: [-0.43, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    home_2: [0.4, 0.0, 0.15, 0.0, 0.90, 0.95, 0.95, 0.95, 0.95]
+    home_1: [-0.43, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    home_2: [0.6, 0.0, 0.15, 0.90, 0.95, 0.95, 0.95]
 
     target_command_enabled: true
     target_command_close_config: 1

@@ -3,6 +3,7 @@
 
 	<xacro:arg name="type" default="freedomv2"/>
 	<xacro:arg name="direction" default="1"/>
+	<xacro:arg name="enable_dip_joints" default="false"/>
 
 	<xacro:if value="${'$(arg type)' == 'freedomv1' or '$(arg type)' == 'freedom_v1' or '$(arg type)' == 'freedom'}">
 		<xacro:include filename="$(find freedom_description)/xacro/freedomv1.xacro"/>
@@ -11,7 +12,7 @@
 
 	<xacro:if value="${'$(arg type)' == 'freedomv2' or '$(arg type)' == 'freedom_v2'}">
 		<xacro:include filename="$(find freedom_description)/xacro/freedomv2.xacro"/>
-		<xacro:FreedomHandV2 name="" direction="$(arg direction)"/>
+		<xacro:FreedomHandV2 name="" direction="$(arg direction)" enable_dip_joints="$(arg enable_dip_joints)"/>
 	</xacro:if>
 
 </robot>

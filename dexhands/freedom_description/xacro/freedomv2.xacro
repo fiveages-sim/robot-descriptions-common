@@ -1106,6 +1106,13 @@
 				<child link="${prefix}f_link5_3"/>
 			</joint>
 		</xacro:unless>
+
+		<link name="${prefix}eef"/>
+		<joint name="${prefix}eef_joint" type="fixed">
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}eef"/>
+			<origin xyz="0.02 0 0.07"/>
+		</joint>
 	</xacro:macro>
 
 </robot>

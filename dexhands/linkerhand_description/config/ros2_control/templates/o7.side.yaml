@@ -18,7 +18,7 @@
       - position
       - velocity
     home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    home_2: [1.0, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0]
+    home_2: [0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0]
     home_duration: 2.0
     movej_duration: 2.0
     hold_position_threshold: 0.1

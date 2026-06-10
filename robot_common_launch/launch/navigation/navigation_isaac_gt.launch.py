@@ -1,7 +1,5 @@
-import glob
 import os
 
-from ament_index_python.packages import PackageNotFoundError
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -15,85 +13,25 @@ from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.actions import SetRemap
 
-
-def _find_map_yaml_in_directory(directory: str):
-    """Prefer map.yaml; otherwise first *.yaml in directory (lexicographic)."""
-    if not os.path.isdir(directory):
-        return None
-    primary = os.path.join(directory, 'map.yaml')
-    if os.path.isfile(primary):
-        return os.path.abspath(primary)
-    yamls = sorted(glob.glob(os.path.join(directory, '*.yaml')))
-    if yamls:
-        return os.path.abspath(yamls[0])
-    return None
-
-
-def _resolve_map_yaml(map_arg: str, robot_name: str, default_map_yaml: str, common_share: str) -> str:
-    """
-    Resolve map for map_server: absolute yaml path, or directory, or name / relative path under
-    {robot}_description/config/maps then robot_common_launch/config/maps, else default_map_yaml.
-    """
-    raw = map_arg.strip()
-    if not raw:
-        return default_map_yaml
-
-    expanded = os.path.expanduser(raw)
-
-    if os.path.isfile(expanded):
-        return os.path.abspath(expanded)
-
-    if os.path.isdir(expanded):
-        found = _find_map_yaml_in_directory(expanded)
-        if found:
-            return found
-
-    maps_roots = []
-    if robot_name:
-        try:
-            robot_share = get_package_share_directory(f'{robot_name}_description')
-            maps_roots.append(os.path.join(robot_share, 'config', 'maps'))
-        except PackageNotFoundError:
-            pass
-    maps_roots.append(os.path.join(common_share, 'config', 'maps'))
-
-    for root in maps_roots:
-        candidate = os.path.normpath(os.path.join(root, expanded))
-        if os.path.isfile(candidate):
-            return os.path.abspath(candidate)
-        if os.path.isdir(candidate):
-            found = _find_map_yaml_in_directory(candidate)
-            if found:
-                return found
-        # 允许写 german_poc/map 这类「子路径无后缀」，自动补 .yaml
-        if not expanded.endswith(('.yaml', '.yml')):
-            yaml_only = candidate + '.yaml'
-            if os.path.isfile(yaml_only):
-                return os.path.abspath(yaml_only)
-
-    hint = f'{robot_name}_description/config/maps, then ' if robot_name else ''
-    print(
-        f'[navigation_isaac_gt] Could not resolve map {raw!r} under '
-        f'{hint}robot_common_launch/config/maps; using default:\n  {default_map_yaml}'
-    )
-    return default_map_yaml
+from robot_common_launch.common.navigation_config_utils import (
+    default_map_yaml,
+    default_nav2_params_yaml,
+    resolve_map_yaml,
+    resolve_nav2_params,
+)
 
 
 def generate_launch_description():
     common_share = get_package_share_directory('robot_common_launch')
-    default_params_yaml = os.path.join(
-        common_share, 'config', 'nav2', 'nav2_params_isaac_gt.yaml')
+    default_params_yaml = default_nav2_params_yaml()
 
-    # map 参数默认只写「地图文件夹名」；在 config/maps/<文件夹>/ 下优先 map.yaml，否则任取 *.yaml
     default_map_folder = 'warehouse_with_forklifts'
-    _default_map_dir = os.path.join(
-        common_share, 'config', 'maps', default_map_folder)
-    default_map_yaml = _find_map_yaml_in_directory(_default_map_dir)
-    if not default_map_yaml:
-        default_map_yaml = os.path.join(_default_map_dir, 'map.yaml')
+    _default_map_yaml = default_map_yaml()
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     robot = LaunchConfiguration('robot', default='')
+    map_config_package = LaunchConfiguration('map_config_package', default='')
+    nav_config_package = LaunchConfiguration('nav_config_package', default='')
     params_file = LaunchConfiguration('params_file', default='')
     nav2_profile = LaunchConfiguration('nav2_profile', default='default')
     map_arg = LaunchConfiguration('map')
@@ -102,46 +40,29 @@ def generate_launch_description():
 
     def resolve_isaac_gt_launch(context):
         actions = []
-
-        user_params = params_file.perform(context).strip()
-        if user_params:
-            actions.append(SetLaunchConfiguration('resolved_params_file', user_params))
-        else:
-            robot_name = robot.perform(context).strip()
-            profile = nav2_profile.perform(context).strip().lower()
-            chosen = default_params_yaml
-            if robot_name:
-                try:
-                    robot_share = get_package_share_directory(f'{robot_name}_description')
-                    if profile == 'map_only':
-                        map_only_params = os.path.join(
-                            robot_share, 'config', 'nav2', 'nav2_params_isaac_gt_map_only.yaml')
-                        if os.path.exists(map_only_params):
-                            chosen = map_only_params
-                        else:
-                            print(
-                                '[navigation_isaac_gt] nav2_profile=map_only but '
-                                f'{map_only_params!r} not found; falling back to nav2_params_isaac_gt.yaml.'
-                            )
-                            robot_params = os.path.join(
-                                robot_share, 'config', 'nav2', 'nav2_params_isaac_gt.yaml')
-                            if os.path.exists(robot_params):
-                                chosen = robot_params
-                    else:
-                        robot_params = os.path.join(
-                            robot_share, 'config', 'nav2', 'nav2_params_isaac_gt.yaml')
-                        if os.path.exists(robot_params):
-                            chosen = robot_params
-                except PackageNotFoundError:
-                    pass
-            actions.append(SetLaunchConfiguration('resolved_params_file', chosen))
-
         robot_name = robot.perform(context).strip()
+        map_pkg = map_config_package.perform(context).strip()
+        nav_pkg = nav_config_package.perform(context).strip()
+        profile = nav2_profile.perform(context).strip()
+        user_params = params_file.perform(context).strip()
         map_value = map_arg.perform(context)
-        resolved_map = _resolve_map_yaml(
-            map_value, robot_name, default_map_yaml, common_share)
-        actions.append(SetLaunchConfiguration('resolved_map_yaml', resolved_map))
 
+        chosen = resolve_nav2_params(
+            robot_name=robot_name,
+            nav_config_package=nav_pkg,
+            nav2_profile=profile,
+            params_file=user_params,
+            default_params_yaml=default_params_yaml,
+        )
+        actions.append(SetLaunchConfiguration('resolved_params_file', chosen))
+
+        resolved_map = resolve_map_yaml(
+            map_value,
+            robot_name=robot_name,
+            map_config_package=map_pkg,
+            default_map_yaml_path=_default_map_yaml,
+        )
+        actions.append(SetLaunchConfiguration('resolved_map_yaml', resolved_map))
         return actions
 
     scan_topic = LaunchConfiguration('scan_topic', default='/scan')
@@ -193,8 +114,6 @@ def generate_launch_description():
         ),
     ])
 
-    # 必须与 Nav2 / Isaac 一致使用仿真时钟；否则 TF 用 wall time、其它节点用 /clock，
-    # 会出现 map<->odom 与代价地图/点云时间差数十秒，报 Transform too old / 点云被丢弃。
     map_to_odom_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
@@ -219,7 +138,8 @@ def generate_launch_description():
             description=(
                 'Map folder name under config/maps (prefer map.yaml, else first *.yaml), '
                 'or path to .yaml / map directory, or subpath like german_poc/map (.yaml optional); '
-                'robot package config/maps is tried before robot_common_launch'
+                'search order: map_config_package, {robot}_description/config/navigation.yaml, '
+                '{robot}_description, robot_common_launch'
             )),
         DeclareLaunchArgument(
             'params_file',
@@ -230,13 +150,27 @@ def generate_launch_description():
             default_value='default',
             description=(
                 'Nav2 preset when params_file is empty: default=nav2_params_isaac_gt.yaml; '
-                'map_only=nav2_params_isaac_gt_map_only.yaml (static map only, no point cloud) '
-                'if present under {robot}_description/config/nav2'
+                'map_only=nav2_params_isaac_gt_map_only.yaml; routing from '
+                '{robot}_description/config/navigation.yaml when args empty'
             )),
         DeclareLaunchArgument(
             'robot',
             default_value='',
-            description='Robot name without _description suffix, e.g. fiveages_w1'),
+            description='Robot name without _description suffix, e.g. fiveages_w2'),
+        DeclareLaunchArgument(
+            'map_config_package',
+            default_value='',
+            description=(
+                'Optional ament package for config/maps '
+                '(e.g. fiveages_w2_common_description)'
+            )),
+        DeclareLaunchArgument(
+            'nav_config_package',
+            default_value='',
+            description=(
+                'Optional ament package for config/nav2 '
+                '(e.g. fiveages_w2_common_description)'
+            )),
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='true',

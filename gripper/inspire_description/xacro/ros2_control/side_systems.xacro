@@ -17,4 +17,18 @@
     </ros2_control>
   </xacro:macro>
 
+  <xacro:macro name="inspire_canfd_side_system" params="side can_interface hand_id:=auto read_feedback:=true">
+    <ros2_control name="inspire_e2_${side}_canfd_system" type="system">
+      <hardware>
+        <plugin>can_ros2_control/InspireCanfdHardware</plugin>
+        <param name="can_interface">${can_interface}</param>
+        <param name="hand_side">${side}</param>
+        <param name="hand_id">${hand_id}</param>
+        <param name="read_feedback">${read_feedback}</param>
+        <param name="feedback_timeout_ms">2</param>
+      </hardware>
+      <xacro:inspire_rh56e2_interfaces name="${side}_hand"/>
+    </ros2_control>
+  </xacro:macro>
+
 </robot>

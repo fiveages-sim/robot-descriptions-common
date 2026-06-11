@@ -4,11 +4,14 @@ Launch argument utilities: prefixed xacro_/hardware_/control_ routing and robot 
 
 from __future__ import annotations
 
+import logging
 import os
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
+
+_LOGGER = logging.getLogger(__name__)
 
 XACRO_PREFIX = "xacro_"
 HARDWARE_PREFIX = "hardware_"
@@ -78,6 +81,48 @@ def extract_prefixed_args(
 
 
 _PLATFORM_XACRO_KEYS = ("chassis", "variant", "chassis_joints_movable")
+_DYN_PARAM_LEN = 10
+
+
+def _coerce_dyn_param_list(raw: Any, label: str = "dyn_param") -> Optional[List[float]]:
+    if raw is None:
+        return None
+    if isinstance(raw, (list, tuple)):
+        if len(raw) == 0:
+            return None
+        if len(raw) != _DYN_PARAM_LEN:
+            _LOGGER.warning(
+                "%s has %d values, expected %d; ignoring (xacro will pick by ee type).",
+                label, len(raw), _DYN_PARAM_LEN,
+            )
+            return None
+        try:
+            return [float(v) for v in raw]
+        except (TypeError, ValueError):
+            _LOGGER.warning(
+                "%s contains non-numeric values %r; ignoring (xacro will pick by ee type).",
+                label, list(raw),
+            )
+            return None
+    _LOGGER.warning(
+        "%s should be a list of %d numbers, got %r; ignoring.",
+        label, _DYN_PARAM_LEN, raw,
+    )
+    return None
+
+
+def _format_dyn_param(values: List[float]) -> str:
+    return ",".join(str(v) for v in values)
+
+
+def _lookup_profile_dyn_param(profile: Dict[str, Any], side: str) -> str:
+    """Per-side dyn_param override from profile; empty when unset (xacro picks by ee type)."""
+    overrides = profile.get("tool_dyn_param")
+    if isinstance(overrides, dict):
+        vals = _coerce_dyn_param_list(overrides.get(side), label=f"{side}_dyn_param")
+        if vals:
+            return _format_dyn_param(vals)
+    return ""
 
 
 def create_platform_launch_arguments():
@@ -105,6 +150,8 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     New schema (recommended):
       platform:  chassis / variant / arm_ctrl_mode — always apply (incl. quick_start [模板])
       defaults.end_effectors: loaded into profile["eef"]; applied only when use_profile_eef is true
+      defaults.left_dyn_param / right_dyn_param: optional per-side load override;
+        empty means the robot xacro picks dyn_param by end-effector type
       Launch merge order: CLI type/left_type/right_type → profile eef (if enabled) → bare arm
       control.patch: inline ros2_control overrides (deep-merged after compose)
     """
@@ -167,7 +214,20 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(patch, dict) and patch:
         control["patch"] = patch
 
-    return {"xacro": xacro, "eef": eef, "hardware": hardware, "control": control}
+    tool_dyn_param: Dict[str, Any] = {}
+    if isinstance(defaults, dict):
+        for side in ("left", "right"):
+            value = defaults.get(f"{side}_dyn_param")
+            if value is not None:
+                tool_dyn_param[side] = value
+
+    return {
+        "xacro": xacro,
+        "eef": eef,
+        "hardware": hardware,
+        "control": control,
+        "tool_dyn_param": tool_dyn_param,
+    }
 
 
 def load_robot_profile(profile_path: str) -> Dict[str, Any]:
@@ -375,6 +435,16 @@ def build_xacro_mappings(
         mappings["right_type"] = side_right
     elif launch_type and not side_left and not side_right:
         mappings.pop("right_type", None)
+
+    if hardware in REAL_HARDWARE and profile:
+        if not str(mappings.get("left_dyn_param", "") or "").strip():
+            left_dyn = _lookup_profile_dyn_param(profile, "left")
+            if left_dyn:
+                mappings["left_dyn_param"] = left_dyn
+        if not str(mappings.get("right_dyn_param", "") or "").strip():
+            right_dyn = _lookup_profile_dyn_param(profile, "right")
+            if right_dyn:
+                mappings["right_dyn_param"] = right_dyn
 
     if hardware == "gz":
         mappings["gazebo"] = "true"

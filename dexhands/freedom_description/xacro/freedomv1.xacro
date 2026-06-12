@@ -372,6 +372,13 @@
 			</xacro:unless>
 		</joint>
 
+		<link name="${prefix}eef"/>
+		<joint name="${prefix}eef_joint" type="fixed">
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}eef"/>
+			<origin xyz="0 0.1074 0.001"/>
+		</joint>
+
 	</xacro:macro>
 
 	<xacro:macro name="FreedomHand" params="name direction:=1 fixed_joints:=false">

@@ -1,6 +1,6 @@
 {side}_hand_controller:
   ros__parameters:
-    update_rate: 30
+    update_rate: 100
     target_command_enabled: true
     movej_interpolation_type: "None"
     home_interpolation_type: "None"
@@ -17,8 +17,7 @@
       - position
       - velocity
     home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    home_2: [0.3, 0.3, 0.3, 0.3, 0.3, 0.3]
-    home_3: [0.6, 0.6, 0.6, 0.6, 0.6, 0.6]
+    home_2: [0.4, 0.4, 0.6, 0.6, 0.6, 0.6]
     home_duration: 3.0
     movej_duration: 3.0
     hold_position_threshold: 0.1

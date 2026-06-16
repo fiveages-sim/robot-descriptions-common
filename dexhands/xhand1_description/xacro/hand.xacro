@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="XHAND1_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:arg name="type" default="xhand1"/>
+    <xacro:arg name="direction" default="1"/>
+    <xacro:include filename="$(find xhand1_description)/xacro/xhand1.xacro"/>
+
+    <!-- direction=1 for left hand, direction=-1 for right hand -->
+    <xacro:XHand1 name="" direction="$(arg direction)"/>
+
+</robot>

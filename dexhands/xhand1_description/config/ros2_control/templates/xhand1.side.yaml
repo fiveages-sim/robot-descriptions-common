@@ -1,0 +1,45 @@
+{side}_hand_controller:
+  ros__parameters:
+    update_rate: 100
+    target_command_enabled: true
+    target_command_close_config: 1
+    target_command_open_config: 0
+    movej_interpolation_type: "none"
+    home_interpolation_type: "none"
+    joints:
+      - {side_}hand_thumb_joint1
+      - {side_}hand_thumb_joint2
+      - {side_}hand_thumb_joint3
+      - {side_}hand_index_joint1
+      - {side_}hand_index_joint2
+      - {side_}hand_index_joint3
+      - {side_}hand_middle_joint1
+      - {side_}hand_middle_joint2
+      - {side_}hand_ring_joint1
+      - {side_}hand_ring_joint2
+      - {side_}hand_pinky_joint1
+      - {side_}hand_pinky_joint2
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    home_1: [1.4, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    home_2: [1.4, 0.66, 0.85, 0.0, 1.2, 0.8, 1.2, 0.8, 1.2, 0.8, 1.2, 0.8]
+    home_duration: 0.01
+    movej_duration: 0.01
+    hold_position_threshold: 0.01
+
+joint_state_extra_joints:
+  - {side_}hand_thumb_joint1
+  - {side_}hand_thumb_joint2
+  - {side_}hand_thumb_joint3
+  - {side_}hand_index_joint1
+  - {side_}hand_index_joint2
+  - {side_}hand_index_joint3
+  - {side_}hand_middle_joint1
+  - {side_}hand_middle_joint2
+  - {side_}hand_ring_joint1
+  - {side_}hand_ring_joint2
+  - {side_}hand_pinky_joint1
+  - {side_}hand_pinky_joint2

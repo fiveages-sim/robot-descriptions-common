@@ -60,9 +60,9 @@ hand_joint_controller:
     target_command_close_config: 1
     target_command_open_config: 0
 
-    home_interpolation_type: "linear"
-    movej_interpolation_type: "linear"
+    home_interpolation_type: "none"
+    movej_interpolation_type: "none"
 
-    home_duration: 0.1
-    movej_duration: 0.1
-    hold_position_threshold: 0.1
+    home_duration: 0.01
+    movej_duration: 0.01
+    hold_position_threshold: 0.01

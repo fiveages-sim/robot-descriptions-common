@@ -49,12 +49,9 @@ hand_joint_controller:
 
     command_interfaces:
       - position
-      - velocity
-      - effort
     state_interfaces:
       - position
       - velocity
-      - effort
 
     home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
     home_2: [0.6, 0.3, 0.6, 0.0, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8]

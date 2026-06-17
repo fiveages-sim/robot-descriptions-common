@@ -1,6 +1,7 @@
 # robot_common_launch package
 # Common launch utilities for robots
 
+from .common.controller_manager_setup import create_controller_manager_nodes
 from .common.robot_utils import (
     get_robot_package_path,
     load_robot_config,
@@ -12,14 +13,17 @@ from .common.robot_utils import (
     get_ros2_control_robot_description,
     get_planning_robot_description,
     build_planning_urdf_launch_params,
+    resolve_planning_urdf_file_or_fail,
     write_temp_ros2_control_yaml,
     parse_task_info,
     prepare_arms_target_manager_parameters,
     extract_info_file_name_from_config,
-    ros2_control_needs_merged_yaml,
+    RobotConfigMeta,
+    EMPTY_ROBOT_CONFIG_META,
 )
 from .common.controller_utils import (
     detect_controllers,
+    detect_and_spawn_controllers,
     create_controller_spawners,
     wrap_spawner_controller_params,
     write_spawner_controller_param_file,
@@ -66,8 +70,11 @@ __all__ = [
     'get_ros2_control_robot_description',
     'get_planning_robot_description',
     'build_planning_urdf_launch_params',
+    'resolve_planning_urdf_file_or_fail',
     'write_temp_ros2_control_yaml',
-    'ros2_control_needs_merged_yaml',
+    'create_controller_manager_nodes',
+    'RobotConfigMeta',
+    'EMPTY_ROBOT_CONFIG_META',
     'build_xacro_mappings',
     'forward_robot_launch_args',
     'create_robot_profile_launch_arguments',
@@ -85,7 +92,8 @@ __all__ = [
     'parse_task_info',
     'prepare_arms_target_manager_parameters',
     'extract_info_file_name_from_config',
-    'detect_controllers', 
+    'detect_controllers',
+    'detect_and_spawn_controllers',
     'create_controller_spawners',
     'wrap_spawner_controller_params',
     'write_spawner_controller_param_file',

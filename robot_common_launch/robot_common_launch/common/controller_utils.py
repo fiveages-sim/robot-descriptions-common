@@ -26,28 +26,15 @@ def wrap_spawner_controller_params(
     return {controller_name: {"ros__parameters": dict(ros_parameters)}}
 
 
-def prepare_ros2_controllers_override_path(
-    config: Optional[Dict[str, Any]],
-    control_left: str = "",
-    control_right: str = "",
-    control_patch: Optional[Dict[str, Any]] = None,
-    robot_name: str = "",
-    robot_type: str = "",
-) -> str:
-    """Write merged config once for controller_manager when compose/patch was applied."""
-    if not config:
-        return ""
-    from .robot_utils import ros2_control_needs_merged_yaml, write_temp_ros2_control_yaml
+def prepare_ros2_controllers_override_path(meta) -> str:
+    """Return pre-written merged ros2_control YAML path from load_robot_config meta."""
+    from .robot_utils import EMPTY_ROBOT_CONFIG_META, RobotConfigMeta
 
-    if not ros2_control_needs_merged_yaml(
-        robot_name,
-        robot_type,
-        control_left=control_left,
-        control_right=control_right,
-        control_patch=control_patch,
-    ):
+    if not isinstance(meta, RobotConfigMeta):
         return ""
-    return write_temp_ros2_control_yaml(config, quiet=True)
+    if meta is EMPTY_ROBOT_CONFIG_META or not meta.needs_merged_file:
+        return ""
+    return meta.merged_yaml_path or ""
 
 
 def write_spawner_controller_param_file(
@@ -105,6 +92,54 @@ def _extract_joints_from_urdf(robot_description):
         return set()
 
 
+def _controller_passes_joint_check(
+    name: str,
+    config: Dict[str, Any],
+    patterns: list,
+    robot_description: Optional[str],
+    available_joints: set,
+    skipped_controllers: set,
+) -> bool:
+    """Return True if controller should be included."""
+    if not any(pattern.lower() in name.lower() for pattern in patterns):
+        return False
+    if not robot_description or not available_joints:
+        return True
+
+    controller_params = config.get(name, {}).get("ros__parameters", {})
+    joint_name = controller_params.get("joint")
+    joint_names = controller_params.get("joints")
+
+    if joint_name:
+        if joint_name not in available_joints:
+            print(
+                f"[WARN] Controller '{name}' specifies joint '{joint_name}' "
+                "which does not exist in robot_description, skipping"
+            )
+            skipped_controllers.add(name)
+            return False
+        print(f"[INFO] Detected controller: {name} with joint '{joint_name}' (verified)")
+        return True
+
+    if joint_names:
+        missing = [j for j in joint_names if j not in available_joints]
+        if missing:
+            print(
+                f"[WARN] Controller '{name}' specifies joints {missing} "
+                "which do not exist in robot_description, skipping"
+            )
+            skipped_controllers.add(name)
+            return False
+        print(f"[INFO] Detected controller: {name} with {len(joint_names)} joints (verified)")
+        return True
+
+    print(
+        f"[WARN] Controller '{name}' has no joint info in config, skipping (robot_description provided)"
+    )
+    skipped_controllers.add(name)
+    return False
+
+
 def detect_controllers(
     robot_name,
     robot_type="",
@@ -114,6 +149,7 @@ def detect_controllers(
     control_right="",
     control_patch=None,
     ros2_control_config=None,
+    include_legacy_sections=False,
 ):
     """
     Detect controllers from ROS2 controller configuration.
@@ -147,7 +183,7 @@ def detect_controllers(
     if ros2_control_config is not None:
         config = ros2_control_config
     else:
-        config, _ = load_robot_config(
+        config, _, _meta = load_robot_config(
             robot_name,
             "ros2_control",
             robot_type,
@@ -168,105 +204,87 @@ def detect_controllers(
             print(f"[INFO] Found {len(available_joints)} joints in robot_description for validation")
     
     controllers = []
-    # 记录被跳过的 controller 名称，避免在后续检测中重复处理
     skipped_controllers = set()
-    
-    # Check controller_manager section for matching controllers
-    controller_manager = config.get('controller_manager', {}).get('ros__parameters', {})
-    
+
+    controller_manager = config.get("controller_manager", {}).get("ros__parameters", {})
+
     for controller_name, controller_config in controller_manager.items():
-        # Check if controller name matches any pattern
-        if any(pattern.lower() in controller_name.lower() for pattern in patterns):
-            # Extract controller type and parameters
-            if isinstance(controller_config, str):
-                controller_type = controller_config
-            elif isinstance(controller_config, dict):
-                controller_type = controller_config.get('type', '')
-            else:
-                controller_type = ''
-            
-            # 如果提供了 robot_description，检查配置中的 joint 是否存在
-            if robot_description and available_joints:
-                # 检查控制器配置中的 joint/joints 字段
-                controller_params = config.get(controller_name, {}).get('ros__parameters', {})
-                joint_name = controller_params.get('joint')
-                joint_names = controller_params.get('joints')
+        if controller_name in skipped_controllers:
+            continue
+        if not _controller_passes_joint_check(
+            controller_name,
+            config,
+            patterns,
+            robot_description,
+            available_joints,
+            skipped_controllers,
+        ):
+            continue
 
-                if joint_name:
-                    if joint_name not in available_joints:
-                        print(f"[WARN] Controller '{controller_name}' specifies joint '{joint_name}' which does not exist in robot_description, skipping")
-                        skipped_controllers.add(controller_name)
-                        continue
-                    else:
-                        print(f"[INFO] Detected controller: {controller_name} ({controller_type}) with joint '{joint_name}' (verified)")
-                elif joint_names:
-                    missing = [j for j in joint_names if j not in available_joints]
-                    if missing:
-                        print(f"[WARN] Controller '{controller_name}' specifies joints {missing} which do not exist in robot_description, skipping")
-                        skipped_controllers.add(controller_name)
-                        continue
-                    else:
-                        print(f"[INFO] Detected controller: {controller_name} ({controller_type}) with {len(joint_names)} joints (verified)")
-                else:
-                    # 提供了 robot_description 但找不到 joint 信息，说明该控制器不属于当前型号，跳过
-                    print(f"[WARN] Controller '{controller_name}' has no joint info in config, skipping (robot_description provided)")
-                    skipped_controllers.add(controller_name)
-                    continue
-            else:
-                # 没有提供 robot_description，直接添加
-                print(f"[INFO] Detected controller: {controller_name} ({controller_type})")
-            
-            controllers.append({
-                'name': controller_name,
-                'type': controller_type,
-                'config': controller_config
-            })
-    
-    # Also check for controller parameter sections
-    for section_name, section_config in config.items():
-        if any(pattern.lower() in section_name.lower() for pattern in patterns):
-            # 检查是否已经在 controllers 列表中，或者已经被跳过
-            if section_name in [c['name'] for c in controllers] or section_name in skipped_controllers:
+        if isinstance(controller_config, str):
+            controller_type = controller_config
+        elif isinstance(controller_config, dict):
+            controller_type = controller_config.get("type", "")
+        else:
+            controller_type = ""
+
+        if not (robot_description and available_joints):
+            print(f"[INFO] Detected controller: {controller_name} ({controller_type})")
+
+        controllers.append(
+            {
+                "name": controller_name,
+                "type": controller_type,
+                "config": controller_config,
+            }
+        )
+
+    if include_legacy_sections:
+        for section_name, section_config in config.items():
+            if section_name in [c["name"] for c in controllers] or section_name in skipped_controllers:
                 continue
-            
-            # 如果提供了 robot_description，检查配置中的 joint 是否存在
-            if robot_description and available_joints:
-                # 检查控制器配置中的 joint/joints 字段
-                section_params = section_config.get('ros__parameters', {})
-                joint_name = section_params.get('joint')
-                joint_names = section_params.get('joints')
-
-                if joint_name:
-                    if joint_name not in available_joints:
-                        print(f"[WARN] Controller section '{section_name}' specifies joint '{joint_name}' which does not exist in robot_description, skipping")
-                        skipped_controllers.add(section_name)
-                        continue
-                    else:
-                        print(f"[INFO] Detected controller section: {section_name} with joint '{joint_name}' (verified)")
-                elif joint_names:
-                    missing = [j for j in joint_names if j not in available_joints]
-                    if missing:
-                        print(f"[WARN] Controller section '{section_name}' specifies joints {missing} which do not exist in robot_description, skipping")
-                        skipped_controllers.add(section_name)
-                        continue
-                    else:
-                        print(f"[INFO] Detected controller section: {section_name} with {len(joint_names)} joints (verified)")
-                else:
-                    # 提供了 robot_description 但找不到 joint 信息，说明该控制器不属于当前型号，跳过
-                    print(f"[WARN] Controller section '{section_name}' has no joint info in config, skipping (robot_description provided)")
-                    skipped_controllers.add(section_name)
-                    continue
-            else:
+            if not _controller_passes_joint_check(
+                section_name,
+                config,
+                patterns,
+                robot_description,
+                available_joints,
+                skipped_controllers,
+            ):
+                continue
+            if not (robot_description and available_joints):
                 print(f"[INFO] Detected controller section: {section_name}")
-            
-            controllers.append({
-                'name': section_name,
-                'type': 'unknown',
-                'config': section_config
-            })
-    
+            controllers.append(
+                {
+                    "name": section_name,
+                    "type": "unknown",
+                    "config": section_config,
+                }
+            )
+
     print(f"[INFO] Total controllers detected: {len(controllers)}")
     return controllers
+
+
+def detect_and_spawn_controllers(
+    config,
+    patterns,
+    *,
+    robot_description=None,
+    use_sim_time=False,
+    include_legacy_sections=False,
+):
+    """Detect controllers from preloaded config and return spawner nodes."""
+    if config is None:
+        return [], []
+    controllers = detect_controllers(
+        robot_name="",
+        patterns=patterns,
+        robot_description=robot_description,
+        ros2_control_config=config,
+        include_legacy_sections=include_legacy_sections,
+    )
+    return controllers, create_controller_spawners(controllers, use_sim_time)
 
 
 def create_controller_spawners(controllers, use_sim_time=False):

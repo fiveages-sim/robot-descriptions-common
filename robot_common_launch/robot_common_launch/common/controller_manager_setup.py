@@ -15,6 +15,7 @@ from .launch_arg_utils import (
     resolve_control_patch,
     resolve_control_sides,
     resolve_profile_path,
+    resolve_robot_variant,
 )
 from .robot_utils import (
     EMPTY_ROBOT_CONFIG_META,
@@ -135,6 +136,7 @@ def create_controller_manager_nodes(
     profile = load_robot_profile(robot_profile_path) if robot_profile_path else {}
     control_left, control_right = resolve_control_sides(configs, profile)
     control_patch = resolve_control_patch(profile)
+    robot_variant = resolve_robot_variant(configs, profile)
     asymmetric = is_compose_asymmetric(control_left, control_right)
 
     use_gazebo = hardware == "gz"
@@ -248,6 +250,7 @@ def create_controller_manager_nodes(
                     compose_applied=meta.compose_applied,
                     type_yaml_found=meta.type_yaml_found,
                     patch_applied=meta.patch_applied,
+                    variant_overlay_applied=meta.variant_overlay_applied,
                     needs_merged_file=True,
                     merged_yaml_path=override,
                     base_config_path=meta.base_config_path,
@@ -262,6 +265,7 @@ def create_controller_manager_nodes(
                 control_left=control_left,
                 control_right=control_right,
                 control_patch=control_patch,
+                robot_variant=robot_variant,
             )
 
         node_parameters = _build_ros2_control_node_parameters(

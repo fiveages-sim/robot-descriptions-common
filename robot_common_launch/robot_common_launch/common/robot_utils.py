@@ -36,6 +36,7 @@ class RobotConfigMeta:
     compose_applied: bool
     type_yaml_found: bool
     patch_applied: bool
+    variant_overlay_applied: bool
     needs_merged_file: bool
     merged_yaml_path: str
     base_config_path: str = ""
@@ -45,6 +46,7 @@ EMPTY_ROBOT_CONFIG_META = RobotConfigMeta(
     compose_applied=False,
     type_yaml_found=False,
     patch_applied=False,
+    variant_overlay_applied=False,
     needs_merged_file=False,
     merged_yaml_path="",
     base_config_path="",
@@ -56,13 +58,14 @@ def _build_robot_config_meta(
     compose_applied: bool,
     type_yaml_found: bool,
     patch_applied: bool,
+    variant_overlay_applied: bool,
     config: dict,
     config_path: str,
     yaml_only: bool,
 ) -> RobotConfigMeta:
     if yaml_only:
         return EMPTY_ROBOT_CONFIG_META
-    needs_merged = compose_applied or patch_applied
+    needs_merged = compose_applied or patch_applied or variant_overlay_applied
     merged_path = ""
     if needs_merged and config:
         merged_path = write_temp_ros2_control_yaml(config, quiet=True)
@@ -70,6 +73,7 @@ def _build_robot_config_meta(
         compose_applied=compose_applied,
         type_yaml_found=type_yaml_found,
         patch_applied=patch_applied,
+        variant_overlay_applied=variant_overlay_applied,
         needs_merged_file=needs_merged,
         merged_yaml_path=merged_path,
         base_config_path=config_path or "",
@@ -210,12 +214,13 @@ def load_robot_config(
     control_left="",
     control_right="",
     control_patch=None,
+    robot_variant="",
     yaml_only=False,
 ):
     """
     Load ros2_control config with optional per-side compose and profile patch merge.
 
-    Merge order: common.yaml + type variant (or compose) + control.patch from robot profile.
+    Merge order: common.yaml + type yaml + variant yaml overlay + compose + control.patch
 
     When yaml_only is True, skip symmetric registry/template compose fallback (used by
     control_compose enrichment to avoid recursion).
@@ -223,12 +228,14 @@ def load_robot_config(
     effective_type, left, right = resolve_compose_type_key(robot_type, control_left, control_right)
     asymmetric = is_compose_asymmetric(left, right)
     patch = control_patch if isinstance(control_patch, dict) else {}
+    variant_key = str(robot_variant or "").strip()
     patch_stamp = (
         hashlib.md5(json.dumps(patch, sort_keys=True).encode()).hexdigest() if patch else ""
     )
 
     cache_key = (
-        f"{robot_name}_{config_type}_{effective_type}_{left}_{right}_{patch_stamp}"
+        f"{robot_name}_{config_type}_{effective_type}_{left}_{right}"
+        f"_{variant_key}_{patch_stamp}"
     )
     if not yaml_only and cache_key in _config_cache:
         return _config_cache[cache_key]
@@ -290,6 +297,19 @@ def load_robot_config(
 
         config = _deep_merge_dicts(common_config, config)
 
+        variant_overlay_applied = False
+        if variant_key:
+            variant_config_path = os.path.join(config_dir, f"{variant_key}.yaml")
+            if os.path.isfile(variant_config_path):
+                with open(variant_config_path, "r") as file:
+                    variant_config = yaml.safe_load(file) or {}
+                config = _deep_merge_dicts(config, variant_config)
+                variant_overlay_applied = True
+                print(
+                    f"[INFO] Merged {config_type} variant overlay: "
+                    f"{os.path.basename(variant_config_path)}"
+                )
+
         use_compose = asymmetric or (
             not yaml_only
             and not type_yaml_found
@@ -320,6 +340,7 @@ def load_robot_config(
             compose_applied=compose_applied,
             type_yaml_found=type_yaml_found,
             patch_applied=patch_applied,
+            variant_overlay_applied=variant_overlay_applied,
             config=config,
             config_path=config_path or "",
             yaml_only=yaml_only,
@@ -560,8 +581,7 @@ def _planning_xacro_mappings(
     mappings["chassis_joints_movable"] = "false"
 
     if planning_scope == PLANNING_SCOPE_ARMS:
-        for key in ("chassis", "variant"):
-            mappings.pop(key, None)
+        mappings.pop("chassis", None)
         left_type = mappings.get("left_type", "").strip()
         right_type = mappings.get("right_type", "").strip()
         if left_type and right_type:

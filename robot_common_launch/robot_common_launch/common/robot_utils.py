@@ -137,6 +137,55 @@ def write_temp_ros2_control_yaml(config_dict, *, quiet: bool = False):
     return path
 
 
+def ros2_control_needs_merged_yaml(
+    robot_name,
+    robot_type="",
+    control_left="",
+    control_right="",
+    control_patch=None,
+):
+    """
+    True when ros2_control_node must receive the in-memory merged config.
+
+    Includes asymmetric compose, profile patch, and symmetric template fallback
+    when no robot-package ``<type>.yaml`` exists.
+    """
+    if control_patch:
+        return True
+    effective_type, left, right = resolve_compose_type_key(
+        robot_type, control_left, control_right
+    )
+    if is_compose_asymmetric(left, right):
+        return True
+    if not effective_type or not effective_type.strip():
+        return False
+    robot_pkg_path = get_robot_package_path(robot_name)
+    if robot_pkg_path is None:
+        return False
+    config_dir = os.path.join(robot_pkg_path, "config", "ros2_control")
+    for candidate_type in _generate_progressive_type_candidates(effective_type):
+        if os.path.exists(os.path.join(config_dir, f"{candidate_type}.yaml")):
+            return False
+    return True
+
+
+def _strip_eef_controllers_from_config(config):
+    """Remove per-side gripper/hand sections before EEF compose merge."""
+    for controller_name in list(config.keys()):
+        if controller_name.endswith("_gripper_controller") or controller_name.endswith(
+            "_hand_controller"
+        ):
+            config.pop(controller_name, None)
+        if controller_name == "controller_manager":
+            cm_params = config.get("controller_manager", {}).get("ros__parameters", {})
+            if isinstance(cm_params, dict):
+                for cm_name in list(cm_params.keys()):
+                    if cm_name.endswith("_gripper_controller") or cm_name.endswith(
+                        "_hand_controller"
+                    ):
+                        cm_params.pop(cm_name, None)
+
+
 def load_robot_config(
     robot_name,
     config_type="ros2_control",
@@ -144,11 +193,15 @@ def load_robot_config(
     control_left="",
     control_right="",
     control_patch=None,
+    yaml_only=False,
 ):
     """
     Load ros2_control config with optional per-side compose and profile patch merge.
 
     Merge order: common.yaml + type variant (or compose) + control.patch from robot profile.
+
+    When yaml_only is True, skip symmetric registry/template compose fallback (used by
+    control_compose enrichment to avoid recursion).
     """
     effective_type, left, right = resolve_compose_type_key(robot_type, control_left, control_right)
     asymmetric = is_compose_asymmetric(left, right)
@@ -160,7 +213,7 @@ def load_robot_config(
     cache_key = (
         f"{robot_name}_{config_type}_{effective_type}_{left}_{right}_{patch_stamp}"
     )
-    if cache_key in _config_cache:
+    if not yaml_only and cache_key in _config_cache:
         return _config_cache[cache_key]
 
     robot_pkg_path = get_robot_package_path(robot_name)
@@ -177,6 +230,7 @@ def load_robot_config(
 
         config_path = None
         config_file = None
+        type_yaml_found = False
 
         if effective_type and effective_type.strip() and not asymmetric:
             type_candidates = _generate_progressive_type_candidates(effective_type)
@@ -186,6 +240,7 @@ def load_robot_config(
                 if os.path.exists(candidate_path):
                     config_path = candidate_path
                     config_file = candidate_file
+                    type_yaml_found = True
                     print(f"[INFO] Using {config_type} config file (progressive match): {config_file}")
                     break
             if config_path is None:
@@ -217,33 +272,33 @@ def load_robot_config(
 
         config = _deep_merge_dicts(common_config, config)
 
-        if asymmetric:
-            for controller_name in list(config.keys()):
-                if controller_name.endswith("_gripper_controller") or controller_name.endswith(
-                    "_hand_controller"
-                ):
-                    config.pop(controller_name, None)
-                if controller_name == "controller_manager":
-                    cm_params = config.get("controller_manager", {}).get("ros__parameters", {})
-                    if isinstance(cm_params, dict):
-                        for cm_name in list(cm_params.keys()):
-                            if cm_name.endswith("_gripper_controller") or cm_name.endswith(
-                                "_hand_controller"
-                            ):
-                                cm_params.pop(cm_name, None)
+        use_compose = asymmetric or (
+            not yaml_only
+            and not type_yaml_found
+            and bool(effective_type and effective_type.strip())
+        )
+        if use_compose:
+            _strip_eef_controllers_from_config(config)
 
-        if asymmetric:
+        if use_compose:
             composed = compose_control_config(left, right, robot_name, base_config=config)
             if composed:
                 config = _deep_merge_dicts(config, composed)
-                print(f"[INFO] Merged composed control config for {left} + {right}")
+                if asymmetric:
+                    print(f"[INFO] Merged composed control config for {left} + {right}")
+                else:
+                    print(
+                        f"[INFO] Merged symmetric EEF compose (template fallback) "
+                        f"for {effective_type}"
+                    )
 
         if patch:
             config = _deep_merge_dicts(config, patch)
             print("[INFO] Merged control.patch from robot profile")
 
         result = (config, config_path)
-        _config_cache[cache_key] = result
+        if not yaml_only:
+            _config_cache[cache_key] = result
         return result
 
     except FileNotFoundError:

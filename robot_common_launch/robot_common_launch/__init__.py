@@ -16,6 +16,7 @@ from .common.robot_utils import (
     parse_task_info,
     prepare_arms_target_manager_parameters,
     extract_info_file_name_from_config,
+    ros2_control_needs_merged_yaml,
 )
 from .common.controller_utils import (
     detect_controllers,
@@ -66,6 +67,7 @@ __all__ = [
     'get_planning_robot_description',
     'build_planning_urdf_launch_params',
     'write_temp_ros2_control_yaml',
+    'ros2_control_needs_merged_yaml',
     'build_xacro_mappings',
     'forward_robot_launch_args',
     'create_robot_profile_launch_arguments',

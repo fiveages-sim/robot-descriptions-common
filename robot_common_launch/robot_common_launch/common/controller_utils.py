@@ -31,14 +31,21 @@ def prepare_ros2_controllers_override_path(
     control_left: str = "",
     control_right: str = "",
     control_patch: Optional[Dict[str, Any]] = None,
+    robot_name: str = "",
+    robot_type: str = "",
 ) -> str:
     """Write merged config once for controller_manager when compose/patch was applied."""
     if not config:
         return ""
-    from .control_compose import is_compose_asymmetric
-    from .robot_utils import write_temp_ros2_control_yaml
+    from .robot_utils import ros2_control_needs_merged_yaml, write_temp_ros2_control_yaml
 
-    if not is_compose_asymmetric(control_left, control_right) and not control_patch:
+    if not ros2_control_needs_merged_yaml(
+        robot_name,
+        robot_type,
+        control_left=control_left,
+        control_right=control_right,
+        control_patch=control_patch,
+    ):
         return ""
     return write_temp_ros2_control_yaml(config, quiet=True)
 

@@ -35,6 +35,7 @@ from robot_common_launch import (
     resolve_control_sides,
     resolve_control_patch,
     is_compose_asymmetric,
+    ros2_control_needs_merged_yaml,
     load_robot_profile,
     write_temp_ros2_control_yaml,
 )
@@ -283,7 +284,13 @@ def generate_launch_description():
                         pass
 
                 node_parameters = []
-                use_merged_dict = asymmetric or bool(control_patch)
+                use_merged_dict = ros2_control_needs_merged_yaml(
+                    robot_name,
+                    robot_type,
+                    control_left=control_left,
+                    control_right=control_right,
+                    control_patch=control_patch,
+                )
                 if ros2_override and ros2_controllers_config is not None:
                     node_parameters.append(ros2_override)
                 elif use_merged_dict and ros2_controllers_config is not None:

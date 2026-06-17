@@ -1,11 +1,57 @@
 <?xml version="1.0" ?>
 <robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:arg name="collider" default="convex"/>
+  <xacro:property name="collider_type" value="$(arg collider)"/>
 
-  <xacro:macro name="AG2F120S" params="name kinematic_only:=false">
+  <!-- Simplified collision envelope (gripper_base +Z frame). -->
+  <xacro:macro name="AG2F120S_simple_collision">
+    <xacro:if value="${collider_type == 'simple'}">
+      <collision>
+        <origin xyz="0 0 0.05"/>
+        <geometry>
+          <cylinder length="0.15" radius="0.05"/>
+        </geometry>
+      </collision>
+      <collision>
+        <origin xyz="0 0 0.18"/>
+        <geometry>
+          <cylinder length="0.1" radius="0.025"/>
+        </geometry>
+      </collision>
+    </xacro:if>
+  </xacro:macro>
+
+  <xacro:macro name="AG2F120S" params="name use_flange:=false kinematic_only:=false">
 
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
     <xacro:property name="PI" value="3.1415926535897931"/>
     <xacro:property name="joint_type" value="${kinematic_only and 'fixed' or 'revolute'}"/>
+
+    <xacro:if value="${use_flange}">
+      <link name="${prefix}flange">
+        <inertial>
+          <origin xyz="-0.000388 0.002345 0.0"/>
+          <mass value="0.114"/>
+          <inertia
+              ixx="0.000040105"
+              ixy="0.000000214"
+              ixz="0.0"
+              iyy="0.000085776"
+              iyz="0.0"
+              izz="0.000054044"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F90-C/visual/flange.glb"/>
+          </geometry>
+        </visual>
+      </link>
+      <joint name="${prefix}flange_joint" type="fixed">
+        <origin xyz="0 0 0.0258" rpy=" 0 0 ${PI/2}"/>
+        <parent link="${prefix}flange"/>
+        <child link="${prefix}gripper_base"/>
+      </joint>
+    </xacro:if>
 
     <link name="${prefix}gripper_base">
       <inertial>
@@ -21,14 +67,17 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/gripper_base.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/base.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/gripper_base.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/gripper_base.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:AG2F120S_simple_collision/>
     </link>
 
     <link name="${prefix}left_1_link">
@@ -45,14 +94,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link_1.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link1.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_1.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_1.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
     
     <joint name="${prefix}gripper_joint" type="${joint_type}">
@@ -79,14 +130,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/support_link.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/support.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/support_link.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/support_link.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
 
     <joint name="${prefix}left_support_joint" type="${joint_type}">
@@ -114,14 +167,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/pad_link.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/pad.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/pad_link.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/pad_link.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
 
     <joint name="${prefix}left_pad_joint" type="fixed">
@@ -144,14 +199,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link_2.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link2.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_2.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_2.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
 
     <joint name="${prefix}left_2_joint" type="${joint_type}">
@@ -179,14 +236,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link_2.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link2.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_2.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_2.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
 
     <joint name="${prefix}right_2_joint" type="${joint_type}">
@@ -214,14 +273,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link_1.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/link1.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_1.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/link_1.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
 
     <joint name="${prefix}right_1_joint" type="${joint_type}">
@@ -249,14 +310,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/support_link.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/support.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/support_link.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/support_link.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
 
     <joint name="${prefix}right_support_joint" type="${joint_type}">
@@ -284,14 +347,16 @@
       </inertial>
       <visual>
         <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/pad_link.obj"/>
+          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/visual/pad.glb"/>
         </geometry>
       </visual>
-      <collision>
-        <geometry>
-          <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/pad_link.stl"/>
-        </geometry>
-      </collision>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find changingtek_description)/meshes/AG2F120S/collision/pad_link.stl"/>
+          </geometry>
+        </collision>
+      </xacro:if>
     </link>
 
     <joint name="${prefix}right_pad_joint" type="fixed">
@@ -300,21 +365,12 @@
       <child link="${prefix}right_pad_link"/>
     </joint>
 
-    <joint name="${prefix}gripper_center_joint" type="fixed">
-      <origin xyz="0 0 0.2" rpy="${-PI/2} ${-PI/2} 0"/>
-      <parent link="${prefix}gripper_base"/>
-      <child link="${prefix}gripper_center"/>
-    </joint>
-
-    <link name="${prefix}gripper_center"/>
-
-    <!-- OCS2 end-effector frame (fixed_base.info eeFrame) -->
-    <link name="${prefix}eef"/>
     <joint name="${prefix}eef_joint" type="fixed">
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <parent link="${prefix}gripper_center"/>
+      <origin xyz="0 0 0.2" rpy="0 0 ${-PI/2}"/>
+      <parent link="${prefix}gripper_base"/>
       <child link="${prefix}eef"/>
     </joint>
 
+    <link name="${prefix}eef"/>
   </xacro:macro>
 </robot>

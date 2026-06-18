@@ -9,6 +9,8 @@ import json
 import os
 import re
 import tempfile
+from dataclasses import dataclass
+
 import yaml
 import xacro
 from ament_index_python.packages import get_package_share_directory
@@ -25,6 +27,57 @@ _config_cache = {}
 
 # 全局缓存字典，避免重复生成 robot_description
 _robot_description_cache = {}
+
+
+@dataclass(frozen=True)
+class RobotConfigMeta:
+    """Metadata from load_robot_config; single source for merged-file decisions."""
+
+    compose_applied: bool
+    type_yaml_found: bool
+    patch_applied: bool
+    variant_overlay_applied: bool
+    needs_merged_file: bool
+    merged_yaml_path: str
+    base_config_path: str = ""
+
+
+EMPTY_ROBOT_CONFIG_META = RobotConfigMeta(
+    compose_applied=False,
+    type_yaml_found=False,
+    patch_applied=False,
+    variant_overlay_applied=False,
+    needs_merged_file=False,
+    merged_yaml_path="",
+    base_config_path="",
+)
+
+
+def _build_robot_config_meta(
+    *,
+    compose_applied: bool,
+    type_yaml_found: bool,
+    patch_applied: bool,
+    variant_overlay_applied: bool,
+    config: dict,
+    config_path: str,
+    yaml_only: bool,
+) -> RobotConfigMeta:
+    if yaml_only:
+        return EMPTY_ROBOT_CONFIG_META
+    needs_merged = compose_applied or patch_applied or variant_overlay_applied
+    merged_path = ""
+    if needs_merged and config:
+        merged_path = write_temp_ros2_control_yaml(config, quiet=True)
+    return RobotConfigMeta(
+        compose_applied=compose_applied,
+        type_yaml_found=type_yaml_found,
+        patch_applied=patch_applied,
+        variant_overlay_applied=variant_overlay_applied,
+        needs_merged_file=needs_merged,
+        merged_yaml_path=merged_path,
+        base_config_path=config_path or "",
+    )
 
 
 def clear_config_cache():
@@ -137,6 +190,23 @@ def write_temp_ros2_control_yaml(config_dict, *, quiet: bool = False):
     return path
 
 
+def _strip_eef_controllers_from_config(config):
+    """Remove per-side gripper/hand sections before EEF compose merge."""
+    for controller_name in list(config.keys()):
+        if controller_name.endswith("_gripper_controller") or controller_name.endswith(
+            "_hand_controller"
+        ):
+            config.pop(controller_name, None)
+        if controller_name == "controller_manager":
+            cm_params = config.get("controller_manager", {}).get("ros__parameters", {})
+            if isinstance(cm_params, dict):
+                for cm_name in list(cm_params.keys()):
+                    if cm_name.endswith("_gripper_controller") or cm_name.endswith(
+                        "_hand_controller"
+                    ):
+                        cm_params.pop(cm_name, None)
+
+
 def load_robot_config(
     robot_name,
     config_type="ros2_control",
@@ -144,29 +214,37 @@ def load_robot_config(
     control_left="",
     control_right="",
     control_patch=None,
+    robot_variant="",
+    yaml_only=False,
 ):
     """
     Load ros2_control config with optional per-side compose and profile patch merge.
 
-    Merge order: common.yaml + type variant (or compose) + control.patch from robot profile.
+    Merge order: common.yaml + type yaml + variant yaml overlay + compose + control.patch
+
+    When yaml_only is True, skip symmetric registry/template compose fallback (used by
+    control_compose enrichment to avoid recursion).
     """
     effective_type, left, right = resolve_compose_type_key(robot_type, control_left, control_right)
     asymmetric = is_compose_asymmetric(left, right)
     patch = control_patch if isinstance(control_patch, dict) else {}
+    variant_key = str(robot_variant or "").strip()
     patch_stamp = (
         hashlib.md5(json.dumps(patch, sort_keys=True).encode()).hexdigest() if patch else ""
     )
 
     cache_key = (
-        f"{robot_name}_{config_type}_{effective_type}_{left}_{right}_{patch_stamp}"
+        f"{robot_name}_{config_type}_{effective_type}_{left}_{right}"
+        f"_{variant_key}_{patch_stamp}"
     )
-    if cache_key in _config_cache:
+    if not yaml_only and cache_key in _config_cache:
         return _config_cache[cache_key]
 
     robot_pkg_path = get_robot_package_path(robot_name)
     if robot_pkg_path is None:
-        return None, None
+        return None, None, EMPTY_ROBOT_CONFIG_META
 
+    compose_applied = False
     try:
         if config_type == "ros2_control":
             config_dir = os.path.join(robot_pkg_path, "config", "ros2_control")
@@ -177,6 +255,7 @@ def load_robot_config(
 
         config_path = None
         config_file = None
+        type_yaml_found = False
 
         if effective_type and effective_type.strip() and not asymmetric:
             type_candidates = _generate_progressive_type_candidates(effective_type)
@@ -186,6 +265,7 @@ def load_robot_config(
                 if os.path.exists(candidate_path):
                     config_path = candidate_path
                     config_file = candidate_file
+                    type_yaml_found = True
                     print(f"[INFO] Using {config_type} config file (progressive match): {config_file}")
                     break
             if config_path is None:
@@ -217,44 +297,69 @@ def load_robot_config(
 
         config = _deep_merge_dicts(common_config, config)
 
-        if asymmetric:
-            for controller_name in list(config.keys()):
-                if controller_name.endswith("_gripper_controller") or controller_name.endswith(
-                    "_hand_controller"
-                ):
-                    config.pop(controller_name, None)
-                if controller_name == "controller_manager":
-                    cm_params = config.get("controller_manager", {}).get("ros__parameters", {})
-                    if isinstance(cm_params, dict):
-                        for cm_name in list(cm_params.keys()):
-                            if cm_name.endswith("_gripper_controller") or cm_name.endswith(
-                                "_hand_controller"
-                            ):
-                                cm_params.pop(cm_name, None)
+        variant_overlay_applied = False
+        if variant_key:
+            variant_config_path = os.path.join(config_dir, f"{variant_key}.yaml")
+            if os.path.isfile(variant_config_path):
+                with open(variant_config_path, "r") as file:
+                    variant_config = yaml.safe_load(file) or {}
+                config = _deep_merge_dicts(config, variant_config)
+                variant_overlay_applied = True
+                print(
+                    f"[INFO] Merged {config_type} variant overlay: "
+                    f"{os.path.basename(variant_config_path)}"
+                )
 
-        if asymmetric:
+        use_compose = asymmetric or (
+            not yaml_only
+            and not type_yaml_found
+            and bool(effective_type and effective_type.strip())
+        )
+        if use_compose:
+            _strip_eef_controllers_from_config(config)
+
+        if use_compose:
             composed = compose_control_config(left, right, robot_name, base_config=config)
             if composed:
                 config = _deep_merge_dicts(config, composed)
-                print(f"[INFO] Merged composed control config for {left} + {right}")
+                compose_applied = True
+                if asymmetric:
+                    print(f"[INFO] Merged composed control config for {left} + {right}")
+                else:
+                    print(
+                        f"[INFO] Merged symmetric EEF compose (template fallback) "
+                        f"for {effective_type}"
+                    )
 
-        if patch:
+        patch_applied = bool(patch)
+        if patch_applied:
             config = _deep_merge_dicts(config, patch)
             print("[INFO] Merged control.patch from robot profile")
 
-        result = (config, config_path)
-        _config_cache[cache_key] = result
+        meta = _build_robot_config_meta(
+            compose_applied=compose_applied,
+            type_yaml_found=type_yaml_found,
+            patch_applied=patch_applied,
+            variant_overlay_applied=variant_overlay_applied,
+            config=config,
+            config_path=config_path or "",
+            yaml_only=yaml_only,
+        )
+
+        result = (config, config_path, meta)
+        if not yaml_only:
+            _config_cache[cache_key] = result
         return result
 
     except FileNotFoundError:
         print(f"[WARN] {config_type} config file not found for robot '{robot_name}'")
-        return None, None
+        return None, None, EMPTY_ROBOT_CONFIG_META
     except yaml.YAMLError as e:
         print(f"[ERROR] Failed to parse YAML config for robot '{robot_name}': {e}")
-        return None, None
+        return None, None, EMPTY_ROBOT_CONFIG_META
     except Exception as e:
         print(f"[ERROR] Unexpected error reading config for robot '{robot_name}': {e}")
-        return None, None
+        return None, None, EMPTY_ROBOT_CONFIG_META
 
 
 def extract_info_file_name_from_config(config, launch_mode=None, default="task"):
@@ -298,7 +403,7 @@ def get_info_file_name(
 
     Uses the same merge order as load_robot_config (compose + control.patch).
     """
-    config, _ = load_robot_config(
+    config, _, _meta = load_robot_config(
         robot_name,
         config_type,
         robot_type,
@@ -476,8 +581,7 @@ def _planning_xacro_mappings(
     mappings["chassis_joints_movable"] = "false"
 
     if planning_scope == PLANNING_SCOPE_ARMS:
-        for key in ("chassis", "variant"):
-            mappings.pop(key, None)
+        mappings.pop("chassis", None)
         left_type = mappings.get("left_type", "").strip()
         right_type = mappings.get("right_type", "").strip()
         if left_type and right_type:
@@ -545,7 +649,7 @@ def build_planning_urdf_launch_params(
 
     planning_xacro = os.path.join(robot_pkg_path, "xacro", "robot.xacro")
     if not os.path.isfile(planning_xacro):
-        print(f"[INFO] No planning xacro at {planning_xacro}, using static URDF")
+        print(f"[ERROR] No planning xacro at {planning_xacro}; cannot generate planning URDF")
         return {}
 
     cache_key = _planning_urdf_cache_key(mappings, scope)
@@ -576,6 +680,37 @@ def build_planning_urdf_launch_params(
         "planning_urdf_variant": "xacro",
         "planning_urdf_path": written_path,
     }
+
+
+def resolve_planning_urdf_file_or_fail(
+    robot_name,
+    launch_configurations,
+    hardware="mock_components",
+    robot_profile=None,
+    planning_scope="",
+):
+    """Return cached xacro planning URDF path, or None after logging an error."""
+    profile_path = robot_profile
+    if not profile_path:
+        profile_path = resolve_profile_path(launch_configurations or {}) or None
+
+    params = build_planning_urdf_launch_params(
+        robot_name,
+        launch_configurations,
+        hardware,
+        profile_path,
+        planning_scope=planning_scope,
+    )
+    path = (params.get("planning_urdf_path") or "").strip()
+    if params.get("planning_urdf_variant") == "xacro" and path and os.path.isfile(path):
+        return path
+
+    scope_label = planning_scope or "default"
+    print(
+        f"[ERROR] Failed to resolve xacro planning URDF for '{robot_name}' "
+        f"(scope={scope_label}): variant={params.get('planning_urdf_variant')!r} path={path!r}"
+    )
+    return None
 
 
 def get_planning_robot_description(

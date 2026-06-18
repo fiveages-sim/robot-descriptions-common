@@ -24,5 +24,10 @@
     <xacro:AG2F120S name=""/>
   </xacro:if>
 
+  <xacro:if value="${'$(arg type)' == 'AG2F120'}">
+    <xacro:include filename="$(find changingtek_description)/xacro/AG2F120S.xacro"/>
+    <xacro:AG2F120S name="" use_flange="true"/>
+  </xacro:if>
+
 
 </robot>

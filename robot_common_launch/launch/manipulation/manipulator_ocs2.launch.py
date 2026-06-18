@@ -7,49 +7,13 @@ from launch.actions import OpaqueFunction
 # Import robot_common_launch utilities
 from robot_common_launch import (
     get_robot_package_path,
-    build_planning_urdf_launch_params,
-    resolve_profile_path,
+    resolve_planning_urdf_file_or_fail,
     create_robot_profile_launch_arguments,
 )
 
 
-def _resolve_static_urdf_path(robot_pkg_path, robot_name, type_value):
-    """Legacy static URDF under {pkg}/urdf/ (fallback when xacro planning is unavailable)."""
-    urdf_dir = os.path.join(robot_pkg_path, "urdf")
-    if type_value and type_value.strip():
-        type_specific = os.path.join(urdf_dir, f"{robot_name}_{type_value}.urdf")
-        if os.path.isfile(type_specific):
-            return type_specific
-    default_urdf = os.path.join(urdf_dir, f"{robot_name}.urdf")
-    return default_urdf if os.path.isfile(default_urdf) else None
-
-
 # Planning-only launch (no ros2_control); xacro mappings use a fixed hardware placeholder.
 _PLANNING_XACRO_HARDWARE = "mock_components"
-
-
-def _resolve_urdf_file(robot_name, robot_pkg_path, launch_configurations):
-    """Prefer xacro-generated planning URDF; fall back to static urdf/ files."""
-    profile_path = resolve_profile_path(launch_configurations) or None
-    type_value = launch_configurations.get("type", "")
-
-    planning_params = build_planning_urdf_launch_params(
-        robot_name,
-        launch_configurations,
-        _PLANNING_XACRO_HARDWARE,
-        profile_path,
-    )
-
-    if planning_params.get("planning_urdf_variant") == "xacro":
-        cached = (planning_params.get("planning_urdf_path") or "").strip()
-        if cached and os.path.isfile(cached):
-            return cached, "xacro"
-
-    static_urdf = _resolve_static_urdf_path(robot_pkg_path, robot_name, type_value)
-    if static_urdf:
-        return static_urdf, "static"
-
-    return None, ""
 
 
 def _detect_pinocchio_version():
@@ -184,20 +148,22 @@ def generate_launch_description():
         else:
             print(f"🎮 Joystick control disabled")
         
-        # 自动生成所有路径
         # 使用 robot_common_launch 工具获取机器人包路径
         robot_pkg_path = get_robot_package_path(robot_name_value)
         if robot_pkg_path is None:
             print(f"❌ Error: Could not find {robot_name_value}_description package")
             return []
         
-        urdf_file_value, urdf_source = _resolve_urdf_file(
-            robot_name_value, robot_pkg_path, context.launch_configurations
+        urdf_file_value = resolve_planning_urdf_file_or_fail(
+            robot_name_value,
+            context.launch_configurations,
+            _PLANNING_XACRO_HARDWARE,
+            planning_scope="",
         )
         if not urdf_file_value:
-            print(f"❌ Error: No planning URDF (xacro or static) for robot '{robot_name_value}'")
+            print(f"❌ Error: No xacro planning URDF for robot '{robot_name_value}'")
             return []
-        print(f"📁 URDF ({urdf_source}): {urdf_file_value}")
+        print(f"📁 URDF (xacro): {urdf_file_value}")
         
         # 构建任务文件路径
         task_file_path = os.path.join(

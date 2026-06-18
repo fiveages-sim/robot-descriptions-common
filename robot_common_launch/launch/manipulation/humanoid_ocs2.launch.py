@@ -7,7 +7,14 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 
 # Import robot_common_launch utilities
-from robot_common_launch import get_robot_package_path
+from robot_common_launch import (
+    get_robot_package_path,
+    resolve_planning_urdf_file_or_fail,
+    create_robot_profile_launch_arguments,
+)
+
+# Planning-only launch (no ros2_control); xacro mappings use a fixed hardware placeholder.
+_PLANNING_XACRO_HARDWARE = "mock_components"
 
 
 def _detect_pinocchio_version():
@@ -180,24 +187,17 @@ def generate_launch_description():
             print(f"❌ Error: Could not find {robot_name_value}_description package")
             return []
         
-        # 获取 URDF 文件路径
-        urdf_dir = os.path.join(robot_pkg_path, "urdf")
-        if type_value and type_value.strip():
-            # Try type-specific URDF first
-            type_specific_urdf = os.path.join(urdf_dir, f"{robot_name_value}_{type_value}.urdf")
-            if os.path.exists(type_specific_urdf):
-                urdf_file_value = type_specific_urdf
-            else:
-                # Fallback to default URDF
-                urdf_file_value = os.path.join(urdf_dir, f"{robot_name_value}.urdf")
-        else:
-            # Use default URDF
-            urdf_file_value = os.path.join(urdf_dir, f"{robot_name_value}.urdf")
-        
-        if not os.path.exists(urdf_file_value):
-            print(f"❌ Error: Could not find URDF file: {urdf_file_value}")
+        # 获取 xacro 生成的 planning URDF
+        urdf_file_value = resolve_planning_urdf_file_or_fail(
+            robot_name_value,
+            context.launch_configurations,
+            _PLANNING_XACRO_HARDWARE,
+            planning_scope="full",
+        )
+        if not urdf_file_value:
+            print(f"❌ Error: No xacro planning URDF for robot '{robot_name_value}'")
             return []
-        print(f"📁 URDF: {urdf_file_value}")
+        print(f"📁 URDF (xacro): {urdf_file_value}")
         
         # 读取URDF内容
         with open(urdf_file_value, 'r') as f:
@@ -334,5 +334,6 @@ def generate_launch_description():
         task_file,
         initial_mode,
         rviz,
+        *create_robot_profile_launch_arguments(),
         OpaqueFunction(function=launch_setup)
     ])

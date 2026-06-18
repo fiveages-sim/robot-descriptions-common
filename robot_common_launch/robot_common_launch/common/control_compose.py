@@ -215,12 +215,13 @@ def _enrich_fragment_from_robot_type_config(
 
     from .robot_utils import load_robot_config
 
-    cfg, _ = load_robot_config(
+    cfg, _, _meta = load_robot_config(
         robot_name,
         "ros2_control",
         eef_type,
         control_left=eef_type,
         control_right=eef_type,
+        yaml_only=True,
     )
     if not cfg:
         return fragment
@@ -310,7 +311,9 @@ def compose_control_config(
             # Fallback to robot package symmetric yaml extraction
             from .robot_utils import load_robot_config
 
-            cfg, _ = load_robot_config(robot_name, "ros2_control", eef_type)
+            cfg, _, _meta = load_robot_config(
+                robot_name, "ros2_control", eef_type, yaml_only=True
+            )
             if cfg:
                 entry = resolve_registry_entry(eef_type)
                 category = entry.get("category", "gripper") if entry else "gripper"

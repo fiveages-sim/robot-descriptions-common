@@ -18,6 +18,17 @@ REAL_HARDWARE = frozenset({"real", "real_usb"})
 
 _EEF_XACRO_KEYS = frozenset({"type", "left_type", "right_type"})
 
+# launch ``type`` values that select arm topology (left/right/dual),
+# not symmetric end-effector keys — must not become left_type/right_type.
+_ARM_TOPOLOGY_TYPE_KEYS = frozenset({
+    "left",
+    "right",
+    "dual",
+})
+
+def _is_arm_topology_type(type_key: str) -> bool:
+    return _strip_eef_key(type_key) in _ARM_TOPOLOGY_TYPE_KEYS
+
 
 def _strip_eef_key(value: str) -> str:
     return str(value or "").strip()
@@ -33,7 +44,6 @@ CORE_LAUNCH_KEYS = frozenset({
     "world",
     "world_package",
     "remappings",
-    "ctrl_mode",
     "robot_profile",
     "use_profile_eef",
     "launch_mode",
@@ -264,6 +274,8 @@ def resolve_side_eef_types(
     launch_type = _strip_eef_key(_cli_launch_value(launch_configurations, "type"))
 
     if launch_type and not left and not right:
+        if _is_arm_topology_type(launch_type):
+            return "", ""
         return launch_type, launch_type
 
     if not use_profile_end_effectors(launch_configurations):
@@ -296,6 +308,23 @@ def resolve_control_sides(
 ) -> Tuple[str, str]:
     """Alias for :func:`resolve_side_eef_types` (ros2_control compose)."""
     return resolve_side_eef_types(launch_configurations, profile)
+
+
+def resolve_robot_variant(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+) -> str:
+    """Platform variant from launch ``variant`` or profile ``platform.variant``."""
+    variant = _strip_eef_key(_cli_launch_value(launch_configurations, "variant"))
+    if variant:
+        return variant
+    if profile:
+        xacro_section = profile.get("xacro") or {}
+        if isinstance(xacro_section, dict):
+            profile_variant = _strip_eef_key(str(xacro_section.get("variant", "") or ""))
+            if profile_variant:
+                return profile_variant
+    return ""
 
 
 def is_asymmetric_eef(left_type: str, right_type: str, launch_type: str) -> bool:
@@ -381,6 +410,10 @@ def build_xacro_mappings(
 
     if "collider" not in mappings:
         mappings["collider"] = "simple"
+
+    launch_variant = _strip_eef_key(_cli_launch_value(launch_configurations, "variant"))
+    if launch_variant:
+        mappings["variant"] = launch_variant
 
     return mappings
 

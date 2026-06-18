@@ -213,7 +213,8 @@ def create_common_launch_arguments():
         DeclareLaunchArgument(
             'variant',
             default_value='',
-            description='Xacro OEM / visual sub-variant (robot-specific; not the chassis model selector). Empty means no variant parameter passed to xacro.',
+            description='Platform sub-variant (robot-specific): e.g. m6_ccs variant:=desktop for booth layout, '
+            'fiveages_w2 variant:=sinopec for OEM body/head. Empty means no variant passed to xacro.',
         ),
     ]
 

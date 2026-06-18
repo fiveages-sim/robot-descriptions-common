@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="XHand1" params="name direction:=1">
+  <xacro:macro name="XHand1" params="name direction:=1 fixed_joints:=false">
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+    <xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
 
         <link
           name="${prefix}hand_base">
@@ -186,7 +187,7 @@
         </link>
         <joint
           name="${prefix}thumb_joint1"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0.0095 ${direction*-0.0228} 0.0305"
             rpy="0 0 0" />
@@ -244,7 +245,7 @@
         </link>
         <joint
           name="${prefix}thumb_joint2"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0.0083177 ${direction*-0.028599} -0.00178"
             rpy="0 0.2618 ${direction*0.0407}" />
@@ -355,7 +356,7 @@
         </link>
         <joint
           name="${prefix}thumb_joint3"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0 ${direction*-0.0553} 0"
             rpy="0 0 0" />
@@ -519,7 +520,7 @@
         </link>
         <joint
           name="${prefix}index_joint1"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0.0065 ${direction*-0.0265} 0.0899"
             rpy="0 0 0" />
@@ -577,7 +578,7 @@
         </link>
         <joint
           name="${prefix}index_joint2"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0 0 0.0178"
             rpy="0 0 0" />
@@ -688,7 +689,7 @@
         </link>
         <joint
           name="${prefix}index_joint3"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0 0 0.0558"
             rpy="0 0 0" />
@@ -852,7 +853,7 @@
         </link>
         <joint
           name="${prefix}middle_joint1"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0.0065 ${direction*-0.004} 0.1082"
             rpy="0 0 0" />
@@ -963,7 +964,7 @@
         </link>
         <joint
           name="${prefix}middle_joint2"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0 0 0.0558"
             rpy="0 0 0" />
@@ -1127,7 +1128,7 @@
         </link>
         <joint
           name="${prefix}ring_joint1"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0.0065 ${direction*0.016} 0.1052"
             rpy="0 0 0" />
@@ -1238,7 +1239,7 @@
         </link>
         <joint
           name="${prefix}ring_joint2"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0 0 0.0558"
             rpy="0 0 0" />
@@ -1402,7 +1403,7 @@
         </link>
         <joint
           name="${prefix}pinky_joint1"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0.0065 ${direction*0.036} 0.1022"
             rpy="0 0 0" />
@@ -1513,7 +1514,7 @@
         </link>
         <joint
           name="${prefix}pinky_joint2"
-          type="revolute">
+          type="${joint_type}">
           <origin
             xyz="0 0 0.0558"
             rpy="0 0 0" />

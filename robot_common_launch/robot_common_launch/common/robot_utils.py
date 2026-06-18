@@ -547,6 +547,41 @@ def write_planning_urdf_cache(robot_name, urdf_content, cache_key=""):
 PLANNING_SCOPE_ARMS = "arms"
 PLANNING_SCOPE_FULL = "full"
 
+_XACRO_SIDE_EEF_SUPPORT_CACHE: dict[str, bool] = {}
+_XACRO_SIDE_EEF_ARG_PATTERN = re.compile(
+    r'<xacro:arg\s+name=["\'](?P<name>left_type|right_type)["\']'
+)
+
+
+def _planning_xacro_supports_side_eef(robot_name: str) -> bool:
+    """True when planning xacro declares per-side EEF args (left_type/right_type)."""
+    if robot_name in _XACRO_SIDE_EEF_SUPPORT_CACHE:
+        return _XACRO_SIDE_EEF_SUPPORT_CACHE[robot_name]
+
+    robot_pkg_path = get_robot_package_path(robot_name)
+    if robot_pkg_path is None:
+        _XACRO_SIDE_EEF_SUPPORT_CACHE[robot_name] = False
+        return False
+
+    planning_xacro = os.path.join(robot_pkg_path, "xacro", "robot.xacro")
+    if not os.path.isfile(planning_xacro):
+        _XACRO_SIDE_EEF_SUPPORT_CACHE[robot_name] = False
+        return False
+
+    try:
+        with open(planning_xacro, "r", encoding="utf-8") as xacro_file:
+            declared = {
+                match.group("name")
+                for match in _XACRO_SIDE_EEF_ARG_PATTERN.finditer(xacro_file.read())
+            }
+    except OSError:
+        _XACRO_SIDE_EEF_SUPPORT_CACHE[robot_name] = False
+        return False
+
+    supported = declared.issuperset({"left_type", "right_type"})
+    _XACRO_SIDE_EEF_SUPPORT_CACHE[robot_name] = supported
+    return supported
+
 
 def _resolve_planning_scope(planning_robot_name, launch_configurations, planning_scope=""):
     configs = launch_configurations or {}
@@ -582,22 +617,22 @@ def _planning_xacro_mappings(
 
     if planning_scope == PLANNING_SCOPE_ARMS:
         mappings.pop("chassis", None)
-        left_type = mappings.get("left_type", "").strip()
-        right_type = mappings.get("right_type", "").strip()
-        if left_type and right_type:
-            mappings.pop("type", None)
-        elif not mappings.get("type", "").strip():
-            mappings["type"] = "dual"
-
-    configs = launch_configurations or {}
-    use_base = (
-        configs.get("planning_use_base_urdf", "").strip().lower() in ("true", "1", "yes")
-        or configs.get("planning_urdf_variant", "").strip().lower() == "base"
-    )
-    if use_base:
-        for key in ("type", "left_type", "right_type"):
-            mappings.pop(key, None)
-        mappings["type"] = "dual"
+        if _planning_xacro_supports_side_eef(planning_robot_name):
+            left_type = mappings.get("left_type", "").strip()
+            right_type = mappings.get("right_type", "").strip()
+            if left_type and right_type:
+                mappings.pop("type", None)
+            elif not mappings.get("type", "").strip():
+                # Let xacro/robot.xacro default apply (m6_ccs: dual, galbot_one: hitbot, …).
+                mappings.pop("type", None)
+        else:
+            # xacro has no left_type/right_type: keep symmetric launch ``type``.
+            mappings.pop("left_type", None)
+            mappings.pop("right_type", None)
+            if not mappings.get("type", "").strip():
+                # Do not inject a synthetic type; let xacro/robot.xacro default apply
+                # (e.g. galaxea_a1 default a1, cr5 default empty).
+                mappings.pop("type", None)
 
     return mappings
 

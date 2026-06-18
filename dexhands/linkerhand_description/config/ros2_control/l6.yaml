@@ -44,8 +44,8 @@ hand_joint_controller:
       - velocity
     
     # Home 配置（需要根据实际情况调整）
-    home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    home_2: [1.0, 0.5, 1.0, 1.0, 1.0, 1.0]
+    home_1: [0.0, 1.39, 0.0, 0.0, 0.0, 0.0]
+    home_2: [0.6, 1.39, 0.5, 0.5, 0.5, 0.5]
     
     home_duration: 0.2
     movej_duration: 0.2

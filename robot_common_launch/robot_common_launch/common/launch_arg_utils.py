@@ -50,7 +50,6 @@ CORE_LAUNCH_KEYS = frozenset({
     "enable_gripper",
     "enable_body",
     "enable_arms_target_manager",
-    "planning_use_base_urdf",
     "ocs2_planning_param_file",
     "ros2_controllers_override",
 })
@@ -327,31 +326,6 @@ def resolve_robot_variant(
     return ""
 
 
-def is_asymmetric_eef(left_type: str, right_type: str, launch_type: str) -> bool:
-    left = left_type.strip()
-    right = right_type.strip()
-    if left != right:
-        return True
-    other = launch_type.strip()
-    if other and left and left != other:
-        return True
-    if other and right and right != other:
-        return True
-    return False
-
-
-def should_use_base_planning_urdf(
-    launch_configurations: Dict[str, str],
-    left_type: str,
-    right_type: str,
-) -> bool:
-    flag = launch_configurations.get("planning_use_base_urdf", "").strip().lower()
-    if flag in ("true", "1", "yes"):
-        return True
-    launch_type = launch_configurations.get("type", "").strip()
-    return is_asymmetric_eef(left_type, right_type, launch_type)
-
-
 def build_xacro_mappings(
     hardware: str,
     launch_configurations: Dict[str, str],
@@ -473,11 +447,6 @@ def create_robot_profile_launch_arguments():
             "use_profile_eef",
             default_value="true",
             description="Apply defaults.end_effectors from robot_profile (false for quick_start templates)",
-        ),
-        DeclareLaunchArgument(
-            "planning_use_base_urdf",
-            default_value="",
-            description="If true, OCS2 planning uses base {robot}.urdf without type suffix",
         ),
         *create_eef_side_launch_arguments(),
     ]

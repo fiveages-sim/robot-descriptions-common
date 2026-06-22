@@ -40,7 +40,6 @@ from .common.launch_arg_utils import (
     resolve_robot_variant,
     create_eef_side_launch_arguments,
     create_platform_launch_arguments,
-    should_use_base_planning_urdf,
     load_robot_profile,
 )
 from .common.control_compose import (
@@ -86,7 +85,6 @@ __all__ = [
     'resolve_robot_variant',
     'create_eef_side_launch_arguments',
     'create_platform_launch_arguments',
-    'should_use_base_planning_urdf',
     'load_robot_profile',
     'compose_control_config',
     'is_compose_asymmetric',

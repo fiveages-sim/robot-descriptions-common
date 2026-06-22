@@ -83,7 +83,7 @@
 				<parent link="${prefix}p_link1"/>
 				<child link="${prefix}f_link1_1"/>
 				<xacro:unless value="${fixed_joints}">
-					<axis xyz="0 0 1"/>
+					<axis xyz="0 0 -1"/>
 				</xacro:unless>
 				<xacro:unless value="${fixed_joints}">
 					<limit lower="-0.4363" upper="0.43663" effort="10" velocity="1.5"/>

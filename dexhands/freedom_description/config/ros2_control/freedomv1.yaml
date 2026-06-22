@@ -1,7 +1,7 @@
-# This config file is used by ros2_control for Freedom V2 standalone hand tests.
+# This config file is used by ros2_control for Freedom V1 standalone hand tests.
 controller_manager:
   ros__parameters:
-    update_rate: 100
+    update_rate: 100  # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -14,7 +14,6 @@ joint_state_broadcaster:
     joints:
       - thumb_joint1
       - thumb_joint2
-      - thumb_joint3
       - index_joint
       - middle_joint
       - ring_joint
@@ -26,12 +25,11 @@ joint_state_broadcaster:
 
 hand_joint_controller:
   ros__parameters:
-    update_rate: 100
+    update_rate: 100  # Hz
 
     joints:
       - thumb_joint1
       - thumb_joint2
-      - thumb_joint3
       - index_joint
       - middle_joint
       - ring_joint
@@ -43,13 +41,13 @@ hand_joint_controller:
       - position
       - velocity
 
-    home_1: [-0.4, 1.2, 0.0, 0.0, 0.0, 0.0, 0.0]
-    home_2: [0.0, 1.2, 0.3, 1.1, 1.1, 1.2, 1.2]
+    home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    home_2: [0.16, 0.07, 0.35, 0.40, 0.38, 0.34]
+    home_3: [0.38, 0.15, 0.90, 0.95, 0.95, 0.90]
 
     target_command_enabled: true
-    target_command_close_config: 1
+    target_command_close_config: 2
     target_command_open_config: 0
-
 
     home_interpolation_type: "None"
     movej_interpolation_type: "None"

@@ -19,8 +19,8 @@
     state_interfaces:
       - position
       - velocity
-    home_1: [-0.43, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    home_2: [0.4, 0.0, 0.15, 0.90, 0.95, 0.95, 0.95]
+    home_1: [-0.4, 1.2, 0.0, 0.0, 0.0, 0.0, 0.0]
+    home_2: [0.0, 1.2, 0.3, 1.1, 1.1, 1.2, 1.2]
     home_duration: 3.0
     movej_duration: 3.0
     hold_position_threshold: 0.1

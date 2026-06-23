@@ -26,7 +26,11 @@ _MOTION_CONTROLLER_SECTIONS = (
 
 
 def _is_eef_joint(joint_name: str) -> bool:
-    return joint_name.endswith("_gripper_joint") or "_hand_" in joint_name
+    return (
+        joint_name.endswith("_gripper_joint")
+        or joint_name.endswith("_rotate_joint")
+        or "_hand_" in joint_name
+    )
 
 
 def _extract_base_joint_state_joints(config: Dict[str, Any]) -> List[str]:
@@ -99,13 +103,32 @@ def _is_passive_eef_type(eef_type: str) -> bool:
     return eef_type.strip().lower() in _PASSIVE_EEF_TYPES
 
 
+def _iter_registry_hand_type_keys(registry: Dict[str, Any]) -> List[str]:
+    """Registered EEF type keys with category hand (excludes _defaults)."""
+    keys: List[str] = []
+    for key, entry in registry.items():
+        if key == _REGISTRY_DEFAULTS_KEY:
+            continue
+        if _is_registry_eef_entry(entry) and entry.get("category") == "hand":
+            keys.append(key.lower())
+    return keys
+
+
 def _is_probable_hand_type(eef_type: str) -> bool:
     """Heuristic: unregistered hand-like keys should not get gripper fallback."""
     normalized = eef_type.strip().lower()
     if not normalized or normalized == "none":
         return False
-    if normalized.startswith("linkerhand"):
-        return True
+
+    registry = _load_registry()
+    # Unregistered variants of a registered hand family (e.g. linkerhand_o8 from linkerhand_o6).
+    for key in _iter_registry_hand_type_keys(registry):
+        if "_" not in key:
+            continue
+        family, _ = key.split("_", 1)
+        if normalized.startswith(family + "_"):
+            return True
+
     if "hand" in normalized and "gripper" not in normalized:
         return True
     if "suction" in normalized:

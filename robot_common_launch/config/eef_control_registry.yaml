@@ -28,3 +28,8 @@ linkerhand_o7:
   package: linkerhand_description
   template: config/ros2_control/templates/o7.side.yaml
   category: hand
+
+erg32:
+  package: jodell_description
+  template: config/ros2_control/templates/erg32.side.yaml
+  category: hand

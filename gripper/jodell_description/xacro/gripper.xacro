@@ -6,7 +6,7 @@
     <!-- 根据type参数决定使用哪种夹爪 -->
     <xacro:if value="${'$(arg type)' == 'RG75'}">
         <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
-        <xacro:RG75-300 name="" use_flange="true" pad="none"/>
+        <xacro:RG75-300 name="" use_flange="false" pad="none"/>
     </xacro:if>
 
     <xacro:if value="${'$(arg type)' == 'RG75-leapmotor'}">
@@ -37,6 +37,11 @@
     <xacro:if value="${'$(arg type)' == 'RG75-ptc'}">
         <xacro:include filename="$(find jodell_description)/xacro/RG75-300.xacro"/>
         <xacro:RG75-300 name="" pad="ptc"/>
+    </xacro:if>
+
+    <xacro:if value="${'$(arg type)' == 'ERG32'}">
+        <xacro:include filename="$(find jodell_description)/xacro/ERG32.xacro"/>
+        <xacro:ERG32 name=""/>
     </xacro:if>
 
 </robot>

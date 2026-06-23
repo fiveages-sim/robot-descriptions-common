@@ -186,7 +186,7 @@
             <parent link="${prefix}gripper_base"/>
             <child link="${prefix}right_finger"/>
             <axis xyz="0 -1 0"/>
-            <limit lower="-3.14" upper="3.14" effort="100" velocity="1"/>
+            <limit lower="-${PI}" upper="${PI}" effort="100" velocity="1"/>
             <mimic joint="${prefix}gripper_joint" multiplier="1" offset="0"/>
         </joint>
 

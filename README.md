@@ -12,14 +12,14 @@ This is a git submodule of the main [robot_descriptions](https://github.com/five
 
 Located in `gripper/` directory:
 
-| Brand                                | Models               | Repaint | Images                                                                                                                                                                                                              |
-|--------------------------------------|----------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [ChangingTek](gripper/changingtek_description) | AG2F90-C<br>AG2F120S | Yes     | <img src="gripper/.images/tek_ag2f90c.png" width="150"> <img src="gripper/.images/tek_ag2f120s.png" width="150">                                                                                                   |
-| [DH](gripper/dh_description)                  | PGC_140_50           | Yes     | <img src="gripper/.images/dh_pgc_140.png" width="150">                                                                                                                                                             |
-| [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                                                                                                                              |
-| [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                                                                                                                             |
-| [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">                                                                                                                                                             |
-| [Hitbot](gripper/hitbot_description)           | Z-EFG-100            | Yes     | <img src="gripper/.images/hitbot_z_efg_100.png" width="150">                                                                                                                                                        |
+| Brand                                | Models               | Repaint | Images                                                                                                            |
+|--------------------------------------|----------------------|---------|-------------------------------------------------------------------------------------------------------------------|
+| [ChangingTek](gripper/changingtek_description) | AG2F90-C<br>AG2F120S | Yes     | <img src="gripper/.images/tek_ag2f90c.png" width="150"> <img src="gripper/.images/tek_ag2f120s.png" width="150">  |
+| [DH](gripper/dh_description)                  | PGC_140_50           | Yes     | <img src="gripper/.images/dh_pgc_140.png" width="150">                                                            |
+| [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                            |
+| [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                           |
+| [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">  <img src="gripper/.images/jodell_erg32.png" width="150"> |
+| [Hitbot](gripper/hitbot_description)           | Z-EFG-100            | Yes     | <img src="gripper/.images/hitbot_z_efg_100.png" width="150">                                                      |
 
 Each gripper package includes:
 - URDF/Xacro files for robot description

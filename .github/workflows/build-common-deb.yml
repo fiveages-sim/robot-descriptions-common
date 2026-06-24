@@ -65,7 +65,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
@@ -98,7 +98,7 @@ jobs:
               echo "Unable to read version from robot_common_launch/package.xml." >&2
               exit 1
             fi
-            version="${base_version}~main+${short_sha}"
+            version="${base_version}~main.${short_sha}"
             is_prerelease="true"
           elif [[ -n "${INPUT_TAG:-}" ]]; then
             tag="$INPUT_TAG"
@@ -188,7 +188,7 @@ jobs:
 
       - name: Cache rosdep sources
         id: cache-rosdep
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: /home/rosdep/.ros/rosdep/sources.cache
           key: rosdep-${{ runner.os }}-${{ matrix.arch }}-${{ steps.meta.outputs.ros_distro }}-${{ hashFiles('**/package.xml') }}
@@ -334,7 +334,7 @@ jobs:
           echo "deb_path=${GITHUB_WORKSPACE}/${DEB_FILE}" >> "$GITHUB_OUTPUT"
 
       - name: Upload workflow artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: robot-descriptions-common-${{ steps.meta.outputs.version }}-${{ matrix.arch }}
           path: ${{ steps.meta.outputs.deb_file }}
@@ -353,7 +353,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
 
@@ -383,7 +383,7 @@ jobs:
               echo "Unable to read version from robot_common_launch/package.xml." >&2
               exit 1
             fi
-            version="${base_version}~main+${short_sha}"
+            version="${base_version}~main.${short_sha}"
             is_prerelease="true"
           elif [[ -n "${INPUT_TAG:-}" ]]; then
             tag="$INPUT_TAG"
@@ -412,7 +412,7 @@ jobs:
           echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
 
       - name: Download built deb artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           pattern: robot-descriptions-common-${{ steps.meta.outputs.version }}-*
           merge-multiple: true
@@ -516,27 +516,46 @@ jobs:
           apt-get install -y gh
 
       - name: Download deb from release
+        id: download-deb
         env:
           GH_TOKEN: ${{ github.token }}
         shell: bash
         run: |
           set -eo pipefail
 
-          deb_file="${{ steps.meta.outputs.deb_file }}"
+          deb_arch="${{ matrix.arch }}"
           tag="${{ steps.meta.outputs.tag }}"
+          deb_file=""
+
           for attempt in {1..30}; do
-            rm -f "${deb_file}"
-            if gh release download "$tag" \
+            rm -f ./*.deb 2>/dev/null || true
+
+            if ! gh release view "$tag" --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1; then
+              echo "Release ${tag} is not available yet (attempt ${attempt}/30); retrying in 20s..."
+              sleep 20
+              continue
+            fi
+
+            gh release download "$tag" \
               --repo "${GITHUB_REPOSITORY}" \
-              --pattern "${deb_file}"; then
+              --pattern "*_${deb_arch}.deb"
+
+            deb_file="$(ls -1 *_"${deb_arch}.deb" 2>/dev/null | head -n1 || true)"
+            if [[ -n "$deb_file" && -f "$deb_file" ]]; then
+              echo "deb_file=${deb_file}" >> "${GITHUB_OUTPUT}"
               break
             fi
-            echo "Asset ${deb_file} is not available yet (attempt ${attempt}/30); retrying in 20s..."
+
+            echo "Asset *_${deb_arch}.deb is not available yet (attempt ${attempt}/30); retrying in 20s..."
+            gh release view "$tag" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --json assets \
+              --jq '.assets[].name' || true
             sleep 20
           done
 
-          if [[ ! -f "${deb_file}" ]]; then
-            echo "Timed out waiting for ${deb_file} in release ${tag}." >&2
+          if [[ -z "$deb_file" || ! -f "$deb_file" ]]; then
+            echo "Timed out waiting for *_${deb_arch}.deb in release ${tag}." >&2
             gh release view "$tag" \
               --repo "${GITHUB_REPOSITORY}" \
               --json assets \
@@ -551,7 +570,7 @@ jobs:
         run: |
           set -eo pipefail
 
-          deb_file="${{ steps.meta.outputs.deb_file }}"
+          deb_file="${{ steps.download-deb.outputs.deb_file }}"
           ros_distro="${{ steps.meta.outputs.ros_distro }}"
 
           dpkg -i "./${deb_file}" || apt-get -f install -y

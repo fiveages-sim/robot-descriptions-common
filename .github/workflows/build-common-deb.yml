@@ -2,11 +2,21 @@ name: Build Common Deb
 
 # Runs in https://github.com/fiveages-sim/robot-descriptions-common.
 # The repository root is the colcon workspace.
+#
+# Release policy:
+# - push v* tag                    -> formal GitHub Release
+# - pull_request merged into main  -> single rolling pre-release (tag: pre-release)
+# - workflow_dispatch              -> manual formal release for a given tag
 
 on:
   push:
     tags:
       - "v*"
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       tag:
@@ -23,7 +33,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event.inputs.tag || github.ref_name }}
+  group: ${{ github.workflow }}-${{ github.ref_type == 'tag' && github.ref_name || (github.event_name == 'pull_request' && 'pre-release' || github.ref) }}
   cancel-in-progress: true
 
 env:
@@ -31,10 +41,12 @@ env:
   PACKAGE_NAME: ros-jazzy-robot-descriptions-common
   DEB_FILE_PREFIX: ros-jazzy-robot-descriptions-common
   INSTALL_PREFIX: /opt/ros/jazzy
+  PRE_RELEASE_TAG: pre-release
 
 jobs:
   build_common_deb:
     name: build common deb (${{ matrix.arch }})
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == true
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
@@ -56,6 +68,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
 
       - name: Resolve release metadata
         id: meta
@@ -65,10 +78,29 @@ jobs:
           INPUT_ROS_DISTRO: ${{ github.event.inputs.ros_distro }}
           MATRIX_ROS_DISTRO: ${{ matrix.ros_distro }}
           DEB_ARCH: ${{ matrix.arch }}
+          PRE_RELEASE_TAG: ${{ env.PRE_RELEASE_TAG }}
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -eo pipefail
 
-          if [[ -n "${INPUT_TAG:-}" ]]; then
+          is_prerelease="false"
+
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            if [[ -z "${MERGE_COMMIT_SHA}" ]]; then
+              echo "Merge commit SHA is missing for merged pull request." >&2
+              exit 1
+            fi
+            short_sha="$(printf '%s' "${MERGE_COMMIT_SHA}" | cut -c1-7)"
+            tag="${PRE_RELEASE_TAG}"
+            base_version="$(grep -m1 '<version>' robot_common_launch/package.xml | sed -E 's@.*<version>([^<]+)</version>.*@\1@')"
+            if [[ -z "$base_version" ]]; then
+              echo "Unable to read version from robot_common_launch/package.xml." >&2
+              exit 1
+            fi
+            version="${base_version}~main+${short_sha}"
+            is_prerelease="true"
+          elif [[ -n "${INPUT_TAG:-}" ]]; then
             tag="$INPUT_TAG"
           elif [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
             tag="${GITHUB_REF_NAME}"
@@ -76,22 +108,24 @@ jobs:
             echo "A release tag is required for workflow_dispatch." >&2
             exit 1
           fi
-          if [[ "${tag}" != [vV]* ]]; then
-            tag="v${tag}"
+          if [[ "${is_prerelease}" != "true" ]]; then
+            if [[ "${tag}" != [vV]* ]]; then
+              tag="v${tag}"
+            fi
+
+            version="${tag#v}"
+            version="${version#V}"
+            version="$(printf '%s' "$version" | sed 's/-/~/g')"
+          fi
+          if [[ -z "$version" ]]; then
+            echo "Unable to derive a package version from tag: $tag" >&2
+            exit 1
           fi
 
           ros_distro="${INPUT_ROS_DISTRO:-$MATRIX_ROS_DISTRO}"
           if [[ "${ros_distro}" != "${MATRIX_ROS_DISTRO}" ]]; then
             echo "This containerized deb workflow currently supports only ROS 2 ${MATRIX_ROS_DISTRO}." >&2
             echo "Requested: ${ros_distro}" >&2
-            exit 1
-          fi
-
-          version="${tag#v}"
-          version="${version#V}"
-          version="$(printf '%s' "$version" | sed 's/-/~/g')"
-          if [[ -z "$version" ]]; then
-            echo "Unable to derive a package version from tag: $tag" >&2
             exit 1
           fi
 
@@ -102,6 +136,7 @@ jobs:
           echo "ros_distro=$ros_distro" >> "$GITHUB_OUTPUT"
           echo "deb_arch=$DEB_ARCH" >> "$GITHUB_OUTPUT"
           echo "deb_file=$deb_file" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
 
       - name: Validate workspace
         shell: bash
@@ -314,18 +349,43 @@ jobs:
       tag: ${{ steps.meta.outputs.tag }}
       ros_distro: ${{ steps.meta.outputs.ros_distro }}
       version: ${{ steps.meta.outputs.version }}
+      is_prerelease: ${{ steps.meta.outputs.is_prerelease }}
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha || github.ref }}
+
       - name: Resolve release metadata
         id: meta
         shell: bash
         env:
           INPUT_TAG: ${{ github.event.inputs.tag }}
           INPUT_ROS_DISTRO: ${{ github.event.inputs.ros_distro }}
+          PRE_RELEASE_TAG: ${{ env.PRE_RELEASE_TAG }}
+          MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -eo pipefail
 
-          if [[ -n "${INPUT_TAG:-}" ]]; then
+          is_prerelease="false"
+
+          if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            if [[ -z "${MERGE_COMMIT_SHA}" ]]; then
+              echo "Merge commit SHA is missing for merged pull request." >&2
+              exit 1
+            fi
+            short_sha="$(printf '%s' "${MERGE_COMMIT_SHA}" | cut -c1-7)"
+            tag="${PRE_RELEASE_TAG}"
+            base_version="$(grep -m1 '<version>' robot_common_launch/package.xml | sed -E 's@.*<version>([^<]+)</version>.*@\1@')"
+            if [[ -z "$base_version" ]]; then
+              echo "Unable to read version from robot_common_launch/package.xml." >&2
+              exit 1
+            fi
+            version="${base_version}~main+${short_sha}"
+            is_prerelease="true"
+          elif [[ -n "${INPUT_TAG:-}" ]]; then
             tag="$INPUT_TAG"
           elif [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
             tag="${GITHUB_REF_NAME}"
@@ -333,18 +393,23 @@ jobs:
             echo "A release tag is required for workflow_dispatch." >&2
             exit 1
           fi
-          if [[ "${tag}" != [vV]* ]]; then
-            tag="v${tag}"
-          fi
 
           ros_distro="${INPUT_ROS_DISTRO:-$DEFAULT_ROS_DISTRO}"
-          version="${tag#v}"
-          version="${version#V}"
-          version="$(printf '%s' "$version" | sed 's/-/~/g')"
+
+          if [[ "${is_prerelease}" != "true" ]]; then
+            if [[ "${tag}" != [vV]* ]]; then
+              tag="v${tag}"
+            fi
+
+            version="${tag#v}"
+            version="${version#V}"
+            version="$(printf '%s' "$version" | sed 's/-/~/g')"
+          fi
 
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "ros_distro=$ros_distro" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "is_prerelease=$is_prerelease" >> "$GITHUB_OUTPUT"
 
       - name: Download built deb artifacts
         uses: actions/download-artifact@v4
@@ -357,18 +422,47 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.meta.outputs.tag }}
+          IS_PRERELEASE: ${{ steps.meta.outputs.is_prerelease }}
+          PRE_RELEASE_TAG: ${{ env.PRE_RELEASE_TAG }}
+          RELEASE_TARGET_SHA: ${{ github.event.pull_request.merge_commit_sha || github.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           set -eo pipefail
 
           ls -lh *.deb
-          if ! gh release view "$TAG" --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1; then
-            gh release create "$TAG" \
-              --repo "${GITHUB_REPOSITORY}" \
-              --title "$TAG" \
-              --notes "Automated release for Debian packages."
-          fi
 
-          gh release upload "$TAG" ./*.deb --repo "${GITHUB_REPOSITORY}" --clobber
+          if [[ "${IS_PRERELEASE}" == "true" ]]; then
+            echo "Cleaning up legacy pre-releases..."
+            gh release list --repo "${GITHUB_REPOSITORY}" --limit 100 \
+              --json tagName,isPrerelease \
+              --jq ".[] | select(.isPrerelease and .tagName != \"${PRE_RELEASE_TAG}\") | .tagName" \
+            | while read -r old_tag; do
+                [[ -z "$old_tag" ]] && continue
+                echo "Deleting legacy pre-release: ${old_tag}"
+                gh release delete "$old_tag" --repo "${GITHUB_REPOSITORY}" --yes --cleanup-tag || true
+              done
+
+            gh release delete "${TAG}" --repo "${GITHUB_REPOSITORY}" --yes --cleanup-tag 2>/dev/null || true
+
+            gh release create "${TAG}" \
+              --repo "${GITHUB_REPOSITORY}" \
+              --target "${RELEASE_TARGET_SHA}" \
+              --title "Pre-release (main)" \
+              --notes "Rolling pre-release built from merged PR #${PR_NUMBER} @ ${RELEASE_TARGET_SHA}
+
+          Workflow run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" \
+              --prerelease \
+              ./*.deb
+          else
+            if ! gh release view "$TAG" --repo "${GITHUB_REPOSITORY}" > /dev/null 2>&1; then
+              gh release create "$TAG" \
+                --repo "${GITHUB_REPOSITORY}" \
+                --title "$TAG" \
+                --notes "Automated release for Debian packages."
+            fi
+
+            gh release upload "$TAG" ./*.deb --repo "${GITHUB_REPOSITORY}" --clobber
+          fi
 
   verify_common_deb:
     name: verify common deb (${{ matrix.arch }})

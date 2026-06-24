@@ -1,7 +1,8 @@
-# Type-specific controller config for Inspire dexterous hand (RH56F2).
+# This config file is used by ros2_control for Freedom V1 standalone hand tests.
 controller_manager:
   ros__parameters:
-    update_rate: 100
+    update_rate: 100  # Hz
+
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
 
@@ -24,8 +25,8 @@ joint_state_broadcaster:
 
 hand_joint_controller:
   ros__parameters:
-    update_rate: 100
-    target_command_enabled: true
+    update_rate: 100  # Hz
+
     joints:
       - thumb_joint1
       - thumb_joint2
@@ -33,15 +34,24 @@ hand_joint_controller:
       - middle_joint
       - ring_joint
       - pinky_joint
+
     command_interfaces:
       - position
     state_interfaces:
       - position
       - velocity
+
     home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-    home_2: [0.4, 0.4, 0.6, 0.6, 0.6, 0.6]
+    home_2: [0.16, 0.07, 0.35, 0.40, 0.38, 0.34]
+    home_3: [0.38, 0.15, 0.90, 0.95, 0.95, 0.90]
+
+    target_command_enabled: true
+    target_command_close_config: 2
+    target_command_open_config: 0
+
     home_interpolation_type: "None"
     movej_interpolation_type: "None"
+
     home_duration: 3.0
     movej_duration: 3.0
     hold_position_threshold: 0.1

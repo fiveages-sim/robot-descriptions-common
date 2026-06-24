@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="InspireHandRH56E2" params="name:='' direction:=1 use_flange:=false ">
+  <xacro:macro name="InspireHandRH56E2" params="name:='' direction:=1 use_flange:=false fixed_joints:=false">
 
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
     <xacro:property name="dir" value="${-1 * int(direction)}"/>
+    <xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
 
     <xacro:if value="${use_flange}">
       <link name="${prefix}flange">
@@ -108,7 +109,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}thumb_joint1" type="revolute">
+    <joint name="${prefix}thumb_joint1" type="${joint_type}">
       <origin xyz="-0.0269 ${dir*0.02101} 0.0334" />
       <parent link="${prefix}hand_base" />
       <child link="${prefix}thumb_1" />
@@ -140,7 +141,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}thumb_joint2" type="revolute">
+    <joint name="${prefix}thumb_joint2" type="${joint_type}">
       <origin xyz="-0.0079252 ${dir*0.0090599} 0.0052" rpy="${dir*1.5708} 0 ${dir*2.8798}" />
       <parent link="${prefix}thumb_1" />
       <child link="${prefix}thumb_2" />
@@ -172,7 +173,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}thumb_joint3" type="revolute">
+    <joint name="${prefix}thumb_joint3" type="${joint_type}">
       <origin xyz="0.031403 ${dir*0.021069} 0.00095" />
       <parent link="${prefix}thumb_2" />
       <child link="${prefix}thumb_3" />
@@ -241,7 +242,7 @@
       </collision>
     </link>
     
-    <joint name="${prefix}thumb_joint4" type="revolute">
+    <joint name="${prefix}thumb_joint4" type="${joint_type}">
       <origin xyz="0.021903 ${dir*0.012816} -0.0003" />
       <parent link="${prefix}thumb_3" />
       <child link="${prefix}thumb_4" />
@@ -377,7 +378,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}index_joint" type="revolute">
+    <joint name="${prefix}index_joint" type="${joint_type}">
       <origin xyz="-0.038679 ${dir*0.00056467} 0.1209" rpy="${dir*1.6057} 0 ${dir*-1.5708}" />
       <parent link="${prefix}hand_base" />
       <child link="${prefix}index_1" />
@@ -409,7 +410,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}index_dip" type="revolute">
+    <joint name="${prefix}index_dip" type="${joint_type}">
       <origin xyz="-0.0034259 ${dir*0.032596} -0.00055" />
       <parent link="${prefix}index_1" />
       <child link="${prefix}index_2" />
@@ -548,7 +549,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}middle_joint" type="revolute">
+    <joint name="${prefix}middle_joint" type="${joint_type}">
       <origin xyz="-0.0171 ${dir*0.00056467} 0.1215" rpy="${dir*1.5708} 0 ${dir*-1.5708}" />
       <parent link="${prefix}hand_base" />
       <child link="${prefix}middle_1" />
@@ -583,7 +584,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}middle_dip" type="revolute">
+    <joint name="${prefix}middle_dip" type="${joint_type}">
       <origin xyz="-0.0034259 ${dir*0.032596} -0.00055" />
       <parent link="${prefix}middle_1" />
       <child link="${prefix}middle_2" />
@@ -718,7 +719,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}ring_joint" type="revolute">
+    <joint name="${prefix}ring_joint" type="${joint_type}">
       <origin xyz="0.0045302 ${dir*0.00056467} 0.12133" rpy="${dir*1.5184} 0 ${dir*-1.5708}" />
       <parent link="${prefix}hand_base" />
       <child link="${prefix}ring_1" />
@@ -749,7 +750,7 @@
         </geometry>
       </collision>
     </link>
-    <joint name="${prefix}ring_dip" type="revolute">
+    <joint name="${prefix}ring_dip" type="${joint_type}">
       <origin xyz="-0.0034259 ${dir*0.032596} -0.00055" />
       <parent link="${prefix}ring_1" />
       <child link="${prefix}ring_2" />
@@ -886,7 +887,7 @@
       </collision>
     </link>
 
-    <joint name="${prefix}pinky_joint" type="revolute">
+    <joint name="${prefix}pinky_joint" type="${joint_type}">
       <origin xyz="0.025916 ${dir*0.00056467} 0.11815" rpy="${dir*1.4661} 0 ${dir*-1.5708}" />
       <parent link="${prefix}hand_base" />
       <child link="${prefix}pinky_1" />
@@ -916,7 +917,7 @@
         </geometry>
       </collision>
     </link>
-    <joint name="${prefix}pinky_dip" type="revolute">
+    <joint name="${prefix}pinky_dip" type="${joint_type}">
       <origin xyz="-0.0034259 ${dir*0.032596} -0.00055" />
       <parent link="${prefix}pinky_1" />
       <child link="${prefix}pinky_2" />
@@ -1028,6 +1029,13 @@
       <parent link="${prefix}pinky_1" />
       <child link="${prefix}pinky_force_sensor_1" />
      
+    </joint>
+
+    <link name="${prefix}eef"/>
+    <joint name="${prefix}eef_joint" type="fixed">
+      <parent link="${prefix}hand_base"/>
+      <child link="${prefix}eef"/>
+      <origin xyz="-0.017 ${dir*0.0006} 0.1015"/>
     </joint>
   </xacro:macro>
 

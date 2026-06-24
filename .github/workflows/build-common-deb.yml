@@ -6,6 +6,7 @@ name: Build Common Deb
 # Release policy:
 # - push v* tag                    -> formal GitHub Release
 # - pull_request merged into main  -> single rolling pre-release (tag: pre-release)
+#   deb Version: latest formal release minor +1, then ~main.{short_sha}
 # - workflow_dispatch              -> manual formal release for a given tag
 
 on:
@@ -81,8 +82,59 @@ jobs:
           PRE_RELEASE_TAG: ${{ env.PRE_RELEASE_TAG }}
           MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -eo pipefail
+
+          resolve_prerelease_deb_version() {
+            local short_sha="$1"
+            local release_repo="$2"
+            local fallback_package_xml="$3"
+
+            local latest_tag version_core major minor
+            latest_tag="$(RELEASE_REPO="${release_repo}" python3 -c "
+          import json, os, urllib.request
+          repo = os.environ['RELEASE_REPO']
+          token = os.environ.get('GH_TOKEN', '')
+          headers = {'Accept': 'application/vnd.github+json'}
+          if token:
+              headers['Authorization'] = f'Bearer {token}'
+          req = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/releases/latest',
+              headers=headers,
+          )
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  print(json.load(resp).get('tag_name') or '')
+          except Exception:
+              print('')
+          " 2>/dev/null || true)"
+
+            if [[ -n "${latest_tag}" ]]; then
+              version_core="$(printf '%s' "${latest_tag}" | sed -E 's/^[vV]//' | sed 's/-.*//')"
+              echo "Pre-release deb version: latest formal ${latest_tag} -> minor bump on ${release_repo}." >&2
+            elif [[ -f "${fallback_package_xml}" ]]; then
+              version_core="$(grep -m1 '<version>' "${fallback_package_xml}" | sed -E 's@.*<version>([^<]+)</version>.*@\1@' | sed 's/-.*//')"
+              if [[ -z "${version_core}" ]]; then
+                echo "Unable to read version from ${fallback_package_xml}." >&2
+                exit 1
+              fi
+              echo "No formal release on ${release_repo}; minor bump from ${fallback_package_xml} (${version_core})." >&2
+            else
+              version_core="0.0.0"
+              echo "No formal release on ${release_repo}; using 0.1.0 pre-release base." >&2
+            fi
+
+            IFS='.' read -r major minor _patch <<< "${version_core}"
+            major="${major:-0}"
+            minor="${minor:-0}"
+            if [[ ! "${major}" =~ ^[0-9]+$ ]] || [[ ! "${minor}" =~ ^[0-9]+$ ]]; then
+              echo "Unable to parse semver major.minor from: ${version_core}" >&2
+              exit 1
+            fi
+
+            printf '%s\n' "${major}.$((minor + 1)).0~main.${short_sha}"
+          }
 
           is_prerelease="false"
 
@@ -93,12 +145,7 @@ jobs:
             fi
             short_sha="$(printf '%s' "${MERGE_COMMIT_SHA}" | cut -c1-7)"
             tag="${PRE_RELEASE_TAG}"
-            base_version="$(grep -m1 '<version>' robot_common_launch/package.xml | sed -E 's@.*<version>([^<]+)</version>.*@\1@')"
-            if [[ -z "$base_version" ]]; then
-              echo "Unable to read version from robot_common_launch/package.xml." >&2
-              exit 1
-            fi
-            version="${base_version}~main.${short_sha}"
+            version="$(resolve_prerelease_deb_version "${short_sha}" "${GITHUB_REPOSITORY}" "robot_common_launch/package.xml")"
             is_prerelease="true"
           elif [[ -n "${INPUT_TAG:-}" ]]; then
             tag="$INPUT_TAG"
@@ -366,8 +413,59 @@ jobs:
           PRE_RELEASE_TAG: ${{ env.PRE_RELEASE_TAG }}
           MERGE_COMMIT_SHA: ${{ github.event.pull_request.merge_commit_sha }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -eo pipefail
+
+          resolve_prerelease_deb_version() {
+            local short_sha="$1"
+            local release_repo="$2"
+            local fallback_package_xml="$3"
+
+            local latest_tag version_core major minor
+            latest_tag="$(RELEASE_REPO="${release_repo}" python3 -c "
+          import json, os, urllib.request
+          repo = os.environ['RELEASE_REPO']
+          token = os.environ.get('GH_TOKEN', '')
+          headers = {'Accept': 'application/vnd.github+json'}
+          if token:
+              headers['Authorization'] = f'Bearer {token}'
+          req = urllib.request.Request(
+              f'https://api.github.com/repos/{repo}/releases/latest',
+              headers=headers,
+          )
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  print(json.load(resp).get('tag_name') or '')
+          except Exception:
+              print('')
+          " 2>/dev/null || true)"
+
+            if [[ -n "${latest_tag}" ]]; then
+              version_core="$(printf '%s' "${latest_tag}" | sed -E 's/^[vV]//' | sed 's/-.*//')"
+              echo "Pre-release deb version: latest formal ${latest_tag} -> minor bump on ${release_repo}." >&2
+            elif [[ -f "${fallback_package_xml}" ]]; then
+              version_core="$(grep -m1 '<version>' "${fallback_package_xml}" | sed -E 's@.*<version>([^<]+)</version>.*@\1@' | sed 's/-.*//')"
+              if [[ -z "${version_core}" ]]; then
+                echo "Unable to read version from ${fallback_package_xml}." >&2
+                exit 1
+              fi
+              echo "No formal release on ${release_repo}; minor bump from ${fallback_package_xml} (${version_core})." >&2
+            else
+              version_core="0.0.0"
+              echo "No formal release on ${release_repo}; using 0.1.0 pre-release base." >&2
+            fi
+
+            IFS='.' read -r major minor _patch <<< "${version_core}"
+            major="${major:-0}"
+            minor="${minor:-0}"
+            if [[ ! "${major}" =~ ^[0-9]+$ ]] || [[ ! "${minor}" =~ ^[0-9]+$ ]]; then
+              echo "Unable to parse semver major.minor from: ${version_core}" >&2
+              exit 1
+            fi
+
+            printf '%s\n' "${major}.$((minor + 1)).0~main.${short_sha}"
+          }
 
           is_prerelease="false"
 
@@ -378,12 +476,7 @@ jobs:
             fi
             short_sha="$(printf '%s' "${MERGE_COMMIT_SHA}" | cut -c1-7)"
             tag="${PRE_RELEASE_TAG}"
-            base_version="$(grep -m1 '<version>' robot_common_launch/package.xml | sed -E 's@.*<version>([^<]+)</version>.*@\1@')"
-            if [[ -z "$base_version" ]]; then
-              echo "Unable to read version from robot_common_launch/package.xml." >&2
-              exit 1
-            fi
-            version="${base_version}~main.${short_sha}"
+            version="$(resolve_prerelease_deb_version "${short_sha}" "${GITHUB_REPOSITORY}" "robot_common_launch/package.xml")"
             is_prerelease="true"
           elif [[ -n "${INPUT_TAG:-}" ]]; then
             tag="$INPUT_TAG"

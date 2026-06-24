@@ -2,9 +2,10 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:include filename="$(find inspire_description)/xacro/ros2_control/RH56E2.xacro"/>
+  <xacro:include filename="$(find inspire_description)/xacro/ros2_control/RH56F2.xacro"/>
 
-  <xacro:macro name="inspire_rs485_side_system" params="side serial_port baudrate:=115200 slave_id:=auto read_feedback:=true">
-    <ros2_control name="inspire_e2_${side}_system" type="system">
+  <xacro:macro name="inspire_rs485_side_system" params="side serial_port baudrate:=115200 slave_id:=auto read_feedback:=true hand_type:=inspire_e2">
+    <ros2_control name="${hand_type}_${side}_system" type="system">
       <hardware>
         <plugin>modbus_ros2_control/InspireHandHardware</plugin>
         <param name="serial_port">${serial_port}</param>
@@ -13,12 +14,17 @@
         <param name="slave_id">${slave_id}</param>
         <param name="read_feedback">${read_feedback}</param>
       </hardware>
-      <xacro:inspire_rh56e2_interfaces name="${side}_hand"/>
+      <xacro:if value="${hand_type == 'inspire_e2'}">
+        <xacro:inspire_rh56e2_interfaces name="${side}_hand"/>
+      </xacro:if>
+      <xacro:if value="${hand_type == 'inspire_f2'}">
+        <xacro:inspire_rh56f2_interfaces name="${side}_hand"/>
+      </xacro:if>
     </ros2_control>
   </xacro:macro>
 
-  <xacro:macro name="inspire_canfd_side_system" params="side can_interface hand_id:=auto read_feedback:=true">
-    <ros2_control name="inspire_e2_${side}_canfd_system" type="system">
+  <xacro:macro name="inspire_canfd_side_system" params="side can_interface hand_id:=auto read_feedback:=true hand_type:=inspire_e2">
+    <ros2_control name="${hand_type}_${side}_canfd_system" type="system">
       <hardware>
         <plugin>can_ros2_control/InspireCanfdHardware</plugin>
         <param name="can_interface">${can_interface}</param>
@@ -27,7 +33,12 @@
         <param name="read_feedback">${read_feedback}</param>
         <param name="feedback_timeout_ms">2</param>
       </hardware>
-      <xacro:inspire_rh56e2_interfaces name="${side}_hand"/>
+      <xacro:if value="${hand_type == 'inspire_e2'}">
+        <xacro:inspire_rh56e2_interfaces name="${side}_hand"/>
+      </xacro:if>
+      <xacro:if value="${hand_type == 'inspire_f2'}">
+        <xacro:inspire_rh56f2_interfaces name="${side}_hand"/>
+      </xacro:if>
     </ros2_control>
   </xacro:macro>
 

@@ -26,6 +26,8 @@ setup(
         (os.path.join('share', package_name, 'config'), glob('config/eef_control_registry.yaml')),
         (os.path.join('share', package_name, 'config/ros2_control/templates'),
          glob('config/ros2_control/templates/*.yaml')),
+        (os.path.join('share', package_name, 'xacro/ros2_control'),
+         glob('xacro/ros2_control/*.xacro')),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/**/*.sdf', recursive=True)),
     ] + maps_data_files,
     install_requires=['setuptools'],

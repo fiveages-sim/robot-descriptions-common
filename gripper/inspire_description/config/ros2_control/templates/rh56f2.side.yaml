@@ -1,0 +1,31 @@
+{side}_hand_controller:
+  ros__parameters:
+    update_rate: 100
+    target_command_enabled: true
+    movej_interpolation_type: "None"
+    home_interpolation_type: "None"
+    joints:
+      - {side_}hand_thumb_joint1
+      - {side_}hand_thumb_joint2
+      - {side_}hand_index_joint
+      - {side_}hand_middle_joint
+      - {side_}hand_ring_joint
+      - {side_}hand_pinky_joint
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    home_2: [0.4, 0.4, 0.6, 0.6, 0.6, 0.6]
+    home_duration: 3.0
+    movej_duration: 3.0
+    hold_position_threshold: 0.1
+
+joint_state_extra_joints:
+  - {side_}hand_thumb_joint1
+  - {side_}hand_thumb_joint2
+  - {side_}hand_index_joint
+  - {side_}hand_middle_joint
+  - {side_}hand_ring_joint
+  - {side_}hand_pinky_joint

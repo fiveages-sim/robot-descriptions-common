@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<!-- hardware_type: gz | mock_components | isaac -->
+	<xacro:macro name="simulation_hardware_plugin" params="hardware_type">
+		<xacro:if value="${hardware_type == 'gz'}">
+			<plugin>gz_ros2_control/GazeboSimSystem</plugin>
+		</xacro:if>
+		<xacro:if value="${hardware_type == 'mock_components'}">
+			<plugin>mock_components/GenericSystem</plugin>
+		</xacro:if>
+		<xacro:if value="${hardware_type == 'isaac'}">
+			<plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+			<param name="joint_commands_topic">/isaac/joint_command</param>
+			<param name="joint_states_topic">/isaac/joint_states</param>
+			<param name="sum_wrapped_joint_states">false</param>
+			<param name="initialize_commands_from_state">true</param>
+		</xacro:if>
+	</xacro:macro>
+
+</robot>

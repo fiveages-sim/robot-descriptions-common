@@ -139,7 +139,9 @@ jobs:
             exit 1
           fi
 
-          deb_file="${DEB_FILE_PREFIX}_${version}_${DEB_ARCH}.deb"
+          # GitHub Release rewrites "~" to "." in uploaded asset filenames.
+          deb_file_version="${version//~/.}"
+          deb_file="${DEB_FILE_PREFIX}_${deb_file_version}_${DEB_ARCH}.deb"
 
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -514,7 +516,8 @@ jobs:
           echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "ros_distro=${ROS_DISTRO}" >> "$GITHUB_OUTPUT"
-          echo "deb_file=${DEB_FILE_PREFIX}_${VERSION}_${DEB_ARCH}.deb" >> "$GITHUB_OUTPUT"
+          deb_file_version="${VERSION//~/.}"
+          echo "deb_file=${DEB_FILE_PREFIX}_${deb_file_version}_${DEB_ARCH}.deb" >> "$GITHUB_OUTPUT"
 
       - name: Install verification tools
         shell: bash

@@ -18,7 +18,7 @@ colcon build --packages-up-to brainco_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=brainco direction:=1
   ```
-  ![revo2 left](../.images/brainco_revo2_left.png)
+  ![revo2 left](../.images/brainco_revo2.png)
     
 * Right Hand
   ```bash
@@ -26,7 +26,6 @@ colcon build --packages-up-to brainco_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=brainco direction:=-1
   ```
-  ![revo2 right](../.images/brainco_revo2_right.png)
 
 ### Revo1 DexHands
 ![revo2 left](../.images/brainco_revo1.png)

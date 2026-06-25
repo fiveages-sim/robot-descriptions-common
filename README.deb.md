@@ -19,8 +19,8 @@ Workflow：[`.github/workflows/build-common-deb.yml`](.github/workflows/build-co
 | 项目 | 规则 | 示例 |
 |------|------|------|
 | GitHub Release tag | 固定 `pre-release` | `pre-release` |
-| deb `Version` | 在 latest 正式版基础上 **patch 累加** + `~main.` + 短 SHA | 见下表 |
-| deb 文件名 | `ros-jazzy-robot-descriptions-common_{Version}_{arch}.deb` | `..._1.4.2~main.7b73a8b_amd64.deb` |
+| deb `Version`（control 字段） | 在 latest 正式版基础上 **patch 累加** + `~main.` + 短 SHA | 见下表 |
+| deb 文件名（Release 资产） | `ros-jazzy-robot-descriptions-common_{Version}_{arch}.deb`；GitHub 上传时 `~` 会变为 `.` | `..._1.4.2.main.7b73a8b_amd64.deb` |
 
 **计算逻辑**（latest 正式版为 `v1.4.0` 时）：
 
@@ -46,7 +46,7 @@ Workflow：[`.github/workflows/build-common-deb.yml`](.github/workflows/build-co
 
 ```bash
 gh release download pre-release --repo fiveages-sim/robot-descriptions-common --pattern '*_amd64.deb'
-sudo dpkg -i ros-jazzy-robot-descriptions-common_1.4.2~main.7b73a8b_amd64.deb
+sudo dpkg -i ros-jazzy-robot-descriptions-common_1.4.2.main.7b73a8b_amd64.deb
 ```
 
 ### 正式 Release

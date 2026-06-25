@@ -12,14 +12,14 @@ This is a git submodule of the main [robot_descriptions](https://github.com/five
 
 Located in `gripper/` directory:
 
-| Brand                                | Models               | Repaint | Images                                                                                                                                                                                                              |
-|--------------------------------------|----------------------|---------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [ChangingTek](gripper/changingtek_description) | AG2F90-C<br>AG2F120S | Yes     | <img src="gripper/.images/tek_ag2f90c.png" width="150"> <img src="gripper/.images/tek_ag2f120s.png" width="150">                                                                                                   |
-| [DH](gripper/dh_description)                  | PGC_140_50           | Yes     | <img src="gripper/.images/dh_pgc_140.png" width="150">                                                                                                                                                             |
-| [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                                                                                                                              |
-| [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                                                                                                                             |
-| [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">                                                                                                                                                             |
-| [Hitbot](gripper/hitbot_description)           | Z-EFG-100            | Yes     | <img src="gripper/.images/hitbot_z_efg_100.png" width="150">                                                                                                                                                        |
+| Brand                                | Models               | Repaint | Images                                                                                                            |
+|--------------------------------------|----------------------|---------|-------------------------------------------------------------------------------------------------------------------|
+| [ChangingTek](gripper/changingtek_description) | AG2F90-C<br>AG2F120S | Yes     | <img src="gripper/.images/tek_ag2f90c.png" width="150"> <img src="gripper/.images/tek_ag2f120s.png" width="150">  |
+| [DH](gripper/dh_description)                  | PGC_140_50           | Yes     | <img src="gripper/.images/dh_pgc_140.png" width="150">                                                            |
+| [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                            |
+| [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                           |
+| [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">  <img src="gripper/.images/jodell_erg32.png" width="150"> |
+| [Hitbot](gripper/hitbot_description)           | Z-EFG-100            | Yes     | <img src="gripper/.images/hitbot_z_efg_100.png" width="150">                                                      |
 
 Each gripper package includes:
 - URDF/Xacro files for robot description
@@ -31,12 +31,13 @@ Each gripper package includes:
 
 Mainly located in `dexhands/` directory (Inspire RH56E2 is provided by `gripper/inspire_description`):
 
-| Brand                                      | Model                 | Repaint | Images                                                                                                                                                                                                                                       |
-|--------------------------------------------|-----------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| [BrainCo](dexhands/brainco_description)    | REVO1<br>REVO2        | Yes     | <img src="dexhands/.images/brainco_revo1.png" width="150"> <img src="dexhands/.images/brainco_revo2_left.png" width="150"> <img src="dexhands/.images/brainco_revo2_right.png" width="150">                                                  |
+| Brand                                         | Model                 | Repaint | Images                                                                                                                                                                                                                                       |
+|-----------------------------------------------|-----------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [BrainCo](dexhands/brainco_description)       | REVO1<br>REVO2        | Yes     | <img src="dexhands/.images/brainco_revo1.png" width="150"> <img src="dexhands/.images/brainco_revo2_left.png" width="150"> <img src="dexhands/.images/brainco_revo2_right.png" width="150">                                                  |
 | [LinkerHand](dexhands/linkerhand_description) | O6<br>O7<br>L6<br>L10 | Yes     | <img src="dexhands/.images/linkerhand_o6.png" width="150"> <img src="dexhands/.images/linkerhand_o7.png" width="150"> <img src="dexhands/.images/linkerhand_l6.png" width="150"> <img src="dexhands/.images/linkerhand_l10.png" width="150"> |
-| [Inspire](gripper/inspire_description)     | RH56E2<br>RH56F2      | Yes     | <img src="dexhands/.images/inspire_rh56e2.png" width="150"> <img src="dexhands/.images/inspire_rh56f2.png" width="150">                                                                                                                      |
-| [OyMotion](dexhands/oymotion_description)  | RoHand Gen2           | Yes     | <img src="dexhands/.images/rohand_gen2.png" width="150">                                                                                                                                                                                     |
+| [Inspire](gripper/inspire_description)        | RH56E2<br>RH56F2      | Yes     | <img src="dexhands/.images/inspire_rh56e2.png" width="150"> <img src="dexhands/.images/inspire_rh56f2.png" width="150">                                                                                                                      |
+| [OyMotion](dexhands/oymotion_description)     | RoHand Gen2           | Yes     | <img src="dexhands/.images/rohand_gen2.png" width="150">                                                                                                                                                                                     |
+| [FreeDom](dexhands/oymotion_description)      | V1<br>V2              | Yes     | <img src="dexhands/.images/freedom_v1.png" width="150"> <img src="dexhands/.images/freedom_v2.png" width="150">                                                                                                                              |
 
 Features:
 - Full kinematic chain definition

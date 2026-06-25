@@ -19,27 +19,39 @@ Workflow：[`.github/workflows/build-common-deb.yml`](.github/workflows/build-co
 | 项目 | 规则 | 示例 |
 |------|------|------|
 | GitHub Release tag | 固定 `pre-release` | `pre-release` |
-| deb `Version` | latest **正式版** minor +1 + `~main.` + 短 SHA | latest `v1.5.0` → `1.6.0~main.7b73a8b` |
-| deb 文件名 | `ros-jazzy-robot-descriptions-common_{Version}_{arch}.deb` | `ros-jazzy-robot-descriptions-common_1.6.0~main.7b73a8b_amd64.deb` |
+| deb `Version` | 在 latest 正式版基础上 **patch 累加** + `~main.` + 短 SHA | 见下表 |
+| deb 文件名 | `ros-jazzy-robot-descriptions-common_{Version}_{arch}.deb` | `..._1.4.2~main.7b73a8b_amd64.deb` |
 
-计算步骤：
+**计算逻辑**（latest 正式版为 `v1.4.0` 时）：
 
-1. 通过 GitHub API 读取本仓库 **latest 正式版**（不含 `pre-release`）
-2. 从 tag 解析 `X.Y.Z`，**次版本 Y +1**，patch 归零（`1.5.0` → `1.6.0`）
-3. 追加 `~main.{merge_commit 前 7 位}`
+| 场景 | 上一次 pre-release deb 基础版本 | 本次 deb Version |
+|------|--------------------------------|------------------|
+| 第一次 PR 合并 | 无 | `1.4.1~main.{sha}` |
+| 连续第二次合并 | `1.4.1` | `1.4.2~main.{sha}` |
+| 连续第三次合并 | `1.4.2` | `1.4.3~main.{sha}` |
+| **重置**：上次为 `1.5.0` 或 `1.3.0`，latest 仍为 `1.4.0` | major.minor 不一致 | `1.4.1~main.{sha}` |
+| **重置**：新正式版 `v1.5.0`，上次 pre-release 为 `1.4.3` | major.minor 不一致 | `1.5.1~main.{sha}` |
 
-若无正式 release：对 `robot_common_launch/package.xml` 中的版本做同样 minor +1；仍无则自 `0.1.0` 起。
+步骤简述：
+
+1. 读取 **latest 正式版** `X.Y.Z`（GitHub API `/releases/latest`）
+2. 从现有 `pre-release` Release 的 deb 资产名解析上一次基础版本（如 `1.4.2`）
+3. 若无上一次，或 `major.minor` 与 latest 不一致 → `X.Y.(Z+1)`
+4. 否则在上一次基础上 patch +1
+5. 追加 `~main.{merge_commit 前 7 位}`
+
+若无正式 release：以 `robot_common_launch/package.xml` 版本作为 latest；仍无则自 `0.0.1` 起。
 
 ### 安装示例
 
 ```bash
 gh release download pre-release --repo fiveages-sim/robot-descriptions-common --pattern '*_amd64.deb'
-sudo dpkg -i ros-jazzy-robot-descriptions-common_1.6.0~main.7b73a8b_amd64.deb
+sudo dpkg -i ros-jazzy-robot-descriptions-common_1.4.2~main.7b73a8b_amd64.deb
 ```
 
 ### 正式 Release
 
 | 项目 | 规则 |
 |------|------|
-| GitHub Release tag | git tag，如 `v1.6.0` |
+| GitHub Release tag | git tag，如 `v1.4.0` |
 | deb `Version` | tag 去 `v`，`-` 转 `~` |

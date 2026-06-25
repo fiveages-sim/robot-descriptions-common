@@ -11,7 +11,7 @@ Supported model types:
 ## 1. Build
 
 ```bash
-cd ~/fa_w2_ws
+cd ~/ros2_ws
 colcon build --packages-up-to freedom_description --symlink-install
 ```
 
@@ -23,23 +23,27 @@ Use `robot_common_launch` for RViz-only visualization with
 ### Freedom V2 Left Hand
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch robot_common_launch hand.launch.py hand:=freedom direction:=1
 ```
+
+![freedom v2](../.images/freedom_v2.png)
 
 ### Freedom V2 Right Hand
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch robot_common_launch hand.launch.py hand:=freedom direction:=-1
 ```
 
 ### Freedom V1 Left Hand
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch robot_common_launch hand.launch.py hand:=freedom type:=freedomv1 direction:=1
 ```
+
+![freedom v1](../.images/freedom_v1.png)
 
 ### Freedom V1 Right Hand
 
@@ -47,7 +51,7 @@ ros2 launch robot_common_launch hand.launch.py hand:=freedom type:=freedomv1 dir
 source ~/install/setup.bash
 ros2 launch robot_common_launch hand.launch.py hand:=freedom type:=freedomv1 direction:=-1
 ```
-cd /home/king/fa_w2_ws
+cd /home/king/ros2_ws
 source install/setup.bash
 ros2 launch robot_common_launch hand.launch.py hand:=freedom direction:=1
 
@@ -118,28 +122,28 @@ With a side prefix in a robot, these become names such as
 #### Freedom V2 Left Hand
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv2 direction:=1
 ```
 
 #### Freedom V2 Right Hand
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv2 direction:=-1
 ```
 
 #### Freedom V1 Left Hand
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv1 direction:=1
 ```
 
 #### Freedom V1 Right Hand
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv1 direction:=-1
 ```
 
@@ -158,28 +162,28 @@ current-limit bytes for each protocol slot.
 Left hand (`direction:=1`, default):
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv1 hardware:=real direction:=1
 ```
 
 Right hand (`direction:=-1`):
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv1 hardware:=real direction:=-1
 ```
 
 Freedom V2 left hand:
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv2 hardware:=real direction:=1
 ```
 
 Freedom V2 right hand:
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv2 hardware:=real direction:=-1
 ```
 
@@ -204,13 +208,13 @@ Current Freedom IDs:
 Left hand (`direction:=1`, default):
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv1 hardware:=real_can direction:=1
 ```
 
 Right hand (`direction:=-1`):
 
 ```bash
-source ~/fa_w2_ws/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch basic_joint_controller hand.launch.py hand:=freedom type:=freedomv1 hardware:=real_can direction:=-1
 ```

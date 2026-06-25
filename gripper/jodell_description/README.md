@@ -1,6 +1,6 @@
 # Jodell Gripper Description
 
-This package contains the URDF and related files for the Jodell RG75-300 Gripper.
+This package contains the URDF and related files for Jodell grippers (RG75-300, ERG32).
 
 ## Build
 
@@ -46,3 +46,12 @@ colcon build --packages-up-to jodell_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch gripper.launch.py gripper:=jodell type:=RG75-ptc
   ```
+
+### ERG32 Rotating Gripper
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch robot_common_launch gripper.launch.py gripper:=jodell type:=ERG32
+```
+
+![ERG32](../.images/jodell_erg32.png)

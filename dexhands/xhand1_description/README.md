@@ -6,7 +6,7 @@ Origin files could be found at `src/XHAND1_URDF_ver 1.3`.
 ## 1. Build
 
 ```bash
-cd ~/fa_w2_ws
+cd ~/ros2_ws
 colcon build --packages-up-to xhand1_description --symlink-install
 ```
 
@@ -16,14 +16,14 @@ colcon build --packages-up-to xhand1_description --symlink-install
 * Left Hand
   ```bash
   # left hand
-  source ~/fa_w2_ws/install/setup.bash
+  source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=xhand1
   ```
 
 * Right Hand
   ```bash
   # right hand
-  source ~/fa_w2_ws/install/setup.bash
+  source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=xhand1 direction:=-1
   ```
 
@@ -32,12 +32,12 @@ colcon build --packages-up-to xhand1_description --symlink-install
 ### 3.1 XHAND1 DexHands
 * Left Hand
   ```bash
-  source ~/fa_w2_ws/install/setup.bash
+  source ~/ros2_ws/install/setup.bash
   ros2 launch basic_joint_controller hand.launch.py hand:=xhand1 type:=xhand1 direction:=1
   ```
 
 * Right Hand
   ```bash
-  source ~/fa_w2_ws/install/setup.bash
+  source ~/ros2_ws/install/setup.bash
   ros2 launch basic_joint_controller hand.launch.py hand:=xhand1 type:=xhand1 direction:=-1
   ```

@@ -583,6 +583,10 @@ def _planning_xacro_supports_side_eef(robot_name: str) -> bool:
     return supported
 
 
+# Public alias for control_compose single/dual-arm topology detection.
+planning_xacro_supports_side_eef = _planning_xacro_supports_side_eef
+
+
 def _resolve_planning_scope(planning_robot_name, launch_configurations, planning_scope=""):
     configs = launch_configurations or {}
     scope = (planning_scope or configs.get("planning_scope", "")).strip().lower()

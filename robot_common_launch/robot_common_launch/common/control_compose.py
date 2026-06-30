@@ -253,6 +253,14 @@ def _enrich_fragment_from_robot_type_config(
     if not side_extract:
         return fragment
 
+    if category == "gripper" and side_extract.get("gripper_controller"):
+        fragment.pop(f"{side}_gripper_controller", None)
+        fragment["gripper_controller"] = copy.deepcopy(side_extract["gripper_controller"])
+        extra = side_extract.get("joint_state_extra_joints")
+        if extra:
+            fragment["joint_state_extra_joints"] = extra
+        return fragment
+
     controller_key = _controller_key_for_category(side, category)
     side_controller = side_extract.get(controller_key)
     fragment_controller = fragment.get(controller_key)
@@ -270,6 +278,97 @@ def _enrich_fragment_from_robot_type_config(
     return fragment
 
 
+def _has_per_side_eef_controllers(config: Dict[str, Any]) -> bool:
+    return any(
+        k.endswith("_gripper_controller") or k.endswith("_hand_controller")
+        for k in config
+    )
+
+
+def _has_dual_arm_joint_naming(config: Dict[str, Any]) -> bool:
+    """True when motion-controller joints name both left_ and right_ arm chains."""
+    left_count = 0
+    right_count = 0
+    for section in _MOTION_CONTROLLER_SECTIONS:
+        joints = (
+            config.get(section, {}).get("ros__parameters", {}).get("joints", []) or []
+        )
+        for joint in joints:
+            if not isinstance(joint, str):
+                continue
+            if joint.startswith("left_"):
+                left_count += 1
+            elif joint.startswith("right_"):
+                right_count += 1
+    return left_count > 0 and right_count > 0
+
+
+def _is_single_arm_robot_for_compose(
+    config: Optional[Dict[str, Any]],
+    robot_name: str = "",
+) -> bool:
+    """
+    Detect single-arm topology for EEF compose.
+
+    Dual-arm robots (left_/right_ joints or per-side controllers, or xacro with
+    left_type/right_type) keep the per-side gripper template ({side_}gripper_joint).
+    Single-arm robots map compose output onto gripper_controller / gripper_joint.
+    """
+    if not config:
+        return False
+    if _has_dual_arm_joint_naming(config):
+        return False
+    if _has_per_side_eef_controllers(config):
+        return False
+    if "gripper_controller" in config:
+        return True
+    if robot_name:
+        from .robot_utils import planning_xacro_supports_side_eef
+
+        if not planning_xacro_supports_side_eef(robot_name):
+            return True
+    return False
+
+
+def normalize_single_arm_compose(
+    base_config: Optional[Dict[str, Any]],
+    composed: Dict[str, Any],
+    robot_name: str = "",
+) -> Dict[str, Any]:
+    """Rewrite per-side gripper compose for single-arm robots."""
+    if not composed or not _is_single_arm_robot_for_compose(base_config, robot_name):
+        return composed
+
+    gripper_joint = (
+        (base_config or {})
+        .get("gripper_controller", {})
+        .get("ros__parameters", {})
+        .get("joint", "gripper_joint")
+    )
+
+    for key in ("left_gripper_controller", "right_gripper_controller"):
+        composed.pop(key, None)
+
+    cm = composed.get("controller_manager", {}).get("ros__parameters", {})
+    if isinstance(cm, dict):
+        for key in ("left_gripper_controller", "right_gripper_controller"):
+            cm.pop(key, None)
+
+    base_joints = _extract_base_joint_state_joints(base_config or {})
+    extra_joints = (
+        [gripper_joint]
+        if gripper_joint and gripper_joint not in base_joints
+        else []
+    )
+    composed["joint_state_broadcaster"] = {
+        "ros__parameters": {
+            "joints": base_joints + extra_joints,
+            "interfaces": ["position", "velocity", "effort"],
+        }
+    }
+    return composed
+
+
 def _extract_side_from_robot_yaml(config: Dict[str, Any], side: str, category: str) -> Dict[str, Any]:
     """Fallback: extract one side from a symmetric robot package type yaml."""
     fragment: Dict[str, Any] = {}
@@ -277,7 +376,21 @@ def _extract_side_from_robot_yaml(config: Dict[str, Any], side: str, category: s
         key = f"{side}_gripper_controller"
         if key in config:
             fragment[key] = copy.deepcopy(config[key])
-        fragment.setdefault("joint_state_extra_joints", [f"{side}_gripper_joint"])
+            joint = (
+                config[key].get("ros__parameters", {}).get("joint")
+                or f"{side}_gripper_joint"
+            )
+            fragment["joint_state_extra_joints"] = [joint]
+        elif side == "left" and "gripper_controller" in config:
+            joint = (
+                config["gripper_controller"]
+                .get("ros__parameters", {})
+                .get("joint", "gripper_joint")
+            )
+            fragment["gripper_controller"] = copy.deepcopy(config["gripper_controller"])
+            fragment["joint_state_extra_joints"] = [joint]
+        else:
+            fragment.setdefault("joint_state_extra_joints", [f"{side}_gripper_joint"])
     elif category == "hand":
         key = f"{side}_hand_controller"
         if key in config:
@@ -319,8 +432,15 @@ def compose_control_config(
     """Build merged control yaml dict from per-side EEF types."""
     composed: Dict[str, Any] = {}
     fragments: List[Dict[str, Any]] = []
+    single_arm = _is_single_arm_robot_for_compose(base_config, robot_name)
 
     for side, eef_type in (("left", left_type), ("right", right_type)):
+        if (
+            single_arm
+            and side == "right"
+            and left_type.strip() == right_type.strip()
+        ):
+            continue
         if not eef_type or eef_type == "none" or _is_passive_eef_type(eef_type):
             continue
         fragment = _side_fragment(eef_type, side)
@@ -362,7 +482,7 @@ def compose_control_config(
         }
         # Internal compose metadata; must not appear in ros2_control params file.
         composed.pop("joint_state_extra_joints", None)
-    return composed
+    return normalize_single_arm_compose(base_config, composed, robot_name)
 
 
 def is_compose_asymmetric(control_left: str, control_right: str) -> bool:

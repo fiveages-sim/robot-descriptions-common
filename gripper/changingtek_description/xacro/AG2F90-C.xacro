@@ -111,12 +111,7 @@
 			<parent link="${prefix}gripper_base"/>
 			<child link="${prefix}left_1_link"/>
 			<axis xyz="1 0 0"/>
-			<xacro:if value="${pad == 'soft'}">
-				<limit lower="0.105" upper="1" effort="50" velocity="${PI}"/>
-			</xacro:if>
-			<xacro:if value="${pad == 'default' or pad == 'none'}">
-				<limit lower="0" upper="1" effort="50" velocity="${PI}"/>
-			</xacro:if>
+			<limit lower="0" upper="1" effort="50" velocity="${PI}"/>
 		</joint>
 
 		<link name="${prefix}left_in_link">

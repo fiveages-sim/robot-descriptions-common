@@ -1,0 +1,558 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:macro name="TheoHandStd16A" params="name direction:=1 fixed_joints:=false">
+		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+		<link name="${prefix}hand_base"/>
+		<joint name="${prefix}hand_base_fixed" type="fixed">
+			<parent link="${prefix}hand_base"/>
+			<child link="${prefix}base_link"/>
+			<origin xyz="0 0 0" rpy="0 0 0"/>
+		</joint>
+		<link name="${prefix}base_link">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/base.glb"
+								scale="1 ${-direction} 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/base.glb"
+								scale="1 ${-direction} 1"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00381424636269485 0.00207802750628399 0.0762957680404765" rpy="0 0 0"/>
+				<mass value="0.57109497006203"/>
+				<inertia ixx="0.000373948529416664"
+								 ixy="-6.49325357222745E-06"
+								 ixz="-1.39657450668528E-05"
+								 iyy="0.000648700813496535"
+								 iyz="-4.7759577399386E-07"
+								 izz="0.000385655630526283"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}thumb_joint1" type="prismatic">
+			<parent link="${prefix}base_link"/>
+			<child link="${prefix}thumb_link1"/>
+			<origin xyz="0.0305 ${direction*0.0002} ${0.049825 + direction*0.001475}" rpy="-1.5708 0 -1.5708"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="-0.001" upper="0.04" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}thumb_link1">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00302015619783484 0.00158556016884966 0.00010450052403644" rpy="0 0 0"/>
+				<mass value="0.00536774508646078"/>
+				<inertia ixx="1.62182890325478E-07"
+								 ixy="-8.74697062106542E-09"
+								 ixz="6.3450403252608E-09"
+								 iyy="3.51961977611203E-07"
+								 iyz="2.27184934435767E-10"
+								 izz="2.32098965083443E-07"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}thumb_joint2" type="revolute">
+			<parent link="${prefix}thumb_link1"/>
+			<child link="${prefix}thumb_link2"/>
+			<origin xyz="0 0 0" rpy="1.5708 ${direction*1.5708} 0"/>
+			<axis xyz="0 0 ${direction}"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}thumb_link2">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link2.glb"
+								scale="${-direction} 1 1"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link2.glb"
+								scale="${-direction} 1 1"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="0.00803208062854856 0.000160364028669376 -0.000106935756475329" rpy="0 0 0"/>
+				<mass value="0.0623877025966598"/>
+				<inertia ixx="6.01468694889977E-06"
+								 ixy="9.74032222390571E-08"
+								 ixz="-5.74959997410582E-08"
+								 iyy="1.11886984388734E-05"
+								 iyz="-1.43216286755718E-08"
+								 izz="9.98772367674687E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}thumb_joint3" type="revolute">
+			<parent link="${prefix}thumb_link2"/>
+			<child link="${prefix}thumb_link3"/>
+			<origin xyz="${direction*-0.0305} 0 0.00995" rpy="${direction*1.5708} ${(direction+1)*-0.7854} 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}thumb_link3">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 ${(direction+1)*0.7854}"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link3.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 ${(direction+1)*0.7854}"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link3.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="0.0256802161872409 0.00960068824062393 1.30290134271738E-08" rpy="0 0 0"/>
+				<mass value="0.0542172777399717"/>
+				<inertia ixx="3.35658095569514E-06"
+								 ixy="3.9865408830679E-07"
+								 ixz="-2.09751849905288E-12"
+								 iyy="1.1108571433994E-05"
+								 iyz="-1.46874820679533E-12"
+								 izz="1.14836672893214E-05"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}thumb_joint4" type="revolute">
+			<parent link="${prefix}thumb_link3"/>
+			<child link="${prefix}thumb_link4"/>
+			<origin xyz="${(1-direction)*0.02755} ${(direction+1)*0.02755} 0" rpy="0 0 ${(1-direction)*-0.7854}"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="-0.610865" upper="1.48353" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}thumb_link4">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link4.glb"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link4.glb"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.012255014618924 0.0137954013291241 2.15840115913926E-07" rpy="0 0 0"/>
+				<mass value="0.0231445815777574"/>
+				<inertia ixx="1.76157653282557E-06"
+								 ixy="3.31394156517455E-07"
+								 ixz="1.452033998445E-11"
+								 iyy="1.27454947659054E-06"
+								 iyz="-1.61821595587799E-11"
+								 izz="1.83706787442561E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}index_joint1" type="revolute">
+			<parent link="${prefix}base_link"/>
+			<child link="${prefix}index_link1"/>
+			<origin xyz="${0.0306745 + direction*0.0001745} ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}index_link1">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266574 0.02323760004207 2.33146973810383E-07" rpy="0 0 0"/>
+				<mass value="0.0482246598938861"/>
+				<inertia ixx="8.42297253866219E-06"
+								 ixy="-4.02173983116629E-08"
+								 ixz="-5.73259855378485E-11"
+								 iyy="2.9120145482633E-06"
+								 iyz="-3.99174077199189E-12"
+								 izz="8.65506999823795E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}index_joint2" type="revolute">
+			<parent link="${prefix}index_link1"/>
+			<child link="${prefix}index_link2"/>
+			<origin xyz="0 0.04435 ${(direction+1)*-0.0001743}" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}index_link2">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266556 0.02323760004207 2.33146973845078E-07" rpy="0 0 0"/>
+				<mass value="0.048224659893886"/>
+				<inertia ixx="8.42297253866218E-06"
+								 ixy="-4.0217398311663E-08"
+								 ixz="-5.73259855364503E-11"
+								 iyy="2.9120145482633E-06"
+								 iyz="-3.99174077509707E-12"
+								 izz="8.65506999823794E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}index_joint3" type="revolute">
+			<parent link="${prefix}index_link2"/>
+			<child link="${prefix}index_link3"/>
+			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}index_link3">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.0122550144033681 0.0137954015029786 2.15837223926929E-07" rpy="0 0 0"/>
+				<mass value="0.0231445815514515"/>
+				<inertia ixx="1.76157653952119E-06"
+								 ixy="3.31394146961705E-07"
+								 ixz="1.45198856513485E-11"
+								 iyy="1.27454946496022E-06"
+								 iyz="-1.61813689572886E-11"
+								 izz="1.83706786985085E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}middle_joint1" type="revolute">
+			<parent link="${prefix}base_link"/>
+			<child link="${prefix}middle_link1"/>
+			<origin xyz="0.0075 ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}middle_link1">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266573 0.0232376000420838 2.33146966274744E-07" rpy="0 0 0"/>
+				<mass value="0.048224659893886"/>
+				<inertia ixx="8.42297253866217E-06"
+								 ixy="-4.02173983116644E-08"
+								 ixz="-5.73259855369851E-11"
+								 iyy="2.91201454826329E-06"
+								 iyz="-3.99174077168966E-12"
+								 izz="8.65506999823793E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}middle_joint2" type="revolute">
+			<parent link="${prefix}middle_link1"/>
+			<child link="${prefix}middle_link2"/>
+			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}middle_link2">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266555 0.0232376000420838 2.33146966281683E-07" rpy="0 0 0"/>
+				<mass value="0.048224659893886"/>
+				<inertia ixx="8.42297253866218E-06"
+								 ixy="-4.02173983116635E-08"
+								 ixz="-5.73259855364904E-11"
+								 iyy="2.9120145482633E-06"
+								 iyz="-3.99174078463574E-12"
+								 izz="8.65506999823794E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}middle_joint3" type="revolute">
+			<parent link="${prefix}middle_link2"/>
+			<child link="${prefix}middle_link3"/>
+			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}middle_link3">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.0122550144033675 0.0137954015029925 2.15837216439863E-07" rpy="0 0 0"/>
+				<mass value="0.0231445815514515"/>
+				<inertia ixx="1.7615765395212E-06"
+								 ixy="3.31394146961707E-07"
+								 ixz="1.45198856522057E-11"
+								 iyy="1.27454946496022E-06"
+								 iyz="-1.61813689626218E-11"
+								 izz="1.83706786985086E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}ring_joint1" type="revolute">
+			<parent link="${prefix}base_link"/>
+			<child link="${prefix}ring_link1"/>
+			<origin xyz="-0.0155 ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}ring_link1">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266571 0.02323760004207 2.33146973824261E-07" rpy="0 0 0"/>
+				<mass value="0.0482246598938861"/>
+				<inertia ixx="8.4229725386622E-06"
+								 ixy="-4.02173983116638E-08"
+								 ixz="-5.73259855365928E-11"
+								 iyy="2.91201454826331E-06"
+								 iyz="-3.99174078269442E-12"
+								 izz="8.65506999823796E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}ring_joint2" type="revolute">
+			<parent link="${prefix}ring_link1"/>
+			<child link="${prefix}ring_link2"/>
+			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}ring_link2">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266557 0.0232376000420699 2.33146973824261E-07" rpy="0 0 0"/>
+				<mass value="0.048224659893886"/>
+				<inertia ixx="8.42297253866217E-06"
+								 ixy="-4.02173983116655E-08"
+								 ixz="-5.73259855367879E-11"
+								 iyy="2.9120145482633E-06"
+								 iyz="-3.99174078348634E-12"
+								 izz="8.65506999823792E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}ring_joint3" type="revolute">
+			<parent link="${prefix}ring_link2"/>
+			<child link="${prefix}ring_link3"/>
+			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}ring_link3">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.0122550144033681 0.0137954015029787 2.15837223940807E-07" rpy="0 0 0"/>
+				<mass value="0.0231445815514515"/>
+				<inertia ixx="1.76157653952119E-06"
+								 ixy="3.3139414696171E-07"
+								 ixz="1.4519885651429E-11"
+								 iyy="1.27454946496023E-06"
+								 iyz="-1.61813689600419E-11"
+								 izz="1.83706786985085E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}pinky_joint1" type="revolute">
+			<parent link="${prefix}base_link"/>
+			<child link="${prefix}pinky_link1"/>
+			<origin xyz="-0.0385 ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}pinky_link1">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266574 0.0232376000420701 2.33146975822662E-07" rpy="0 0 0"/>
+				<mass value="0.048224659893886"/>
+				<inertia ixx="8.42297253866219E-06"
+								 ixy="-4.02173983116635E-08"
+								 ixz="-5.73259855362481E-11"
+								 iyy="2.9120145482633E-06"
+								 iyz="-3.99174077474342E-12"
+								 izz="8.65506999823794E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}pinky_joint2" type="revolute">
+			<parent link="${prefix}pinky_link1"/>
+			<child link="${prefix}pinky_link2"/>
+			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}pinky_link2">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
+								scale="1 1 ${-direction}"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.00968074774266558 0.02323760004207 2.33146973671605E-07" rpy="0 0 0"/>
+				<mass value="0.048224659893886"/>
+				<inertia ixx="8.42297253866217E-06"
+								 ixy="-4.02173983116655E-08"
+								 ixz="-5.73259855330874E-11"
+								 iyy="2.9120145482633E-06"
+								 iyz="-3.9917407593314E-12"
+								 izz="8.65506999823792E-06"/>
+			</inertial>
+		</link>
+		<joint name="${prefix}pinky_joint3" type="revolute">
+			<parent link="${prefix}pinky_link2"/>
+			<child link="${prefix}pinky_link3"/>
+			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
+			<axis xyz="0 0 -1"/>
+			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+		</joint>
+		<link name="${prefix}pinky_link3">
+			<visual>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</visual>
+			<collision>
+				<origin xyz="0 0 0" rpy="0 0 0"/>
+				<geometry>
+					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
+				</geometry>
+			</collision>
+			<inertial>
+				<origin xyz="-0.0122550144033678 0.0137954015029787 2.15837222095061E-07" rpy="0 0 0"/>
+				<mass value="0.0231445815514517"/>
+				<inertia ixx="1.76157653952121E-06"
+								 ixy="3.3139414696171E-07"
+								 ixz="1.45198856531469E-11"
+								 iyy="1.27454946496023E-06"
+								 iyz="-1.61813689575919E-11"
+								 izz="1.83706786985087E-06"/>
+			</inertial>
+		</link>
+	</xacro:macro>
+
+</robot>

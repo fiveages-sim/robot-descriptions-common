@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="Eincinx_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:arg name="type" default="epgi180"/>
+
+    <xacro:if value="${'$(arg type)' == 'epgi180'}">
+        <xacro:include filename="$(find eincinx_description)/xacro/EPGI180-v2.xacro"/>
+        <xacro:EPGI180-v2 name="" use_flange="true" pad="default"/>
+    </xacro:if>
+
+</robot>

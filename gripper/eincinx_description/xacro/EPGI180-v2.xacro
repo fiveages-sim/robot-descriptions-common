@@ -1,0 +1,246 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:arg name="collider" default="convex"/>
+    <xacro:property name="collider_type" value="$(arg collider)"/>
+
+    <xacro:macro name="EPGI180-v2" params="name use_flange:=false pad:=default kinematic_only:=false">
+        <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+        <xacro:property name="PI" value="3.1415926535897931"/>
+        <xacro:property name="mesh_dir" value="file://$(find eincinx_description)/meshes/EPGI180-v2"/>
+        <xacro:property name="tek_flange_mesh" value="file://$(find changingtek_description)/meshes/AG2F90-C/visual/flange.glb"/>
+
+        <xacro:if value="${use_flange}">
+            <link name="${prefix}flange">
+                <inertial>
+                    <origin xyz="-0.000388 0.002345 0.0"/>
+                    <mass value="0.114"/>
+                    <inertia
+                            ixx="0.000040105"
+                            ixy="0.000000214"
+                            ixz="0.0"
+                            iyy="0.000085776"
+                            iyz="0.0"
+                            izz="0.000054044"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="${tek_flange_mesh}"/>
+                    </geometry>
+                </visual>
+            </link>
+
+            <link name="${prefix}adapter_link">
+                <inertial>
+                    <origin xyz="-3.06392495420254E-05 -7.19441041312254E-05 0.012095095916815"/>
+                    <mass value="0.033007185439723"/>
+                    <inertia
+                            ixx="1.65729381413679E-05"
+                            ixy="-4.04737330879126E-08"
+                            ixz="-5.1484147359975E-09"
+                            iyy="1.60170208220743E-05"
+                            iyz="-1.20883987055112E-08"
+                            izz="3.04640042700499E-05"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="${mesh_dir}/adapter.glb"/>
+                    </geometry>
+                </visual>
+                <xacro:if value="${collider_type == 'convex'}">
+                    <collision>
+                        <geometry>
+                            <mesh filename="${mesh_dir}/adapter.glb"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
+            </link>
+
+            <joint name="${prefix}flange_joint" type="fixed">
+                <origin xyz="0 0 0.00562" rpy="0 0 ${PI/2}"/>
+                <parent link="${prefix}flange"/>
+                <child link="${prefix}adapter_link"/>
+            </joint>
+
+            <joint name="${prefix}adapter_joint" type="fixed">
+                <origin xyz="0 0 0.0185"/>
+                <parent link="${prefix}adapter_link"/>
+                <child link="${prefix}gripper_base"/>
+            </joint>
+        </xacro:if>
+
+        <link name="${prefix}gripper_base">
+            <inertial>
+                <origin xyz="2.2308832134483E-11 -5.33318335818098E-05 0.0547751931566487"/>
+                <mass value="0.292823860736144"/>
+                <inertia
+                        ixx="0.000132826520808554"
+                        ixy="-3.81968080455764E-13"
+                        ixz="-1.08147741400322E-13"
+                        iyy="8.79482634500027E-05"
+                        iyz="1.92741269017728E-08"
+                        izz="0.000135188308463178"/>
+            </inertial>
+            <visual>
+                <geometry>
+                    <mesh filename="${mesh_dir}/base.glb"/>
+                </geometry>
+            </visual>
+            <xacro:if value="${collider_type == 'convex'}">
+                <collision>
+                    <geometry>
+                        <mesh filename="${mesh_dir}/base.glb"/>
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </link>
+
+        <xacro:unless value="${kinematic_only}">
+            <link name="${prefix}left_finger">
+                <inertial>
+                    <origin xyz="-2.20939090696766E-11 4.19570940490832E-11 0.0158154551721991"/>
+                    <mass value="0.0116753029095831"/>
+                    <inertia
+                            ixx="1.68366887304402E-06"
+                            ixy="7.83864070511945E-17"
+                            ixz="2.3140281508866E-15"
+                            iyy="4.55956861943304E-06"
+                            iyz="-3.88796217498095E-15"
+                            izz="3.49281675555159E-06"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="${mesh_dir}/knuckle.glb"/>
+                    </geometry>
+                </visual>
+                <xacro:if value="${collider_type == 'convex'}">
+                    <collision>
+                        <geometry>
+                            <mesh filename="${mesh_dir}/knuckle.glb"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
+            </link>
+
+            <joint name="${prefix}gripper_joint" type="revolute">
+                <origin xyz="0 -0.0185 0.1005" />
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}left_finger"/>
+                <axis xyz="1 0 0"/>
+                <limit lower="0" upper="${PI/2}" effort="100" velocity="1"/>
+            </joint>
+
+            <joint name="${prefix}left_finger_pad_joint" type="fixed">
+                <origin xyz="0 0 0.029"/>
+                <parent link="${prefix}left_finger"/>
+                <child link="${prefix}left_finger_pad"/>
+            </joint>
+
+            <link name="${prefix}right_finger">
+                <inertial>
+                    <origin xyz="-2.2093905932959E-11 4.19570940490832E-11 0.0158154551721991"/>
+                    <mass value="0.0116753029095831"/>
+                    <inertia
+                            ixx="1.68366887304402E-06"
+                            ixy="7.83863103832967E-17"
+                            ixz="2.3140280983426E-15"
+                            iyy="4.55956861943304E-06"
+                            iyz="-3.8879620946311E-15"
+                            izz="3.49281675555159E-06"/>
+                </inertial>
+                <visual>
+                    <geometry>
+                        <mesh filename="${mesh_dir}/knuckle.glb"/>
+                    </geometry>
+                </visual>
+                <xacro:if value="${collider_type == 'convex'}">
+                    <collision>
+                        <geometry>
+                            <mesh filename="${mesh_dir}/knuckle.glb"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
+            </link>
+
+            <joint name="${prefix}right_finger_joint" type="revolute">
+                <origin xyz="0 0.0185 0.1005"/>
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}right_finger"/>
+                <axis xyz="1 0 0"/>
+                <limit lower="0" upper="${PI/2}" effort="100" velocity="1"/>
+                <mimic joint="${prefix}gripper_joint" multiplier="-1" offset="0"/>
+            </joint>
+
+            <joint name="${prefix}right_finger_pad_joint" type="fixed">
+                <origin xyz="0 0 0.029"/>
+                <parent link="${prefix}right_finger"/>
+                <child link="${prefix}right_finger_pad"/>
+            </joint>
+
+            <xacro:if value="${pad == 'default'}">
+                <link name="${prefix}left_finger_pad">
+                    <inertial>
+                        <origin xyz="-7.73389447822121E-07 -0.0104572469525444 0.0659362442332377"/>
+                        <mass value="0.208185101963742"/>
+                        <inertia
+                                ixx="0.00042336894179988"
+                                ixy="1.89842480749196E-09"
+                                ixz="1.00667828887384E-08"
+                                iyy="0.000500594180056902"
+                                iyz="-3.88200327260769E-05"
+                                izz="0.000122700103668918"/>
+                    </inertial>
+                    <visual>
+                        <geometry>
+                            <mesh filename="${mesh_dir}/pad1/left.glb"/>
+                        </geometry>
+                    </visual>
+                    <xacro:if value="${collider_type == 'convex'}">
+                        <collision>
+                            <geometry>
+                                <mesh filename="${mesh_dir}/pad1/left.glb"/>
+                            </geometry>
+                        </collision>
+                    </xacro:if>
+                </link>
+
+                <link name="${prefix}right_finger_pad">
+                    <inertial>
+                        <origin xyz="3.88003049802853E-08 0.00963536420181225 0.0536475037465884"/>
+                        <mass value="0.096563885663744"/>
+                        <inertia
+                                ixx="0.000214388098282989"
+                                ixy="-2.96049199403495E-11"
+                                ixz="-5.66496033955337E-11"
+                                iyy="0.000213628447766543"
+                                iyz="1.05281755101314E-05"
+                                izz="2.1797506691182E-05"/>
+                    </inertial>
+                    <visual>
+                        <geometry>
+                            <mesh filename="${mesh_dir}/pad1/right.glb"/>
+                        </geometry>
+                    </visual>
+                    <xacro:if value="${collider_type == 'convex'}">
+                        <collision>
+                            <geometry>
+                                <mesh filename="${mesh_dir}/pad1/right.glb"/>
+                            </geometry>
+                        </collision>
+                    </xacro:if>
+                </link>
+            </xacro:if>
+
+            <xacro:if value="${pad == 'none'}">
+                <link name="${prefix}left_finger_pad"/>
+                <link name="${prefix}right_finger_pad"/>
+            </xacro:if>
+        </xacro:unless>
+
+        <link name="${prefix}eef"/>
+        <joint name="${prefix}eef_joint" type="fixed">
+            <parent link="${prefix}gripper_base"/>
+            <child link="${prefix}eef"/>
+            <origin xyz="0 0 0.195" rpy="0 0 ${PI/2}"/>
+        </joint>
+    </xacro:macro>
+</robot>

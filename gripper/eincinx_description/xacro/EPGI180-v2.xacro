@@ -3,6 +3,26 @@
     <xacro:arg name="collider" default="convex"/>
     <xacro:property name="collider_type" value="$(arg collider)"/>
 
+    <!-- Simplified collision envelope (gripper_base +Z frame; for OCS2 / kinematic_only). -->
+    <xacro:macro name="EPGI180_simple_collision" params="pad">
+        <xacro:if value="${collider_type == 'simple'}">
+            <collision>
+                <origin xyz="0 0 0.055"/>
+                <geometry>
+                    <cylinder length="0.11" radius="0.032"/>
+                </geometry>
+            </collision>
+            <xacro:if value="${pad == 'default' or pad == 'none'}">
+                <collision>
+                    <origin xyz="0 0 0.17"/>
+                    <geometry>
+                        <cylinder length="0.07" radius="0.022"/>
+                    </geometry>
+                </collision>
+            </xacro:if>
+        </xacro:if>
+    </xacro:macro>
+
     <xacro:macro name="EPGI180-v2" params="name use_flange:=false pad:=default kinematic_only:=false">
         <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
         <xacro:property name="PI" value="3.1415926535897931"/>
@@ -27,6 +47,14 @@
                         <mesh filename="${tek_flange_mesh}"/>
                     </geometry>
                 </visual>
+                <xacro:if value="${collider_type == 'simple'}">
+                    <collision>
+                        <origin xyz="0 0 0.01"/>
+                        <geometry>
+                            <cylinder length="0.02" radius="0.04"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
             </link>
 
             <link name="${prefix}adapter_link">
@@ -50,6 +78,14 @@
                     <collision>
                         <geometry>
                             <mesh filename="${mesh_dir}/adapter.glb"/>
+                        </geometry>
+                    </collision>
+                </xacro:if>
+                <xacro:if value="${collider_type == 'simple'}">
+                    <collision>
+                        <origin xyz="0 0 0.006"/>
+                        <geometry>
+                            <cylinder length="0.012" radius="0.028"/>
                         </geometry>
                     </collision>
                 </xacro:if>
@@ -92,7 +128,17 @@
                     </geometry>
                 </collision>
             </xacro:if>
+            <xacro:EPGI180_simple_collision pad="${pad}"/>
         </link>
+
+        <xacro:if value="${kinematic_only}">
+            <link name="${prefix}eef"/>
+            <joint name="${prefix}eef_joint" type="fixed">
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}eef"/>
+                <origin xyz="0 0 0.195" rpy="0 0 ${-PI/2}"/>
+            </joint>
+        </xacro:if>
 
         <xacro:unless value="${kinematic_only}">
             <link name="${prefix}left_finger">
@@ -234,13 +280,13 @@
                 <link name="${prefix}left_finger_pad"/>
                 <link name="${prefix}right_finger_pad"/>
             </xacro:if>
-        </xacro:unless>
 
-        <link name="${prefix}eef"/>
-        <joint name="${prefix}eef_joint" type="fixed">
-            <parent link="${prefix}gripper_base"/>
-            <child link="${prefix}eef"/>
-            <origin xyz="0 0 0.195" rpy="0 0 ${PI/2}"/>
-        </joint>
+            <link name="${prefix}eef"/>
+            <joint name="${prefix}eef_joint" type="fixed">
+                <parent link="${prefix}gripper_base"/>
+                <child link="${prefix}eef"/>
+                <origin xyz="0 0 0.195" rpy="0 0 ${-PI/2}"/>
+            </joint>
+        </xacro:unless>
     </xacro:macro>
 </robot>

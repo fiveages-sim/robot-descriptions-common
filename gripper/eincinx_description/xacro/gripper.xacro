@@ -8,4 +8,9 @@
         <xacro:EPGI180-v2 name="" use_flange="true" pad="default"/>
     </xacro:if>
 
+    <xacro:if value="${'$(arg type)' == 'epgi180-bare'}">
+        <xacro:include filename="$(find eincinx_description)/xacro/EPGI180-v2.xacro"/>
+        <xacro:EPGI180-v2 name="" use_flange="false" pad="none"/>
+    </xacro:if>
+
 </robot>

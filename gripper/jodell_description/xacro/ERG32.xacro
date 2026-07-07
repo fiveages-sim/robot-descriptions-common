@@ -87,7 +87,7 @@
             <parent link="${prefix}gripper_base"/>
             <child link="${prefix}rotate_link"/>
             <axis xyz="0 0 1"/>
-            <limit lower="-3.15" upper="3.15" effort="100" velocity="1"/>
+            <limit lower="-${PI}" upper="${PI}" effort="100" velocity="1"/>
         </joint>
 
             <link name="${prefix}left_finger">

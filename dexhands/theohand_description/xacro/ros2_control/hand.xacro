@@ -4,12 +4,11 @@
     <xacro:arg name="type" default="std16a"/>
     <xacro:arg name="direction" default="1"/>
     <xacro:arg name="gazebo" default="false"/>
+    <xacro:arg name="ros2_control_hardware_type" default="real"/>
     <xacro:arg name="serial_port" default="/dev/ttyUSB0"/>
-    <xacro:arg name="slave_id" default="1"/>
+    <xacro:arg name="slave_id" default="auto"/>
     <xacro:arg name="baudrate" default="115200"/>
     <xacro:arg name="read_feedback" default="true"/>
-    <xacro:arg name="background_period_ms" default="200"/>
-    <xacro:arg name="feedback_quiet_after_write_ms" default="500"/>
 
     <link name="world"/>
 
@@ -20,6 +19,7 @@
     </joint>
 
     <xacro:include filename="$(find theohand_description)/xacro/hand.xacro"/>
+    <xacro:property name="theohand_slave_id" value="${2 if '$(arg slave_id)' == 'auto' and '$(arg direction)' != '-1' else 1 if '$(arg slave_id)' == 'auto' else '$(arg slave_id)'}"/>
 
     <ros2_control name="theohand_system" type="system">
         <hardware>
@@ -39,11 +39,9 @@
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
                 <plugin>modbus_ros2_control/TheoHandModbusHardware</plugin>
                 <param name="serial_port">$(arg serial_port)</param>
-                <param name="slave_id">$(arg slave_id)</param>
+                <param name="slave_id">${theohand_slave_id}</param>
                 <param name="baudrate">$(arg baudrate)</param>
                 <param name="read_feedback">$(arg read_feedback)</param>
-                <param name="background_period_ms">$(arg background_period_ms)</param>
-                <param name="feedback_quiet_after_write_ms">$(arg feedback_quiet_after_write_ms)</param>
             </xacro:if>
         </hardware>
 

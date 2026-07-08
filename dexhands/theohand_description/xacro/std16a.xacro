@@ -7,18 +7,18 @@
 		<joint name="${prefix}hand_base_fixed" type="fixed">
 			<parent link="${prefix}hand_base"/>
 			<child link="${prefix}base_link"/>
-			<origin xyz="0 0 0" rpy="0 0 0"/>
+			
 		</joint>
 		<link name="${prefix}base_link">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/base.glb"
 								scale="1 ${-direction} 1"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/base.glb"
 								scale="1 ${-direction} 1"/>
@@ -35,6 +35,12 @@
 								 izz="0.000385655630526283"/>
 			</inertial>
 		</link>
+		<link name="${prefix}eef"/>
+		<joint name="${prefix}eef_joint" type="fixed">
+			<parent link="${prefix}base_link"/>
+			<child link="${prefix}eef"/>
+			<origin xyz="0.03 0 0.1"/>
+		</joint>
 		<joint name="${prefix}thumb_joint1" type="prismatic">
 			<parent link="${prefix}base_link"/>
 			<child link="${prefix}thumb_link1"/>
@@ -44,14 +50,14 @@
 		</joint>
 		<link name="${prefix}thumb_link1">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link1.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link1.glb"
 								scale="1 1 ${-direction}"/>
@@ -77,14 +83,14 @@
 		</joint>
 		<link name="${prefix}thumb_link2">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link2.glb"
 								scale="${-direction} 1 1"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link2.glb"
 								scale="${-direction} 1 1"/>
@@ -143,13 +149,13 @@
 		</joint>
 		<link name="${prefix}thumb_link4">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link4.glb"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/thumb_link4.glb"/>
 				</geometry>
@@ -174,14 +180,14 @@
 		</joint>
 		<link name="${prefix}index_link1">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
@@ -207,14 +213,14 @@
 		</joint>
 		<link name="${prefix}index_link2">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
@@ -240,13 +246,13 @@
 		</joint>
 		<link name="${prefix}index_link3">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>
@@ -271,14 +277,14 @@
 		</joint>
 		<link name="${prefix}middle_link1">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
@@ -304,14 +310,14 @@
 		</joint>
 		<link name="${prefix}middle_link2">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
@@ -337,13 +343,13 @@
 		</joint>
 		<link name="${prefix}middle_link3">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>
@@ -368,14 +374,14 @@
 		</joint>
 		<link name="${prefix}ring_link1">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
@@ -401,14 +407,14 @@
 		</joint>
 		<link name="${prefix}ring_link2">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
@@ -434,13 +440,13 @@
 		</joint>
 		<link name="${prefix}ring_link3">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>
@@ -465,14 +471,14 @@
 		</joint>
 		<link name="${prefix}pinky_link1">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link1.glb"
 								scale="1 1 ${-direction}"/>
@@ -498,14 +504,14 @@
 		</joint>
 		<link name="${prefix}pinky_link2">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link2.glb"
 								scale="1 1 ${-direction}"/>
@@ -531,13 +537,13 @@
 		</joint>
 		<link name="${prefix}pinky_link3">
 			<visual>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>
 			</visual>
 			<collision>
-				<origin xyz="0 0 0" rpy="0 0 0"/>
+				
 				<geometry>
 					<mesh filename="file://$(find theohand_description)/meshes/std16a/index_link3.glb"/>
 				</geometry>

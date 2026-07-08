@@ -54,6 +54,11 @@ xhand1:
   template: config/ros2_control/templates/xhand1.side.yaml
   category: hand
 
+theohand_std16a:
+  package: theohand_description
+  template: config/ros2_control/templates/std16a.side.yaml
+  category: hand
+
 erg32:
   package: jodell_description
   template: config/ros2_control/templates/erg32.side.yaml

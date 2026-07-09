@@ -3,6 +3,7 @@
 
 	<xacro:macro name="TheoHandStd16A" params="name direction:=1 fixed_joints:=false">
 		<xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+		<xacro:property name="joint_type" value="${fixed_joints and 'fixed' or 'revolute'}"/>
 		<link name="${prefix}hand_base"/>
 		<joint name="${prefix}hand_base_fixed" type="fixed">
 			<parent link="${prefix}hand_base"/>
@@ -41,12 +42,14 @@
 			<child link="${prefix}eef"/>
 			<origin xyz="0.03 0 0.1"/>
 		</joint>
-		<joint name="${prefix}thumb_joint1" type="prismatic">
+		<joint name="${prefix}thumb_joint1" type="${fixed_joints and 'fixed' or 'prismatic'}">
 			<parent link="${prefix}base_link"/>
 			<child link="${prefix}thumb_link1"/>
 			<origin xyz="0.0305 ${direction*0.0002} ${0.049825 + direction*0.001475}" rpy="-1.5708 0 -1.5708"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="-0.001" upper="0.04" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="-0.001" upper="0.04" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}thumb_link1">
 			<visual>
@@ -74,12 +77,14 @@
 								 izz="2.32098965083443E-07"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}thumb_joint2" type="revolute">
+		<joint name="${prefix}thumb_joint2" type="${joint_type}">
 			<parent link="${prefix}thumb_link1"/>
 			<child link="${prefix}thumb_link2"/>
 			<origin xyz="0 0 0" rpy="1.5708 ${direction*1.5708} 0"/>
-			<axis xyz="0 0 ${direction}"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 ${direction}"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}thumb_link2">
 			<visual>
@@ -107,12 +112,14 @@
 								 izz="9.98772367674687E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}thumb_joint3" type="revolute">
+		<joint name="${prefix}thumb_joint3" type="${joint_type}">
 			<parent link="${prefix}thumb_link2"/>
 			<child link="${prefix}thumb_link3"/>
 			<origin xyz="${direction*-0.0305} 0 0.00995" rpy="${direction*1.5708} ${(direction+1)*-0.7854} 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}thumb_link3">
 			<visual>
@@ -140,12 +147,14 @@
 								 izz="1.14836672893214E-05"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}thumb_joint4" type="revolute">
+		<joint name="${prefix}thumb_joint4" type="${joint_type}">
 			<parent link="${prefix}thumb_link3"/>
 			<child link="${prefix}thumb_link4"/>
 			<origin xyz="${(1-direction)*0.02755} ${(direction+1)*0.02755} 0" rpy="0 0 ${(1-direction)*-0.7854}"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="-0.610865" upper="1.48353" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="-0.610865" upper="1.48353" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}thumb_link4">
 			<visual>
@@ -171,12 +180,14 @@
 								 izz="1.83706787442561E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}index_joint1" type="revolute">
+		<joint name="${prefix}index_joint1" type="${joint_type}">
 			<parent link="${prefix}base_link"/>
 			<child link="${prefix}index_link1"/>
 			<origin xyz="${0.0306745 + direction*0.0001745} ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}index_link1">
 			<visual>
@@ -204,12 +215,14 @@
 								 izz="8.65506999823795E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}index_joint2" type="revolute">
+		<joint name="${prefix}index_joint2" type="${joint_type}">
 			<parent link="${prefix}index_link1"/>
 			<child link="${prefix}index_link2"/>
 			<origin xyz="0 0.04435 ${(direction+1)*-0.0001743}" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}index_link2">
 			<visual>
@@ -237,12 +250,14 @@
 								 izz="8.65506999823794E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}index_joint3" type="revolute">
+		<joint name="${prefix}index_joint3" type="${joint_type}">
 			<parent link="${prefix}index_link2"/>
 			<child link="${prefix}index_link3"/>
 			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}index_link3">
 			<visual>
@@ -268,12 +283,14 @@
 								 izz="1.83706786985085E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}middle_joint1" type="revolute">
+		<joint name="${prefix}middle_joint1" type="${joint_type}">
 			<parent link="${prefix}base_link"/>
 			<child link="${prefix}middle_link1"/>
 			<origin xyz="0.0075 ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}middle_link1">
 			<visual>
@@ -301,12 +318,14 @@
 								 izz="8.65506999823793E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}middle_joint2" type="revolute">
+		<joint name="${prefix}middle_joint2" type="${joint_type}">
 			<parent link="${prefix}middle_link1"/>
 			<child link="${prefix}middle_link2"/>
 			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}middle_link2">
 			<visual>
@@ -334,12 +353,14 @@
 								 izz="8.65506999823794E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}middle_joint3" type="revolute">
+		<joint name="${prefix}middle_joint3" type="${joint_type}">
 			<parent link="${prefix}middle_link2"/>
 			<child link="${prefix}middle_link3"/>
 			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}middle_link3">
 			<visual>
@@ -365,12 +386,14 @@
 								 izz="1.83706786985086E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}ring_joint1" type="revolute">
+		<joint name="${prefix}ring_joint1" type="${joint_type}">
 			<parent link="${prefix}base_link"/>
 			<child link="${prefix}ring_link1"/>
 			<origin xyz="-0.0155 ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}ring_link1">
 			<visual>
@@ -398,12 +421,14 @@
 								 izz="8.65506999823796E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}ring_joint2" type="revolute">
+		<joint name="${prefix}ring_joint2" type="${joint_type}">
 			<parent link="${prefix}ring_link1"/>
 			<child link="${prefix}ring_link2"/>
 			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}ring_link2">
 			<visual>
@@ -431,12 +456,14 @@
 								 izz="8.65506999823792E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}ring_joint3" type="revolute">
+		<joint name="${prefix}ring_joint3" type="${joint_type}">
 			<parent link="${prefix}ring_link2"/>
 			<child link="${prefix}ring_link3"/>
 			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}ring_link3">
 			<visual>
@@ -462,12 +489,14 @@
 								 izz="1.83706786985085E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}pinky_joint1" type="revolute">
+		<joint name="${prefix}pinky_joint1" type="${joint_type}">
 			<parent link="${prefix}base_link"/>
 			<child link="${prefix}pinky_link1"/>
 			<origin xyz="-0.0385 ${direction*0.008} 0.12775" rpy="1.5708 0 ${direction*1.5708}"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}pinky_link1">
 			<visual>
@@ -495,12 +524,14 @@
 								 izz="8.65506999823794E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}pinky_joint2" type="revolute">
+		<joint name="${prefix}pinky_joint2" type="${joint_type}">
 			<parent link="${prefix}pinky_link1"/>
 			<child link="${prefix}pinky_link2"/>
 			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}pinky_link2">
 			<visual>
@@ -528,12 +559,14 @@
 								 izz="8.65506999823792E-06"/>
 			</inertial>
 		</link>
-		<joint name="${prefix}pinky_joint3" type="revolute">
+		<joint name="${prefix}pinky_joint3" type="${joint_type}">
 			<parent link="${prefix}pinky_link2"/>
 			<child link="${prefix}pinky_link3"/>
 			<origin xyz="0 0.04435 0" rpy="0 0 0"/>
-			<axis xyz="0 0 -1"/>
-			<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			<xacro:unless value="${fixed_joints}">
+				<axis xyz="0 0 -1"/>
+				<limit lower="0" upper="1.5708" effort="0" velocity="0"/>
+			</xacro:unless>
 		</joint>
 		<link name="${prefix}pinky_link3">
 			<visual>

@@ -52,6 +52,7 @@ CORE_LAUNCH_KEYS = frozenset({
     "enable_arms_target_manager",
     "ocs2_planning_param_file",
     "ros2_controllers_override",
+    "control_variant",
 })
 
 
@@ -313,16 +314,18 @@ def resolve_robot_variant(
     launch_configurations: Dict[str, str],
     profile: Optional[Dict[str, Any]] = None,
 ) -> str:
-    """Platform variant from launch ``variant`` or profile ``platform.variant``."""
-    variant = _strip_eef_key(_cli_launch_value(launch_configurations, "variant"))
-    if variant:
-        return variant
-    if profile:
-        xacro_section = profile.get("xacro") or {}
-        if isinstance(xacro_section, dict):
-            profile_variant = _strip_eef_key(str(xacro_section.get("variant", "") or ""))
-            if profile_variant:
-                return profile_variant
+    """ros2_control overlay key for ``config/ros2_control/<key>.yaml``.
+
+    Uses ``control_variant`` launch arg (or ``control_variant:=`` prefix form).
+    Intentionally separate from xacro ``variant`` (OEM visuals such as sinopec).
+    """
+    control_variant = _strip_eef_key(_cli_launch_value(launch_configurations, "control_variant"))
+    if control_variant:
+        return control_variant
+    prefixed = extract_prefixed_args(launch_configurations, CONTROL_PREFIX)
+    profile_variant = _strip_eef_key(prefixed.get("variant", ""))
+    if profile_variant:
+        return profile_variant
     return ""
 
 

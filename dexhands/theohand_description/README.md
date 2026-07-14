@@ -1,6 +1,6 @@
 # TheoHand DexHands Description
 
-This package contains the URDF and related files for the TheoHand (Wanna) STD16A dexterous hand.
+This package contains the URDF and related files for the TheoHand STD16A dexterous hand.
 
 ## 1. Build
 
@@ -82,7 +82,7 @@ ros2 launch basic_joint_controller hand.launch.py hand:=theohand type:=std16a ha
 - `hardware:=real` - Use real hardware (Modbus ROS2 Control)
 - `direction:=1` - Left hand URDF mirror - **default**
 - `direction:=-1` - Right hand URDF mirror
-- `hardware_serial_port:=/dev/ttyUSB0` - Serial port path (default: `/dev/ttyUSB0`)
-- `hardware_slave_id` - Modbus slave ID: left `2`, right `1`
+- `serial_port:=/dev/ttyUSB0` - Serial port path (default: `/dev/ttyUSB0`)
+- `slave_id` - Modbus slave ID: left `2`, right `1`
 
-**Note:** The `hardware_serial_port` parameter can be passed via launch argument. The default value is `/dev/ttyUSB0` as defined in the xacro file.
+**Note:** The `serial_port` parameter can be passed via launch argument. The default value is `/dev/ttyUSB0` as defined in the xacro file.

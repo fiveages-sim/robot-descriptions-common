@@ -38,7 +38,8 @@ Mainly located in `dexhands/` directory (Inspire RH56E2 is provided by `gripper/
 | [LinkerHand](dexhands/linkerhand_description) | O6<br>O7<br>L6<br>L10 | Yes     | <img src="dexhands/.images/linkerhand_o6.png" width="150"> <img src="dexhands/.images/linkerhand_o7.png" width="150"> <img src="dexhands/.images/linkerhand_l6.png" width="150"> <img src="dexhands/.images/linkerhand_l10.png" width="150"> |
 | [Inspire](gripper/inspire_description)        | RH56E2<br>RH56F2      | Yes     | <img src="dexhands/.images/inspire_rh56e2.png" width="150"> <img src="dexhands/.images/inspire_rh56f2.png" width="150">                                                                                                                 |
 | [OyMotion](dexhands/oymotion_description)     | RoHand Gen2           | Yes     | <img src="dexhands/.images/rohand_gen2.png" width="150">                                                                                                                                                                                |
-| [FreeDom](dexhands/oymotion_description)      | V1<br>V2              | Yes     | <img src="dexhands/.images/freedom_v1.png" width="150"> <img src="dexhands/.images/freedom_v2.png" width="150">                                                                                                                         |
+| [FreeDom](dexhands/freedom_description)       | V1<br>V2              | Yes     | <img src="dexhands/.images/freedom_v1.png" width="150"> <img src="dexhands/.images/freedom_v2.png" width="150">                                                                                                                         |
+| [TheoHand](dexhands/theohand_description)     | STD16A                | Yes     | <img src="dexhands/.images/theohand_std16a.png" width="100">                                                                                                                                                                            |
 
 Features:
 - Full kinematic chain definition
@@ -127,8 +128,11 @@ common/
 ├── sensor_models/          # Sensor URDF models
 ├── dexhands/              # Dexterous hand descriptions
 │   ├── brainco_description/
+│   ├── freedom_description/
 │   ├── linkerhand_description/
-│   └── oymotion_description/
+│   ├── oymotion_description/
+│   ├── theohand_description/
+│   └── xhand1_description/
 ├── gripper/               # Gripper descriptions
 │   ├── changingtek_description/
 │   ├── dh_description/

@@ -11,12 +11,12 @@
         <xacro:if value="${use_flange}">
             <link name="${prefix}flange">
                 <inertial>
-                    <origin xyz="0.00030588565014078 0.000267684650402999 0.0249110142039494"/>
+                    <origin xyz="0.000305885650140558 0.000267684650402999 0.0249110142039495"/>
                     <mass value="0.0783124950078741"/>
                     <inertia
                             ixx="3.80095585602508E-05"
-                            ixy="6.00445809055252E-07"
-                            ixz="-1.09237459753814E-07"
+                            ixy="6.00445809055253E-07"
+                            ixz="-1.09237459753816E-07"
                             iyy="3.86550347192898E-05"
                             iyz="3.03326465981076E-06"
                             izz="3.10143704881048E-05"/>
@@ -31,12 +31,12 @@
 
         <link name="${prefix}gripper_base">
             <inertial>
-                <origin xyz="-6.79937744019199E-05 -0.000417971745445479 0.0724339746992251"/>
+                <origin xyz="-6.79937744019199E-05 -0.000417971745445493 0.0724339746992251"/>
                 <mass value="2.95713354265901"/>
                 <inertia
                         ixx="0.00237780834085762"
-                        ixy="-4.7518094417296E-07"
-                        ixz="-1.51235271598301E-06"
+                        ixy="-4.75180944172918E-07"
+                        ixz="-1.51235271598304E-06"
                         iyy="0.00209518560281187"
                         iyz="-1.16361709203493E-05"
                         izz="0.00119380599175119"/>
@@ -56,7 +56,7 @@
 
         <xacro:if value="${use_flange}">
             <joint name="${prefix}flange_joint" type="fixed">
-                <origin xyz="0 -0.006 0.053"/>
+                <origin xyz="0 -0.00599999999973013 0.053"/>
                 <parent link="${prefix}flange"/>
                 <child link="${prefix}gripper_base"/>
             </joint>
@@ -65,14 +65,14 @@
         <xacro:unless value="${kinematic_only}">
         <link name="${prefix}rotate_link">
             <inertial>
-                <origin xyz="-5.45793963357966E-08 9.52420532440712E-08 0.00642398442547314"/>
-                <mass value="0.0865214362073667"/>
+                <origin xyz="-5.45793963357966E-08 9.5242053257949E-08 0.00642398442547314"/>
+                <mass value="0.0865214362073668"/>
                 <inertia
                         ixx="1.29040319713028E-05"
-                        ixy="9.11508400202279E-11"
-                        ixz="2.53870695351538E-11"
+                        ixy="9.11508400199314E-11"
+                        ixz="2.53870695351691E-11"
                         iyy="1.05861502315259E-05"
-                        iyz="-4.24144783650576E-11"
+                        iyz="-4.24144783650503E-11"
                         izz="2.00427995930922E-05"/>
             </inertial>
             <visual>
@@ -92,15 +92,15 @@
 
             <link name="${prefix}left_finger">
                 <inertial>
-                    <origin xyz="-0.000191887535054391 -0.00800000039588762 -0.00732142649430878"/>
+                    <origin xyz="-0.000191887535054391 -0.00800000039588765 -0.00732142649430878"/>
                     <mass value="0.013849228465198"/>
                     <inertia
-                            ixx="7.84774663244871E-07"
-                            ixy="6.27740377193109E-15"
-                            ixz="-3.69333899366185E-09"
+                            ixx="7.84774663244874E-07"
+                            ixy="6.27740533573221E-15"
+                            ixz="-3.69333899366173E-09"
                             iyy="2.31872411166103E-07"
-                            iyz="8.89076924788823E-15"
-                            izz="7.11052768500863E-07"/>
+                            iyz="8.89076767548429E-15"
+                            izz="7.11052768500866E-07"/>
                 </inertial>
                 <visual>
                     <geometry>
@@ -110,24 +110,24 @@
             </link>
 
             <joint name="${prefix}gripper_joint" type="prismatic">
-                <origin xyz="0.0085 0.0005 0.0158"/>
+                <origin xyz="0.0085 0.0165 0.0158"/>
                 <parent link="${prefix}rotate_link"/>
                 <child link="${prefix}left_finger"/>
-                <axis xyz="0 1 0"/>
+                <axis xyz="0 -1 0"/>
                 <limit lower="0" upper="0.016" effort="100" velocity="1"/>
             </joint>
 
             <link name="${prefix}left_finger_tip">
                 <inertial>
-                    <origin xyz="-0.00381736025167445 -0.000718025501927122 0.0107599451038872"/>
-                    <mass value="0.00653322289882064"/>
+                    <origin xyz="-0.00366026140688303 -0.000380549066654468 0.0104340223340119"/>
+                    <mass value="0.00681605794925689"/>
                     <inertia
-                            ixx="1.6344935379542E-06"
-                            ixy="1.0083490375626E-07"
-                            ixz="3.1197544998459E-07"
-                            iyy="1.49818307560065E-06"
-                            iyz="-3.41566652955023E-07"
-                            izz="5.46910812088451E-07"/>
+                            ixx="1.72468314029271E-06"
+                            ixy="-1.10858180698747E-07"
+                            ixz="3.20172966498611E-07"
+                            iyy="1.53421083218412E-06"
+                            iyz="3.78393338936125E-07"
+                            izz="6.13604828970641E-07"/>
                 </inertial>
                 <visual>
                     <geometry>
@@ -144,22 +144,22 @@
             </link>
 
             <joint name="${prefix}left_finger_tip_joint" type="fixed">
-                <origin xyz="0 0 0.006"/>
+                <origin xyz="0 -0.016 0.006"/>
                 <parent link="${prefix}left_finger"/>
                 <child link="${prefix}left_finger_tip"/>
             </joint>
 
             <link name="${prefix}right_finger">
                 <inertial>
-                    <origin xyz="0.000191887535054613 0.00800000039588765 -0.00732142649430878"/>
-                    <mass value="0.0138492284651979"/>
+                    <origin xyz="0.000191887535054391 0.00800000039588757 -0.00732142649430881"/>
+                    <mass value="0.013849228465198"/>
                     <inertia
-                            ixx="7.84774663244873E-07"
-                            ixy="6.27740234090728E-15"
-                            ixz="3.69333899366278E-09"
-                            iyy="2.318724111661E-07"
-                            iyz="-8.89076876343502E-15"
-                            izz="7.11052768500862E-07"/>
+                            ixx="7.84774663244874E-07"
+                            ixy="6.2774001949461E-15"
+                            ixz="3.69333899366155E-09"
+                            iyy="2.31872411166104E-07"
+                            iyz="-8.89076974114655E-15"
+                            izz="7.11052768500867E-07"/>
                 </inertial>
                 <visual>
                     <origin rpy="0 0 ${PI}"/>
@@ -170,25 +170,25 @@
             </link>
 
             <joint name="${prefix}right_finger_joint" type="prismatic">
-                <origin xyz="-0.0085 -0.0005 0.0158"/>
+                <origin xyz="-0.0085 -0.0165 0.0158"/>
                 <parent link="${prefix}rotate_link"/>
                 <child link="${prefix}right_finger"/>
-                <axis xyz="0 1 0"/>
+                <axis xyz="0 -1 0"/>
                 <limit lower="-0.016" upper="0" effort="100" velocity="1"/>
                 <mimic joint="${prefix}gripper_joint" multiplier="-1" offset="0"/>
             </joint>
 
             <link name="${prefix}right_finger_tip">
                 <inertial>
-                    <origin xyz="0.00381736025167467 0.000718025501927136 0.0107599451038881"/>
-                    <mass value="0.00653322289882101"/>
+                    <origin xyz="0.0036602614068828 0.000380549066654287 0.0104340223340114"/>
+                    <mass value="0.00681605794925683"/>
                     <inertia
-                            ixx="1.63449353795436E-06"
-                            ixy="1.00834903756266E-07"
-                            ixz="-3.11975449984595E-07"
-                            iyy="1.49818307560081E-06"
-                            iyz="3.41566652955047E-07"
-                            izz="5.46910812088468E-07"/>
+                            ixx="1.72468314029264E-06"
+                            ixy="-1.10858180698747E-07"
+                            ixz="-3.20172966498605E-07"
+                            iyy="1.53421083218406E-06"
+                            iyz="-3.7839333893611E-07"
+                            izz="6.13604828970645E-07"/>
                 </inertial>
                 <visual>
                     <origin rpy="0 0 ${PI}"/>
@@ -207,7 +207,7 @@
             </link>
 
             <joint name="${prefix}right_finger_tip_joint" type="fixed">
-                <origin xyz="0 0 0.00600000000000001"/>
+                <origin xyz="0 0.016 0.00600000000000001"/>
                 <parent link="${prefix}right_finger"/>
                 <child link="${prefix}right_finger_tip"/>
             </joint>

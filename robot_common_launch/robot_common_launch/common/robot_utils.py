@@ -588,12 +588,19 @@ planning_xacro_supports_side_eef = _planning_xacro_supports_side_eef
 
 
 def _resolve_planning_scope(planning_robot_name, launch_configurations, planning_scope=""):
+    """Resolve planning URDF scope from explicit args only.
+
+    Prefer the ``planning_scope`` parameter (from launch helpers) or the
+    ``planning_scope`` launch configuration. Robot names are not special-cased —
+    split/demo/full_body launches already pass ``arms`` or ``full``.
+    Unspecified scope defaults to ``full``.
+
+    ``planning_robot_name`` is kept for call-site compatibility only.
+    """
     configs = launch_configurations or {}
     scope = (planning_scope or configs.get("planning_scope", "")).strip().lower()
     if scope in (PLANNING_SCOPE_ARMS, PLANNING_SCOPE_FULL):
         return scope
-    if planning_robot_name == "m6_ccs":
-        return PLANNING_SCOPE_ARMS
     return PLANNING_SCOPE_FULL
 
 

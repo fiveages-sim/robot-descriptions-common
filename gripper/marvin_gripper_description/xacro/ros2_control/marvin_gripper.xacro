@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Marvin gripper (straight / 45°) ros2_control interfaces -->
+  <xacro:macro name="marvin_gripper_interfaces" params="name">
+    <xacro:arg name="gazebo" default="false"/>
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+
+    <joint name="${prefix}gripper_joint">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+      <state_interface name="effort"/>
+    </joint>
+
+    <xacro:if value="$(arg gazebo)">
+      <joint name="${prefix}right_finger_joint">
+        <state_interface name="position"/>
+        <state_interface name="velocity"/>
+        <state_interface name="effort"/>
+      </joint>
+    </xacro:if>
+  </xacro:macro>
+
+</robot>

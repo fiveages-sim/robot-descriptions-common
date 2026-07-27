@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="collider" default="convex"/>
+  <xacro:property name="collider_type" value="$(arg collider)"/>
+  <xacro:property name="PI" value="3.1415926535897931"/>
+
+  <!-- Marvin gripper straight flange + wrist camera.
+       Expects ${prefix}gripper_base to exist (connected via flange_joint). -->
+  <xacro:macro name="marvin_gripper_flange" params="name">
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+
+    <link name="${prefix}flange">
+      <inertial>
+        <origin xyz="0.005641 0.000142 0.0488811"/>
+        <mass value="0.4064271"/>
+        <inertia ixx="0.0004831" ixy="0.0000024" ixz="-0.0000721"
+                 iyy="0.0002976" iyz="-0.0000011" izz="0.0004721"/>
+      </inertial>
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find marvin_gripper_description)/meshes/flange_straight.glb"/>
+        </geometry>
+      </visual>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find marvin_gripper_description)/meshes/flange_straight.glb"/>
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:if value="${collider_type == 'simple'}">
+        <collision>
+          <origin xyz="0 0 0.02"/>
+          <geometry>
+            <cylinder length="0.04" radius="0.05"/>
+          </geometry>
+        </collision>
+      </xacro:if>
+    </link>
+
+    <joint name="${prefix}flange_joint" type="fixed">
+      <parent link="${prefix}flange"/>
+      <child link="${prefix}gripper_base"/>
+      <origin xyz="0 0 0.0184"/>
+    </joint>
+
+    <joint name="${prefix}camera_joint" type="fixed">
+      <parent link="${prefix}flange"/>
+      <child link="${prefix}camera"/>
+      <origin xyz="0.05855 0 0.05715" rpy="${-PI*12/180} 0 ${PI/2}"/>
+    </joint>
+
+    <link name="${prefix}camera">
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find sensor_models)/meshes/gsml_camera/Sensing-SHW5G.glb"/>
+        </geometry>
+      </visual>
+    </link>
+  </xacro:macro>
+</robot>

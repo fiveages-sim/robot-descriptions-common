@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<robot name="Marvin_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="type" default="marvin_gripper"/>
+
+  <xacro:if value="${'$(arg type)' == 'marvin_gripper'}">
+    <xacro:include filename="$(find marvin_gripper_description)/xacro/marvin_gripper.xacro"/>
+    <xacro:marvin_gripper name=""/>
+  </xacro:if>
+
+  <xacro:if value="${'$(arg type)' == 'marvin_gripper45'}">
+    <xacro:include filename="$(find marvin_gripper_description)/xacro/marvin_gripper45.xacro"/>
+    <xacro:marvin_gripper45 name=""/>
+  </xacro:if>
+
+</robot>

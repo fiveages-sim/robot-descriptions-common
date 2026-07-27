@@ -21,6 +21,7 @@ Located in `gripper/` directory:
 | [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">  <img src="gripper/.images/jodell_erg32.png" width="150"> |
 | [Hitbot](gripper/hitbot_description)           | Z-EFG-100            | Yes     | <img src="gripper/.images/hitbot_z_efg_100.png" width="150">                                                     |
 | [Eincinx](gripper/eincinx_description)         | EPGI180              | Yes     | <img src="gripper/.images/eincinx_epgi180.png" width="150">                                                      |
+| [Marvin](gripper/marvin_gripper_description)   | marvin_gripper<br>marvin_gripper45 | Yes     | <img src="gripper/.images/marvin_gripper.png" width="150"> <img src="gripper/.images/marvin_gripper_45.png" width="150"> |
 
 Each gripper package includes:
 - URDF/Xacro files for robot description
@@ -140,6 +141,7 @@ common/
 │   ├── jodell_description/
 │   ├── hitbot_description/
 │   ├── eincinx_description/
+│   ├── marvin_gripper_description/
 │   └── robotiq_description/
 └── robot_common_launch/   # Common launch files and utilities
     ├── config/           # Configuration files (RViz, Nav2, etc.)

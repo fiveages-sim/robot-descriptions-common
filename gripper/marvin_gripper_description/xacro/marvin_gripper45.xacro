@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="collider" default="convex"/>
+  <xacro:property name="collider_type" value="$(arg collider)"/>
+
+  <xacro:include filename="$(find marvin_gripper_description)/xacro/components/flange45.xacro"/>
+  <xacro:include filename="$(find marvin_gripper_description)/xacro/components/marvin_gripper.xacro"/>
+
+  <!-- Tianji Marvin gripper with 45-degree flange. -->
+  <xacro:macro name="marvin_gripper45" params="name kinematic_only:=false">
+    <xacro:marvin_gripper_flange45 name="${name}"/>
+    <xacro:marvin_gripper_component name="${name}" kinematic_only="${kinematic_only}"/>
+  </xacro:macro>
+</robot>

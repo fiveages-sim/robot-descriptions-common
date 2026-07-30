@@ -100,11 +100,6 @@ def create_platform_launch_arguments():
             description="Xacro chassis model key (robot-specific). Empty means no chassis parameter passed to xacro.",
         ),
         DeclareLaunchArgument(
-            "variant",
-            default_value="",
-            description="Unified robot variant (for example base_ar5_ccs, base_ar5_ccs_v2, or base_ar5_srs).",
-        ),
-        DeclareLaunchArgument(
             "chassis_joints_movable",
             default_value="",
             description="Xacro flag for movable chassis joints (true/false). Empty means no chassis_joints_movable parameter passed to xacro.",
@@ -354,12 +349,6 @@ def build_xacro_mappings(
         xacro_overrides.pop(key, None)
     mappings.update(xacro_overrides)
 
-    # Public platform launch args override profile defaults.
-    for key in _PLATFORM_XACRO_KEYS:
-        launch_value = _strip_eef_key(_cli_launch_value(launch_configurations, key))
-        if launch_value:
-            mappings[key] = launch_value
-
     if hardware in REAL_HARDWARE:
         profile_hardware = profile.get("hardware") or {}
         if isinstance(profile_hardware, dict):
@@ -458,11 +447,6 @@ def create_robot_profile_launch_arguments():
             "use_profile_eef",
             default_value="true",
             description="Apply defaults.end_effectors from robot_profile (false for quick_start templates)",
-        ),
-        DeclareLaunchArgument(
-            "variant",
-            default_value="",
-            description="Unified robot variant (for example base_ar5_ccs, base_ar5_ccs_v2, or base_ar5_srs).",
         ),
         *create_eef_side_launch_arguments(),
     ]

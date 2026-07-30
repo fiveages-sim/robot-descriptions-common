@@ -86,7 +86,7 @@ def extract_prefixed_args(
     return result
 
 
-_PLATFORM_XACRO_KEYS = ("chassis", "arm", "variant", "chassis_joints_movable")
+_PLATFORM_XACRO_KEYS = ("chassis", "variant", "chassis_joints_movable")
 
 
 def create_platform_launch_arguments():
@@ -100,9 +100,9 @@ def create_platform_launch_arguments():
             description="Xacro chassis model key (robot-specific). Empty means no chassis parameter passed to xacro.",
         ),
         DeclareLaunchArgument(
-            "arm",
+            "variant",
             default_value="",
-            description="Xacro arm model key (robot-specific). Empty means no arm parameter passed to xacro.",
+            description="Unified robot variant (for example base_ar5_ccs, base_ar5_ccs_v2, or base_ar5_srs).",
         ),
         DeclareLaunchArgument(
             "chassis_joints_movable",
@@ -117,7 +117,7 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     Normalize robot profile to {xacro, hardware, control} for launch code.
 
     New schema (recommended):
-      platform:  chassis / arm / variant / arm_ctrl_mode — always apply (incl. quick_start [模板])
+      platform: chassis / variant / arm_ctrl_mode — always apply (incl. quick_start [模板])
       defaults.end_effectors: loaded into profile["eef"]; applied only when use_profile_eef is true
       Launch merge order: CLI type/left_type/right_type → profile eef (if enabled) → bare arm
       control.patch: inline ros2_control overrides (deep-merged after compose)
@@ -460,9 +460,9 @@ def create_robot_profile_launch_arguments():
             description="Apply defaults.end_effectors from robot_profile (false for quick_start templates)",
         ),
         DeclareLaunchArgument(
-            "arm",
+            "variant",
             default_value="",
-            description="Arm model variant passed to xacro (for example ar5_ccs or ar5_ccs_v2).",
+            description="Unified robot variant (for example base_ar5_ccs, base_ar5_ccs_v2, or base_ar5_srs).",
         ),
         *create_eef_side_launch_arguments(),
     ]

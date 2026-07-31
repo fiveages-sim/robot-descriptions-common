@@ -112,7 +112,7 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     Normalize robot profile to {xacro, hardware, control} for launch code.
 
     New schema (recommended):
-      platform:  chassis / variant / arm_ctrl_mode — always apply (incl. quick_start [模板])
+      platform: chassis / variant / arm_ctrl_mode — always apply (incl. quick_start [模板])
       defaults.end_effectors: loaded into profile["eef"]; applied only when use_profile_eef is true
       Launch merge order: CLI type/left_type/right_type → profile eef (if enabled) → bare arm
       control.patch: inline ros2_control overrides (deep-merged after compose)

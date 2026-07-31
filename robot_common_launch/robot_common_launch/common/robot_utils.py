@@ -20,7 +20,7 @@ from .control_compose import (
     is_compose_asymmetric,
     resolve_compose_type_key,
 )
-from .launch_arg_utils import build_xacro_mappings, resolve_profile_path
+from .launch_arg_utils import build_xacro_mappings, load_robot_profile, resolve_profile_path
 
 # 全局缓存字典，避免重复读取配置文件
 _config_cache = {}
@@ -207,6 +207,22 @@ def _strip_eef_controllers_from_config(config):
                         cm_params.pop(cm_name, None)
 
 
+def _strip_ft_broadcasters_from_config(config, left_ft: str, right_ft: str):
+    """Drop FT broadcaster entries for sides without a configured sensor."""
+    if not isinstance(config, dict):
+        return
+
+    for side, ft_value in (("left", left_ft), ("right", right_ft)):
+        val = str(ft_value or "").strip().lower()
+        if val and val != "none":
+            continue
+        name = f"{side}_ft_broadcaster"
+        config.pop(name, None)
+        cm_params = config.get("controller_manager", {}).get("ros__parameters", {})
+        if isinstance(cm_params, dict):
+            cm_params.pop(name, None)
+
+
 def load_robot_config(
     robot_name,
     config_type="ros2_control",
@@ -222,6 +238,10 @@ def load_robot_config(
 
     Merge order: common.yaml + type yaml + variant yaml overlay + compose + control.patch
 
+    When robot profile (``robot_profile`` launch arg / ``ROBOT_PROFILE`` env) defines
+    ``hardware.left_ft`` / ``hardware.right_ft``, FT broadcaster sections for ``none``
+    sides are removed from the merged config.
+
     When yaml_only is True, skip symmetric registry/template compose fallback (used by
     control_compose enrichment to avoid recursion).
     """
@@ -233,9 +253,21 @@ def load_robot_config(
         hashlib.md5(json.dumps(patch, sort_keys=True).encode()).hexdigest() if patch else ""
     )
 
+    profile_for_ft = {}
+    if config_type == "ros2_control":
+        profile_path = resolve_profile_path({})
+        if profile_path:
+            profile_for_ft = load_robot_profile(profile_path)
+
+    ft_cache_tag = ""
+    if profile_for_ft:
+        hw = profile_for_ft.get("hardware")
+        if isinstance(hw, dict) and ("left_ft" in hw or "right_ft" in hw):
+            ft_cache_tag = f"_{hw.get('left_ft', 'none')}_{hw.get('right_ft', 'none')}"
+
     cache_key = (
         f"{robot_name}_{config_type}_{effective_type}_{left}_{right}"
-        f"_{variant_key}_{patch_stamp}"
+        f"_{variant_key}_{patch_stamp}{ft_cache_tag}"
     )
     if not yaml_only and cache_key in _config_cache:
         return _config_cache[cache_key]
@@ -336,10 +368,23 @@ def load_robot_config(
             config = _deep_merge_dicts(config, patch)
             print("[INFO] Merged control.patch from robot profile")
 
+        ft_filtered = False
+        if config_type == "ros2_control" and profile_for_ft:
+            hw = profile_for_ft.get("hardware")
+            if isinstance(hw, dict) and ("left_ft" in hw or "right_ft" in hw):
+                left_ft = str(hw.get("left_ft") or "none").strip() or "none"
+                right_ft = str(hw.get("right_ft") or "none").strip() or "none"
+                _strip_ft_broadcasters_from_config(config, left_ft, right_ft)
+                print(
+                    f"[INFO] FT broadcasters filtered by load_robot_config: "
+                    f"left_ft={left_ft!r}, right_ft={right_ft!r}"
+                )
+                ft_filtered = True
+
         meta = _build_robot_config_meta(
             compose_applied=compose_applied,
             type_yaml_found=type_yaml_found,
-            patch_applied=patch_applied,
+            patch_applied=patch_applied or ft_filtered,
             variant_overlay_applied=variant_overlay_applied,
             config=config,
             config_path=config_path or "",

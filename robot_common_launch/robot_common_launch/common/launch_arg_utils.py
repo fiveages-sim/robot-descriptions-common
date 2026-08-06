@@ -86,7 +86,15 @@ def extract_prefixed_args(
     return result
 
 
-_PLATFORM_XACRO_KEYS = ("chassis", "variant", "chassis_joints_movable")
+_PLATFORM_XACRO_KEYS = (
+    "chassis",
+    "variant",
+    "chassis_joints_movable",
+    "left_tcp_offset_xyz",
+    "left_tcp_offset_rpy",
+    "right_tcp_offset_xyz",
+    "right_tcp_offset_rpy",
+)
 
 
 def create_platform_launch_arguments():

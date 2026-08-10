@@ -350,7 +350,11 @@ def load_robot_profile(profile_path: str) -> Dict[str, Any]:
 
 
 def resolve_profile_path(launch_configurations: Dict[str, str]) -> str:
-    profile = launch_configurations.get("robot_profile", "").strip()
+    profile = str(launch_configurations.get("robot_profile", "") or "").strip()
+    if not profile:
+        profile = _cli_launch_value(launch_configurations or {}, "robot_profile")
+    if not profile:
+        profile = os.environ.get("ROBOT_PROFILE", "").strip()
     if profile and os.path.isfile(profile):
         return os.path.abspath(profile)
     return ""

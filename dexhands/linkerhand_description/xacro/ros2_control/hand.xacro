@@ -46,6 +46,18 @@
             </xacro:if>
 
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+                <xacro:if value="${'$(arg type)' == 'o6' or '$(arg type)' == 'l6'}">
+                    <plugin>can_ros2_control/O6CanHardware</plugin>
+                    <param name="can_interface">$(arg can_interface)</param>
+                    <xacro:if value="${'$(arg direction)' == '1'}">
+                        <param name="hand_side">left</param>
+                    </xacro:if>
+                    <xacro:unless value="${'$(arg direction)' == '1'}">
+                        <param name="hand_side">right</param>
+                    </xacro:unless>
+                    <param name="read_feedback">true</param>
+                    <param name="read_tactile">$(arg read_tactile)</param>
+                </xacro:if>
                 <xacro:if value="${'$(arg type)' == 'o7'}">
                     <plugin>can_ros2_control/O7CanHardware</plugin>
                     <param name="can_interface">$(arg can_interface)</param>

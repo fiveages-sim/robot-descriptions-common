@@ -1,15 +1,17 @@
 <?xml version="1.0"?>
 <package format="2">
-    <name>theohand_description</name>
+    <name>marvin_gripper_description</name>
     <version>0.0.0</version>
-    <description>URDF description package for TheoHand dexterous hands</description>
+    <description>Tianji Marvin gripper description package (straight and 45-degree flange variants)</description>
 
     <maintainer email="biao876990970@hotmail.com">Huang Zhenbiao</maintainer>
     <license>TODO</license>
 
     <exec_depend>robot_common_launch</exec_depend>
+    <exec_depend>sensor_models</exec_depend>
 
     <export>
         <build_type>ament_cmake</build_type>
     </export>
+
 </package>

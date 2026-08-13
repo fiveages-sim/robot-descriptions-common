@@ -22,7 +22,6 @@ from robot_common_launch.common.navigation_config_utils import (
 
 
 def generate_launch_description():
-    common_share = get_package_share_directory('robot_common_launch')
     default_params_yaml = default_nav2_params_yaml()
 
     default_map_folder = 'warehouse_with_forklifts'
@@ -67,9 +66,9 @@ def generate_launch_description():
 
     scan_topic = LaunchConfiguration('scan_topic', default='/scan')
     odom_topic = LaunchConfiguration('odom_topic', default='/odom')
-    base_frame = LaunchConfiguration('base_frame', default='base_footprint')
     publish_map_odom_tf = LaunchConfiguration('publish_map_odom_tf', default='false')
     publish_map_world_tf = LaunchConfiguration('publish_map_world_tf', default='true')
+    use_rviz = LaunchConfiguration('use_rviz', default='true')
 
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
     rviz_config_dir = os.path.join(
@@ -184,10 +183,6 @@ def generate_launch_description():
             default_value='/odom',
             description='Ground truth odometry topic from Isaac Sim'),
         DeclareLaunchArgument(
-            'base_frame',
-            default_value='base_footprint',
-            description='Robot base frame id'),
-        DeclareLaunchArgument(
             'publish_map_odom_tf',
             default_value='false',
             description='Optionally publish static map->odom TF'),
@@ -195,6 +190,10 @@ def generate_launch_description():
             'publish_map_world_tf',
             default_value='true',
             description='Optionally publish static map->world TF'),
+        DeclareLaunchArgument(
+            'use_rviz',
+            default_value='true',
+            description='Launch nav2_rviz2 (disable for headless / ros2-stack background)'),
 
         OpaqueFunction(function=resolve_isaac_gt_launch),
         map_to_odom_tf,
@@ -208,5 +207,6 @@ def generate_launch_description():
             executable='rviz2',
             name='nav2_rviz2',
             arguments=['-d', rviz_config_dir],
-            parameters=[{'use_sim_time': use_sim_time}]),
+            parameters=[{'use_sim_time': use_sim_time}],
+            condition=IfCondition(use_rviz)),
     ])

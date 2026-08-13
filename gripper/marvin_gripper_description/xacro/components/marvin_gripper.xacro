@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="collider" default="convex"/>
+  <xacro:property name="collider_type" value="$(arg collider)"/>
+  <xacro:property name="PI" value="3.1415926535897931"/>
+
+  <!-- Planning envelope in gripper_base frame (+Z toward fingers / eef at z=0.15).
+       Mesh AABB ~ X±0.04, Y±0.085, Z 0..0.06; ears stick out along ±Y beyond a slim cylinder. -->
+  <xacro:macro name="marvin_gripper_simple_collision">
+    <xacro:if value="${collider_type == 'simple'}">
+      <!-- body + open-finger stroke envelope -->
+      <collision>
+        <origin xyz="0 0 0.075"/>
+        <geometry>
+          <cylinder length="0.15" radius="0.05"/>
+        </geometry>
+      </collision>
+      <!-- lateral ears / side protrusions on gripper body -->
+      <collision>
+        <origin xyz="0 0 0.05"/>
+        <geometry>
+          <box size="0.085 0.175 0.04"/>
+        </geometry>
+      </collision>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- Marvin gripper core: gripper_base + fingers + eef -->
+  <xacro:macro name="marvin_gripper_component" params="name kinematic_only:=false">
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+    <xacro:property name="finger_joint_type" value="${'fixed' if str(kinematic_only).lower() == 'true' else 'prismatic'}"/>
+
+    <link name="${prefix}gripper_base">
+      <visual>
+        <geometry>
+          <mesh filename="file://$(find marvin_gripper_description)/meshes/gripper_base.glb"/>
+        </geometry>
+      </visual>
+      <xacro:if value="${collider_type == 'convex'}">
+        <collision>
+          <geometry>
+            <mesh filename="file://$(find marvin_gripper_description)/meshes/gripper_base.glb"/>
+          </geometry>
+        </collision>
+      </xacro:if>
+      <xacro:marvin_gripper_simple_collision/>
+    </link>
+
+    <!-- Planning (kinematic_only): omit finger DOF links; envelope already on gripper_base. -->
+    <xacro:unless value="${str(kinematic_only).lower() == 'true'}">
+      <link name="${prefix}left_finger">
+        <inertial>
+          <origin xyz="0 -0.0028108 0.0127051"/>
+          <mass value="0.031395"/>
+          <inertia ixx="0.0000116" ixy="-0.0000013" ixz="0"
+                   iyy="0.0000048" iyz="0" izz="0.0000102"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="file://$(find marvin_gripper_description)/meshes/finger.glb"/>
+          </geometry>
+        </visual>
+        <xacro:if value="${collider_type == 'convex'}">
+          <collision>
+            <geometry>
+              <mesh filename="file://$(find marvin_gripper_description)/meshes/finger.glb"/>
+            </geometry>
+          </collision>
+        </xacro:if>
+        <xacro:if value="${collider_type == 'simple'}">
+          <collision>
+            <origin xyz="0 0 0.03"/>
+            <geometry>
+              <box size="0.02 0.025 0.08"/>
+            </geometry>
+          </collision>
+        </xacro:if>
+      </link>
+
+      <joint name="${prefix}gripper_joint" type="${finger_joint_type}">
+        <parent link="${prefix}gripper_base"/>
+        <child link="${prefix}left_finger"/>
+        <origin xyz="0 -0.018345 0.0595" rpy="0 0 ${PI}"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="0.05" effort="30" velocity="0.1"/>
+      </joint>
+
+      <link name="${prefix}right_finger">
+        <inertial>
+          <origin xyz="0 -0.0028108 0.0127051"/>
+          <mass value="0.031395"/>
+          <inertia ixx="0.0000116" ixy="-0.0000013" ixz="0"
+                   iyy="0.0000048" iyz="0" izz="0.0000102"/>
+        </inertial>
+        <visual>
+          <geometry>
+            <mesh filename="file://$(find marvin_gripper_description)/meshes/finger.glb"/>
+          </geometry>
+        </visual>
+        <xacro:if value="${collider_type == 'convex'}">
+          <collision>
+            <geometry>
+              <mesh filename="file://$(find marvin_gripper_description)/meshes/finger.glb"/>
+            </geometry>
+          </collision>
+        </xacro:if>
+        <xacro:if value="${collider_type == 'simple'}">
+          <collision>
+            <origin xyz="0 0 0.03"/>
+            <geometry>
+              <box size="0.02 0.025 0.08"/>
+            </geometry>
+          </collision>
+        </xacro:if>
+      </link>
+
+      <joint name="${prefix}right_finger_joint" type="${finger_joint_type}">
+        <parent link="${prefix}gripper_base"/>
+        <child link="${prefix}right_finger"/>
+        <origin xyz="0 0.018345 0.0595"/>
+        <axis xyz="0 1 0"/>
+        <limit lower="0" upper="0.05" effort="30" velocity="0.1"/>
+        <mimic joint="${prefix}gripper_joint" multiplier="1" offset="0"/>
+      </joint>
+    </xacro:unless>
+
+    <link name="${prefix}eef"/>
+    <joint name="${prefix}eef_joint" type="fixed">
+      <parent link="${prefix}gripper_base"/>
+      <child link="${prefix}eef"/>
+      <origin xyz="0 0 0.15"/>
+    </joint>
+  </xacro:macro>
+</robot>

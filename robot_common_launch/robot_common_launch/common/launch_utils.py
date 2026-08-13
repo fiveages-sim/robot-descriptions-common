@@ -186,7 +186,11 @@ def create_common_launch_arguments():
     Returns:
         list: DeclareLaunchArgument 对象列表
     """
-    from .launch_arg_utils import create_eef_side_launch_arguments
+    from .launch_arg_utils import (
+        create_eef_side_launch_arguments,
+        create_ft_launch_arguments,
+        create_tcp_offset_launch_arguments,
+    )
 
     return [
         DeclareLaunchArgument(
@@ -195,6 +199,8 @@ def create_common_launch_arguments():
             description='Type parameter for xacro (empty means no type parameter passed to xacro)'
         ),
         *create_eef_side_launch_arguments(),
+        *create_ft_launch_arguments(),
+        *create_tcp_offset_launch_arguments(),
         DeclareLaunchArgument(
             'collider',
             default_value='',
@@ -224,7 +230,10 @@ def build_visualization_xacro_mappings(robot_name: str, launch_configurations: d
     from .launch_arg_utils import (
         XACRO_PREFIX,
         _PLATFORM_XACRO_KEYS,
+        _TCP_OFFSET_XACRO_KEYS,
+        _apply_ft_and_tcp_to_mappings,
         _cli_launch_value,
+        _mapping_value_ok,
         extract_prefixed_args,
         load_robot_profile,
         resolve_profile_path,
@@ -244,7 +253,7 @@ def build_visualization_xacro_mappings(robot_name: str, launch_configurations: d
     mappings: dict = {}
     for key in _PLATFORM_XACRO_KEYS:
         value = profile_xacro.get(key)
-        if value is not None and str(value).strip():
+        if _mapping_value_ok(value):
             mappings[key] = str(value).strip()
 
     for key in ("collider", "direction", "skin", *_PLATFORM_XACRO_KEYS):
@@ -253,33 +262,14 @@ def build_visualization_xacro_mappings(robot_name: str, launch_configurations: d
             mappings[key] = str(value).strip()
 
     xacro_overrides = extract_prefixed_args(launch_configurations, XACRO_PREFIX)
-    for key in ("type", "left_type", "right_type"):
+    for key in ("type", "left_type", "right_type", "left_ft", "right_ft", *_TCP_OFFSET_XACRO_KEYS):
         xacro_overrides.pop(key, None)
     mappings.update(xacro_overrides)
 
+    _apply_ft_and_tcp_to_mappings(mappings, launch_configurations, profile)
+
     launch_type = _cli_launch_value(launch_configurations, "type")
     side_left, side_right = resolve_side_eef_types(launch_configurations, profile)
-    if launch_type:
-        mappings["type"] = launch_type
-    if side_left:
-        mappings["left_type"] = side_left
-    if side_right:
-        mappings["right_type"] = side_right
-    return mappings
-
-
-def build_visualization_xacro_mappings(robot_name: str, launch_configurations: dict) -> dict:
-    """Xacro mappings for RViz-only launches (no ros2_control / robot_profile)."""
-    from .launch_arg_utils import _cli_launch_value, resolve_side_eef_types
-
-    mappings = {}
-    for key in ("collider", "direction"):
-        value = launch_configurations.get(key, "")
-        if value and str(value).strip():
-            mappings[key] = str(value).strip()
-
-    launch_type = _cli_launch_value(launch_configurations, "type")
-    side_left, side_right = resolve_side_eef_types(launch_configurations, None)
     if launch_type:
         mappings["type"] = launch_type
     if side_left:
@@ -356,7 +346,7 @@ def create_visualization_launch_description(
         DeclareLaunchArgument(
             "robot_profile",
             default_value="",
-            description="Path to robot.local.yaml (platform variant/chassis for visualization)",
+            description="Path to robot.local.yaml (platform / defaults.ft / defaults.tcp_offset for visualization)",
         ),
         DeclareLaunchArgument(
             "use_profile_eef",
@@ -409,5 +399,4 @@ def create_launch_mode_arguments():
             description="Launch mode: 'full' (rviz + control, default), 'control_only' (no rviz), or 'rviz_only' (only rviz for remote visualization)"
         ),
     ]
-
 

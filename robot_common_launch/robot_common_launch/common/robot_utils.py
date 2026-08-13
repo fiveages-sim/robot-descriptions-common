@@ -654,6 +654,9 @@ def _planning_xacro_mappings(
 
     if planning_scope == PLANNING_SCOPE_ARMS:
         mappings.pop("chassis", None)
+        # Same-package dual-arm tree rooted at arm_base (arx_lift split, cobot_magic_v1 demo).
+        # Do not override an explicit topology from launch / profile.
+        mappings.setdefault("topology", "dual")
         if _planning_xacro_supports_side_eef(planning_robot_name):
             left_type = mappings.get("left_type", "").strip()
             right_type = mappings.get("right_type", "").strip()
@@ -691,8 +694,8 @@ def build_planning_urdf_launch_params(
     Generate planning URDF from xacro/robot.xacro and return controller params.
 
     planning_scope:
-      - arms  : split-body OCS2 — dual arms from arm_base (m6_ccs xacro)
-      - full  : full-body WBC — whole robot (e.g. fiveages_w2 xacro)
+      - arms  : split-body OCS2 — dual-arm tree (injects topology:=dual; root arm_base)
+      - full  : full-body WBC — whole robot (e.g. fiveages_w2 / cobot_magic_v1 xacro)
 
     Returns dict with planning_urdf_variant / planning_urdf_path, or empty dict
     when xacro planning URDF cannot be generated.

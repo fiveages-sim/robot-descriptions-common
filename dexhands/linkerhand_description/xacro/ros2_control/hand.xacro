@@ -46,9 +46,23 @@
             </xacro:if>
 
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
-                <xacro:if value="${'$(arg type)' == 'o6' or '$(arg type)' == 'l6'}">
+                <xacro:if value="${'$(arg type)' == 'o6'}">
                     <plugin>can_ros2_control/O6CanHardware</plugin>
                     <param name="can_interface">$(arg can_interface)</param>
+                    <param name="hand_type">linkerhand_$(arg type)</param>
+                    <xacro:if value="${'$(arg direction)' == '1'}">
+                        <param name="hand_side">left</param>
+                    </xacro:if>
+                    <xacro:unless value="${'$(arg direction)' == '1'}">
+                        <param name="hand_side">right</param>
+                    </xacro:unless>
+                    <param name="read_feedback">true</param>
+                    <param name="read_tactile">$(arg read_tactile)</param>
+                </xacro:if>
+                <xacro:if value="${'$(arg type)' == 'l6'}">
+                    <plugin>can_ros2_control/L6CanHardware</plugin>
+                    <param name="can_interface">$(arg can_interface)</param>
+                    <param name="hand_type">linkerhand_l6</param>
                     <xacro:if value="${'$(arg direction)' == '1'}">
                         <param name="hand_side">left</param>
                     </xacro:if>
@@ -69,10 +83,6 @@
                     </xacro:unless>
                     <param name="read_feedback">true</param>
                     <param name="read_tactile">$(arg read_tactile)</param>
-                    <param name="configure_motion_limits">true</param>
-                    <param name="max_velocity_raw">255</param>
-                    <param name="max_acceleration_raw">254</param>
-                    <param name="velocity_filter_alpha">0.25</param>
                 </xacro:if>
             </xacro:if>
         </hardware>

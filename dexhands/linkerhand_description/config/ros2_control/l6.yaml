@@ -1,7 +1,7 @@
 # This config file is used by ros2_control
 controller_manager:
   ros__parameters:
-    update_rate: 100  # Hz
+    update_rate: 50  # Hz
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -25,7 +25,7 @@ joint_state_broadcaster:
 
 hand_joint_controller:
   ros__parameters:
-    update_rate: 100  # Hz
+    update_rate: 50  # Hz
     movej_interpolation_type: "None"
     home_interpolation_type: "None"
     # 7个主控关节
@@ -50,4 +50,3 @@ hand_joint_controller:
     home_duration: 0.2
     movej_duration: 0.2
     hold_position_threshold: 0.1
-

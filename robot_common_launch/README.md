@@ -79,6 +79,56 @@ control:
 
 选用虚拟 tip 时，还需在 `control.patch`（或控制器参数）中设置 `left_ee_frame` / `right_ee_frame`（例如 `left_tcp_offset`）。
 
+## ros2_control 配置合并（`load_robot_config`）
+
+控制器参数由 [`robot_utils.load_robot_config`](robot_common_launch/common/robot_utils.py) 组装，OCS2 / `controller_manager` launch 都会走这里。
+
+### 合并顺序
+
+```text
+common.yaml
+  → <type>.yaml / ros2_controllers.yaml
+  → {variant}.yaml          # opt-in：config/ros2_control/<variant>.yaml
+  → {hardware}.yaml         # opt-in：config/ros2_control/<hardware>.yaml（如 isaac.yaml）
+  → EEF compose（如有）
+  → control.patch（profile）
+```
+
+- **variant** 来自 launch `variant:=` 或 profile `platform.variant`
+- **hardware** 来自 launch `hardware:=`（如 `mock_components` / `gz` / `isaac` / `real`）
+- 对应 YAML **仅当文件存在时**才深合并；没有文件则为空操作（不影响未声明 overlay 的机器人）
+- 后写入覆盖先写入的同名键（list / 标量整段替换；dict 递归 merge）
+- 任一 overlay / compose / patch 生效时会写出临时 merged YAML 供 `ros2_control_node` 使用
+
+与上文 profile 段里的 `hardware:`（真机串口、`arm_ctrl_mode` 等 → xacro）**不是同一层**：后者只在 `hardware:=real` / `real_usb` 时注入 xacro；此处 `{hardware}.yaml` 改的是 **控制器 claim / 参数**。
+
+### `{hardware}.yaml` 典型用途（Isaac）
+
+部分机器人在 Isaac 中不宜 claim velocity/effort（TopicBasedSystem 对 MIX 支持差）。可在该机器人包放置：
+
+```text
+<robot>_description/config/ros2_control/isaac.yaml
+```
+
+在 `hardware:=isaac` 时自动合并，例如把 `command_interfaces` / `state_interfaces` 收成仅 `position`。  
+**URDF 导出的 IF 须与 claim 一致**（由该机器人自己的 `xacro/ros2_control/*.xacro` 按 `ros2_control_hardware_type` 分支处理）。
+
+| 目标 | 做法 |
+|------|------|
+| Isaac 用 position-only | 提供 `isaac.yaml` 改 claim + xacro 在 isaac 下只导出 position（例：`arx_lift2s`） |
+| Isaac 仍用 MIX / 原配置 | **不要**放会覆盖 IF 的 `isaac.yaml`；URDF 继续导出完整 IF |
+| 其它硬件特化 | 同理可放 `gz.yaml` / `real.yaml` 等，文件名 = launch `hardware` 值 |
+
+Variant 与 hardware 可同时生效（先 variant，后 hardware）；hardware 侧通常只改接口能力，不替代机型变体字段。
+
+示例（Lift2S）：
+
+```bash
+ros2 launch ocs2_arm_controller full_body.launch.py \
+  robot:=arx_lift2s hardware:=isaac
+# → 合并 arx_lift2s_description/config/ros2_control/isaac.yaml
+```
+
 ## Launch 一等参数
 
 由 `create_common_launch_arguments` / `create_robot_profile_launch_arguments` 等声明（具体 launch 可只挂子集）。
@@ -92,7 +142,8 @@ control:
 | `ft` / `left_ft` / `right_ft` | 力传感器（覆盖 profile `defaults.ft`） |
 | `tcp_offset_xyz` / `tcp_offset_rpy` | 对称 TCP 偏移 |
 | `left_tcp_offset_*` / `right_tcp_offset_*` | 分侧 TCP 偏移 |
-| `chassis` / `variant` / `chassis_joints_movable` | 平台 xacro（人形 / 移动基座） |
+| `chassis` / `variant` / `chassis_joints_movable` | 平台 xacro；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
+| `hardware` | 仿真/真机插件（→ xacro `ros2_control_hardware_type`）；并可触发 `{hardware}.yaml` overlay |
 | `collider` / `skin` / `direction` | 常用模型 xacro |
 
 ### 前缀逃逸口
@@ -146,4 +197,5 @@ source install/setup.bash
 
 - [`robot_common_launch/common/launch_arg_utils.py`](robot_common_launch/common/launch_arg_utils.py) — profile、CLI、mappings
 - [`robot_common_launch/common/launch_utils.py`](robot_common_launch/common/launch_utils.py) — 可视化 mappings / 通用 DeclareLaunchArgument
-- [`robot_common_launch/common/robot_utils.py`](robot_common_launch/common/robot_utils.py) — ros2_control / planning URDF 生成
+- [`robot_common_launch/common/robot_utils.py`](robot_common_launch/common/robot_utils.py) — `load_robot_config`（含 variant / hardware overlay）、planning URDF
+- [`robot_common_launch/common/controller_manager_setup.py`](robot_common_launch/common/controller_manager_setup.py) — 向 `load_robot_config` 传入 `hardware`

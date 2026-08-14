@@ -254,6 +254,7 @@ def create_controller_manager_nodes(
                     needs_merged_file=True,
                     merged_yaml_path=override,
                     base_config_path=meta.base_config_path,
+                    hardware_overlay_applied=meta.hardware_overlay_applied,
                 )
         elif preloaded_config is not None:
             ros2_controllers_path = meta.base_config_path or meta.merged_yaml_path or None
@@ -266,6 +267,7 @@ def create_controller_manager_nodes(
                 control_right=control_right,
                 control_patch=control_patch,
                 robot_variant=robot_variant,
+                hardware=hardware,
             )
 
         node_parameters = _build_ros2_control_node_parameters(

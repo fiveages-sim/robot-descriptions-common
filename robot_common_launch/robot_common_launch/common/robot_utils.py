@@ -40,6 +40,7 @@ class RobotConfigMeta:
     needs_merged_file: bool
     merged_yaml_path: str
     base_config_path: str = ""
+    hardware_overlay_applied: bool = False
 
 
 EMPTY_ROBOT_CONFIG_META = RobotConfigMeta(
@@ -50,6 +51,7 @@ EMPTY_ROBOT_CONFIG_META = RobotConfigMeta(
     needs_merged_file=False,
     merged_yaml_path="",
     base_config_path="",
+    hardware_overlay_applied=False,
 )
 
 
@@ -59,13 +61,19 @@ def _build_robot_config_meta(
     type_yaml_found: bool,
     patch_applied: bool,
     variant_overlay_applied: bool,
+    hardware_overlay_applied: bool,
     config: dict,
     config_path: str,
     yaml_only: bool,
 ) -> RobotConfigMeta:
     if yaml_only:
         return EMPTY_ROBOT_CONFIG_META
-    needs_merged = compose_applied or patch_applied or variant_overlay_applied
+    needs_merged = (
+        compose_applied
+        or patch_applied
+        or variant_overlay_applied
+        or hardware_overlay_applied
+    )
     merged_path = ""
     if needs_merged and config:
         merged_path = write_temp_ros2_control_yaml(config, quiet=True)
@@ -77,6 +85,7 @@ def _build_robot_config_meta(
         needs_merged_file=needs_merged,
         merged_yaml_path=merged_path,
         base_config_path=config_path or "",
+        hardware_overlay_applied=hardware_overlay_applied,
     )
 
 
@@ -215,12 +224,14 @@ def load_robot_config(
     control_right="",
     control_patch=None,
     robot_variant="",
+    hardware="",
     yaml_only=False,
 ):
     """
     Load ros2_control config with optional per-side compose and profile patch merge.
 
-    Merge order: common.yaml + type yaml + variant yaml overlay + compose + control.patch
+    Merge order: common.yaml + type yaml + variant yaml + hardware yaml
+    + compose + control.patch
 
     When yaml_only is True, skip symmetric registry/template compose fallback (used by
     control_compose enrichment to avoid recursion).
@@ -229,13 +240,14 @@ def load_robot_config(
     asymmetric = is_compose_asymmetric(left, right)
     patch = control_patch if isinstance(control_patch, dict) else {}
     variant_key = str(robot_variant or "").strip()
+    hardware_key = str(hardware or "").strip()
     patch_stamp = (
         hashlib.md5(json.dumps(patch, sort_keys=True).encode()).hexdigest() if patch else ""
     )
 
     cache_key = (
         f"{robot_name}_{config_type}_{effective_type}_{left}_{right}"
-        f"_{variant_key}_{patch_stamp}"
+        f"_{variant_key}_{hardware_key}_{patch_stamp}"
     )
     if not yaml_only and cache_key in _config_cache:
         return _config_cache[cache_key]
@@ -310,6 +322,19 @@ def load_robot_config(
                     f"{os.path.basename(variant_config_path)}"
                 )
 
+        hardware_overlay_applied = False
+        if hardware_key:
+            hardware_config_path = os.path.join(config_dir, f"{hardware_key}.yaml")
+            if os.path.isfile(hardware_config_path):
+                with open(hardware_config_path, "r") as file:
+                    hardware_config = yaml.safe_load(file) or {}
+                config = _deep_merge_dicts(config, hardware_config)
+                hardware_overlay_applied = True
+                print(
+                    f"[INFO] Merged {config_type} hardware overlay: "
+                    f"{os.path.basename(hardware_config_path)}"
+                )
+
         use_compose = asymmetric or (
             not yaml_only
             and not type_yaml_found
@@ -341,6 +366,7 @@ def load_robot_config(
             type_yaml_found=type_yaml_found,
             patch_applied=patch_applied,
             variant_overlay_applied=variant_overlay_applied,
+            hardware_overlay_applied=hardware_overlay_applied,
             config=config,
             config_path=config_path or "",
             yaml_only=yaml_only,
@@ -628,6 +654,9 @@ def _planning_xacro_mappings(
 
     if planning_scope == PLANNING_SCOPE_ARMS:
         mappings.pop("chassis", None)
+        # Same-package dual-arm tree rooted at arm_base (arx_lift split, cobot_magic_v1 demo).
+        # Do not override an explicit topology from launch / profile.
+        mappings.setdefault("topology", "dual")
         if _planning_xacro_supports_side_eef(planning_robot_name):
             left_type = mappings.get("left_type", "").strip()
             right_type = mappings.get("right_type", "").strip()
@@ -665,8 +694,8 @@ def build_planning_urdf_launch_params(
     Generate planning URDF from xacro/robot.xacro and return controller params.
 
     planning_scope:
-      - arms  : split-body OCS2 — dual arms from arm_base (m6_ccs xacro)
-      - full  : full-body WBC — whole robot (e.g. fiveages_w2 xacro)
+      - arms  : split-body OCS2 — dual-arm tree (injects topology:=dual; root arm_base)
+      - full  : full-body WBC — whole robot (e.g. fiveages_w2 / cobot_magic_v1 xacro)
 
     Returns dict with planning_urdf_variant / planning_urdf_path, or empty dict
     when xacro planning URDF cannot be generated.

@@ -7,6 +7,7 @@ from __future__ import annotations
 import ast
 import math
 import os
+import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -86,6 +87,7 @@ CORE_LAUNCH_KEYS = frozenset({
     "ocs2_planning_param_file",
     "ros2_controllers_override",
     "chassis",
+    "arms",
     "variant",
     "chassis_joints_movable",
 })
@@ -124,9 +126,17 @@ def extract_prefixed_args(
 
 _PLATFORM_XACRO_KEYS = (
     "chassis",
+    "arms",
     "variant",
     "chassis_joints_movable",
 )
+
+# Humanoid ``arms:=`` / standalone CCS ``variant:=`` share these keys.
+ARM_FAMILY_PLANNING_ROBOT = {
+    "ar5_ccs": "ar5_ccs",
+    "ar5_ccs_v2": "ar5_ccs",
+    "ar5_srs": "ar5_srs",
+}
 
 
 def create_platform_launch_arguments():
@@ -138,6 +148,11 @@ def create_platform_launch_arguments():
             "chassis",
             default_value="",
             description="Xacro chassis model key (robot-specific). Empty means no chassis parameter passed to xacro.",
+        ),
+        DeclareLaunchArgument(
+            "arms",
+            default_value="",
+            description="Xacro dual-arm kit key (robot-specific): ar5_ccs, ar5_ccs_v2, ar5_srs. Empty means no arms parameter passed to xacro.",
         ),
         DeclareLaunchArgument(
             "chassis_joints_movable",
@@ -243,7 +258,7 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     Normalize robot profile to {xacro, eef, ft, hardware, control} for launch code.
 
     Schema:
-      platform: chassis / variant / chassis_joints_movable — always apply
+      platform: chassis / arms / variant / chassis_joints_movable — always apply
       defaults.end_effectors: type|left|right — when use_profile_eef
       defaults.ft: type|left|right — always with profile
       defaults.tcp_offset: xyz|rpy|left_*|right_* — always with profile → xacro keys
@@ -506,11 +521,39 @@ def resolve_control_sides(
     return resolve_side_eef_types(launch_configurations, profile)
 
 
+def get_xacro_arg_default(xacro_file: str, arg_name: str) -> str:
+    """Read ``<xacro:arg name="..." default="...">`` from a xacro file."""
+    try:
+        with open(xacro_file, "r", encoding="utf-8") as handle:
+            content = handle.read()
+    except OSError:
+        return ""
+    match = re.search(
+        rf"""xacro:arg\s+name=["']{re.escape(arg_name)}["']\s+default=["']([^"']*)["']""",
+        content,
+    )
+    return _strip_eef_key(match.group(1) if match else "")
+
+
+def get_robot_xacro_arg_default(robot_name: str, arg_name: str) -> str:
+    """Read a xacro arg default from ``<robot>_description/xacro/robot.xacro``."""
+    if not robot_name:
+        return ""
+    try:
+        from ament_index_python.packages import get_package_share_directory
+
+        pkg_path = get_package_share_directory(f"{robot_name}_description")
+    except Exception:
+        return ""
+    return get_xacro_arg_default(os.path.join(pkg_path, "xacro", "robot.xacro"), arg_name)
+
+
 def resolve_robot_variant(
     launch_configurations: Dict[str, str],
     profile: Optional[Dict[str, Any]] = None,
+    robot_name: str = "",
 ) -> str:
-    """Platform variant from launch ``variant`` or profile ``platform.variant``."""
+    """Platform variant: launch ``variant`` > profile ``xacro.variant`` > robot xacro default."""
     variant = _strip_eef_key(_cli_launch_value(launch_configurations, "variant"))
     if variant:
         return variant
@@ -520,7 +563,34 @@ def resolve_robot_variant(
             profile_variant = _strip_eef_key(str(xacro_section.get("variant", "") or ""))
             if profile_variant:
                 return profile_variant
+    if robot_name:
+        return get_robot_xacro_arg_default(robot_name, "variant")
     return ""
+
+
+def resolve_robot_arms(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+    robot_name: str = "",
+) -> str:
+    """Dual-arm kit: launch ``arms`` > profile ``xacro.arms`` > robot xacro default."""
+    arms = _strip_eef_key(_cli_launch_value(launch_configurations, "arms"))
+    if arms:
+        return arms
+    if profile:
+        xacro_section = profile.get("xacro") or {}
+        if isinstance(xacro_section, dict):
+            profile_arms = _strip_eef_key(str(xacro_section.get("arms", "") or ""))
+            if profile_arms:
+                return profile_arms
+    if robot_name:
+        return get_robot_xacro_arg_default(robot_name, "arms")
+    return ""
+
+
+def planning_robot_for_arm_family(arm_family: str) -> str:
+    """Map ``ar5_ccs`` / ``ar5_ccs_v2`` / ``ar5_srs`` to a planning description package."""
+    return ARM_FAMILY_PLANNING_ROBOT.get(_strip_eef_key(arm_family), "")
 
 
 def _apply_ft_and_tcp_to_mappings(
@@ -608,9 +678,25 @@ def build_xacro_mappings(
     if "collider" not in mappings:
         mappings["collider"] = "simple"
 
-    launch_variant = _strip_eef_key(_cli_launch_value(launch_configurations, "variant"))
-    if launch_variant:
-        mappings["variant"] = launch_variant
+    robot_name = str(launch_configurations.get("robot") or "")
+    for key in _PLATFORM_XACRO_KEYS:
+        value = _cli_launch_value(launch_configurations, key)
+        if value:
+            mappings[key] = value
+
+    if "variant" not in mappings:
+        launch_variant = resolve_robot_variant(
+            launch_configurations, profile, robot_name=robot_name
+        )
+        if launch_variant:
+            mappings["variant"] = launch_variant
+
+    if "arms" not in mappings:
+        launch_arms = resolve_robot_arms(
+            launch_configurations, profile, robot_name=robot_name
+        )
+        if launch_arms:
+            mappings["arms"] = launch_arms
 
     return mappings
 

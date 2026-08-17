@@ -33,7 +33,7 @@ ros2 launch … robot_profile:=/path/to/profile.yaml  [+ CLI args]
 
 | YAML 段 | 随 `robot_profile:=` | 说明 |
 |---------|----------------------|------|
-| `platform` | 始终 | 底盘 / `variant` / `chassis_joints_movable` 等 → xacro |
+| `platform` | 始终 | 底盘 / 双臂套件 / `variant` / `chassis_joints_movable` 等 → xacro |
 | `defaults.end_effectors` | 仅 `use_profile_eef:=true`（默认） | 末端类型；可被 CLI 关掉以改用 `type` / `left_type` / `right_type` |
 | `defaults.ft` | 始终 | 力传感器；**不受** `use_profile_eef` 影响 |
 | `defaults.tcp_offset` | 始终 | 虚拟 tip 偏移；注入前做表达式求值 |
@@ -45,6 +45,7 @@ ros2 launch … robot_profile:=/path/to/profile.yaml  [+ CLI args]
 ```yaml
 platform:
   chassis: <key>
+  arms: <key>                 # 双臂套件：ar5_ccs / ar5_ccs_v2 / ar5_srs（机型相关）
   variant: <key>
   chassis_joints_movable: "true"|"false"
 
@@ -142,9 +143,29 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `ft` / `left_ft` / `right_ft` | 力传感器（覆盖 profile `defaults.ft`） |
 | `tcp_offset_xyz` / `tcp_offset_rpy` | 对称 TCP 偏移 |
 | `left_tcp_offset_*` / `right_tcp_offset_*` | 分侧 TCP 偏移 |
-| `chassis` / `variant` / `chassis_joints_movable` | 平台 xacro；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
+| `chassis` / `arms` / `variant` / `chassis_joints_movable` | 平台 xacro，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
 | `hardware` | 仿真/真机插件（→ xacro `ros2_control_hardware_type`）；并可触发 `{hardware}.yaml` overlay |
 | `collider` / `skin` / `direction` | 常用模型 xacro |
+
+### 平台槽位：`chassis` / `arms` / `variant`
+
+由 `create_platform_launch_arguments()` 声明，供人形 / 移动底盘 xacro 使用（独立机械臂 launch 不挂这组）。`humanoid.launch.py`、`component.launch.py` 以及 OCS2 `full_body` / `split_body` / `demo` 已接入。
+
+解析顺序（`resolve_robot_arms` / `resolve_robot_variant`）：**CLI > profile `platform.*` > 该机 `xacro/robot.xacro` 的 default**。空字符串表示不向 xacro 传该参数。
+
+| 参数 | 作用 | 典型键 |
+|------|------|--------|
+| `chassis` | 底盘型号 | 机型相关（如 `w1` / `linkhou_q1`） |
+| `arms` | 人形双臂套件 | `ar5_ccs` / `ar5_ccs_v2` / `ar5_srs` |
+| `variant` | 机型变体（W2/S2 外观、S2 立柱、独立 AR5 代际） | 机型相关。W1 / W2R **没有**此槽，选臂只用 `arms`；独立 `robot:=ar5_ccs` 时与 `arms` 共用 `ar5_*` 短键 |
+| `chassis_joints_movable` | 底盘关节是否进 ros2_control | `true` / `false` |
+
+`arms` **不会**触发 `config/ros2_control/{arms}.yaml` overlay（那是 `variant` 的职责）。人形 W1 / W2R 不要把 `ar5_*` 写进 `platform.variant`。规划 URDF 若落到独立 AR5 包（`ar5_ccs` / `ar5_srs`），会把人形的 `arms` 映射成该包的 `variant`；`planning_robot_for_arm_family` 再把 `ar5_ccs` / `ar5_ccs_v2` 收成规划包 `ar5_ccs`，`ar5_srs` 保持 `ar5_srs`。
+
+```bash
+ros2 launch robot_common_launch humanoid.launch.py robot:=fiveages_w1 arms:=ar5_ccs
+ros2 launch robot_common_launch humanoid.launch.py robot:=fiveages_w2r arms:=ar5_srs
+```
 
 ### 前缀逃逸口
 
@@ -174,6 +195,11 @@ ros2 launch <pkg> <file>.launch.py \
   robot_profile:=/path/to/machine_profile.yaml \
   use_profile_eef:=false \
   left_type:=rg75 right_type:=linkerhand_o7
+
+# CLI 覆盖双臂套件（platform.arms）
+ros2 launch robot_common_launch humanoid.launch.py robot:=<robot_name> \
+  robot_profile:=/path/to/machine_profile.yaml \
+  arms:=ar5_srs
 ```
 
 ## Launch 入口（节选）
@@ -195,7 +221,7 @@ source install/setup.bash
 
 ## 相关代码
 
-- [`robot_common_launch/common/launch_arg_utils.py`](robot_common_launch/common/launch_arg_utils.py) — profile、CLI、mappings
+- [`robot_common_launch/common/launch_arg_utils.py`](robot_common_launch/common/launch_arg_utils.py) — profile、CLI、mappings（含 `create_platform_launch_arguments` / `resolve_robot_arms` / `planning_robot_for_arm_family`）
 - [`robot_common_launch/common/launch_utils.py`](robot_common_launch/common/launch_utils.py) — 可视化 mappings / 通用 DeclareLaunchArgument
 - [`robot_common_launch/common/robot_utils.py`](robot_common_launch/common/robot_utils.py) — `load_robot_config`（含 variant / hardware overlay）、planning URDF
 - [`robot_common_launch/common/controller_manager_setup.py`](robot_common_launch/common/controller_manager_setup.py) — 向 `load_robot_config` 传入 `hardware`

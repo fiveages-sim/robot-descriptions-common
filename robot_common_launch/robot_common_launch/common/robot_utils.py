@@ -20,7 +20,11 @@ from .control_compose import (
     is_compose_asymmetric,
     resolve_compose_type_key,
 )
-from .launch_arg_utils import build_xacro_mappings, resolve_profile_path
+from .launch_arg_utils import (
+    build_xacro_mappings,
+    resolve_profile_path,
+    resolve_robot_arms,
+)
 
 # 全局缓存字典，避免重复读取配置文件
 _config_cache = {}
@@ -673,6 +677,19 @@ def _planning_xacro_mappings(
                 # Do not inject a synthetic type; let xacro/robot.xacro default apply
                 # (e.g. galaxea_a1 default a1, cr5 default empty).
                 mappings.pop("type", None)
+
+    # Standalone AR5 planning xacro selects CCS generation via ``variant``, using
+    # the same keys as the humanoid ``arms`` slot.
+    if planning_robot_name in ("ar5_ccs", "ar5_srs"):
+        arms_key = str(mappings.get("arms") or "").strip()
+        if not arms_key:
+            arms_key = resolve_robot_arms(
+                configs,
+                robot_name=str(configs.get("robot") or ""),
+            )
+        if arms_key:
+            mappings["variant"] = arms_key
+        mappings.pop("arms", None)
 
     return mappings
 

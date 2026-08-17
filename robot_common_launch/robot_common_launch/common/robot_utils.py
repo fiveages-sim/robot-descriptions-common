@@ -20,7 +20,12 @@ from .control_compose import (
     is_compose_asymmetric,
     resolve_compose_type_key,
 )
-from .launch_arg_utils import build_xacro_mappings, resolve_profile_path
+from .launch_arg_utils import (
+    build_xacro_mappings,
+    resolve_profile_path,
+    resolve_robot_arms,
+    robot_xacro_declares_arg,
+)
 
 # 全局缓存字典，避免重复读取配置文件
 _config_cache = {}
@@ -673,6 +678,19 @@ def _planning_xacro_mappings(
                 # Do not inject a synthetic type; let xacro/robot.xacro default apply
                 # (e.g. galaxea_a1 default a1, cr5 default empty).
                 mappings.pop("type", None)
+
+    # Humanoid launch injects ``arms``. Standalone manipulator xacro typically
+    # has no ``arms`` arg; copy the kit key to ``variant`` when that arg exists.
+    if planning_robot_name and not robot_xacro_declares_arg(planning_robot_name, "arms"):
+        arms_key = str(mappings.get("arms") or "").strip()
+        if not arms_key:
+            arms_key = resolve_robot_arms(
+                configs,
+                robot_name=str(configs.get("robot") or ""),
+            )
+        if arms_key and robot_xacro_declares_arg(planning_robot_name, "variant"):
+            mappings["variant"] = arms_key
+        mappings.pop("arms", None)
 
     return mappings
 

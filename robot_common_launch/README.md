@@ -45,7 +45,7 @@ ros2 launch … robot_profile:=/path/to/profile.yaml  [+ CLI args]
 ```yaml
 platform:
   chassis: <key>
-  arms: <key>                 # 双臂套件：ar5_ccs / ar5_ccs_v2 / ar5_srs（机型相关）
+  arms: <key>                 # 双臂套件（机型相关；对应 {key}_description 或带 _vN 后缀）
   variant: <key>
   chassis_joints_movable: "true"|"false"
 
@@ -155,12 +155,12 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 
 | 参数 | 作用 | 典型键 |
 |------|------|--------|
-| `chassis` | 底盘型号 | 机型相关（如 `w1` / `linkhou_q1`） |
-| `arms` | 人形双臂套件 | `ar5_ccs` / `ar5_ccs_v2` / `ar5_srs` |
-| `variant` | 机型变体（W2/S2 外观、S2 立柱、独立 AR5 代际） | 机型相关。W1 / W2R **没有**此槽，选臂只用 `arms`；独立 `robot:=ar5_ccs` 时与 `arms` 共用 `ar5_*` 短键 |
-| `chassis_joints_movable` | 底盘关节是否进 ros2_control | `true` / `false` |
+| `chassis` | 底盘型号 | 机型相关 |
+| `arms` | 人形双臂套件 | 机型相关；键名应对应 `{key}_description`，或带 `_v<digits>` 代际后缀（落到去掉后缀的包） |
+| `variant` | 机型变体（外观、立柱、独立机械臂代际） | 机型相关。选臂的人形用 `arms`，不要把臂套件写进 `platform.variant` |
+| `chassis_joints_movable` | 底盘关节是否可动 | `true` / `false` |
 
-`arms` **不会**触发 `config/ros2_control/{arms}.yaml` overlay（那是 `variant` 的职责）。人形 W1 / W2R 不要把 `ar5_*` 写进 `platform.variant`。规划 URDF 若落到独立 AR5 包（`ar5_ccs` / `ar5_srs`），会把人形的 `arms` 映射成该包的 `variant`；`planning_robot_for_arm_family` 再把 `ar5_ccs` / `ar5_ccs_v2` 收成规划包 `ar5_ccs`，`ar5_srs` 保持 `ar5_srs`。
+`arms` **不会**触发 `config/ros2_control/{arms}.yaml` overlay（那是 `variant` 的职责）。分体规划若落到独立机械臂包（该包 xacro 不声明 `arms`），会丢掉人形的 `arms` 参数；若该包声明了 `variant`，则把同一键写入 `variant`。`planning_robot_for_arm_family` 用 ament 查找 `{key}_description`；找不到时去掉末尾 `_v<digits>` 再试。
 
 ```bash
 ros2 launch robot_common_launch humanoid.launch.py robot:=fiveages_w1 arms:=ar5_ccs

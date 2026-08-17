@@ -131,12 +131,9 @@ _PLATFORM_XACRO_KEYS = (
     "chassis_joints_movable",
 )
 
-# Humanoid ``arms:=`` / standalone CCS ``variant:=`` share these keys.
-ARM_FAMILY_PLANNING_ROBOT = {
-    "ar5_ccs": "ar5_ccs",
-    "ar5_ccs_v2": "ar5_ccs",
-    "ar5_srs": "ar5_srs",
-}
+# Kit keys like ``foo_v2`` live in ``foo_description`` when ``foo_v2_description``
+# does not exist.
+_KIT_GENERATION_SUFFIX = re.compile(r"_v\d+$")
 
 
 def create_platform_launch_arguments():
@@ -152,7 +149,7 @@ def create_platform_launch_arguments():
         DeclareLaunchArgument(
             "arms",
             default_value="",
-            description="Xacro dual-arm kit key (robot-specific): ar5_ccs, ar5_ccs_v2, ar5_srs. Empty means no arms parameter passed to xacro.",
+            description="Xacro dual-arm kit key (robot-specific). Empty means no arms parameter passed to xacro.",
         ),
         DeclareLaunchArgument(
             "chassis_joints_movable",
@@ -535,8 +532,35 @@ def get_xacro_arg_default(xacro_file: str, arg_name: str) -> str:
     return _strip_eef_key(match.group(1) if match else "")
 
 
+def _xacro_declares_arg(xacro_file: str, arg_name: str) -> bool:
+    try:
+        with open(xacro_file, "r", encoding="utf-8") as handle:
+            content = handle.read()
+    except OSError:
+        return False
+    return re.search(
+        rf"""xacro:arg\s+name=["']{re.escape(arg_name)}["']""",
+        content,
+    ) is not None
+
+
 def get_robot_xacro_arg_default(robot_name: str, arg_name: str) -> str:
     """Read a xacro arg default from ``<robot>_description/xacro/robot.xacro``."""
+    xacro_file = _robot_xacro_path(robot_name)
+    if not xacro_file:
+        return ""
+    return get_xacro_arg_default(xacro_file, arg_name)
+
+
+def robot_xacro_declares_arg(robot_name: str, arg_name: str) -> bool:
+    """True when ``<robot>_description/xacro/robot.xacro`` declares ``arg_name``."""
+    xacro_file = _robot_xacro_path(robot_name)
+    if not xacro_file:
+        return False
+    return _xacro_declares_arg(xacro_file, arg_name)
+
+
+def _robot_xacro_path(robot_name: str) -> str:
     if not robot_name:
         return ""
     try:
@@ -545,7 +569,21 @@ def get_robot_xacro_arg_default(robot_name: str, arg_name: str) -> str:
         pkg_path = get_package_share_directory(f"{robot_name}_description")
     except Exception:
         return ""
-    return get_xacro_arg_default(os.path.join(pkg_path, "xacro", "robot.xacro"), arg_name)
+    xacro_file = os.path.join(pkg_path, "xacro", "robot.xacro")
+    return xacro_file if os.path.isfile(xacro_file) else ""
+
+
+def _description_package_exists(robot_name: str) -> bool:
+    """True when ``{robot_name}_description`` is on the ament index. Quiet on miss."""
+    if not robot_name:
+        return False
+    try:
+        from ament_index_python.packages import get_package_share_directory
+
+        get_package_share_directory(f"{robot_name}_description")
+        return True
+    except Exception:
+        return False
 
 
 def resolve_robot_variant(
@@ -589,8 +627,21 @@ def resolve_robot_arms(
 
 
 def planning_robot_for_arm_family(arm_family: str) -> str:
-    """Map ``ar5_ccs`` / ``ar5_ccs_v2`` / ``ar5_srs`` to a planning description package."""
-    return ARM_FAMILY_PLANNING_ROBOT.get(_strip_eef_key(arm_family), "")
+    """Resolve an ``arms:=`` / ``variant:=`` kit key to a ``{name}_description`` stem.
+
+    Uses the kit key as the package name when ``{key}_description`` exists.
+    Otherwise strips a trailing ``_v<digits>`` generation suffix and retries
+    (``foo_v2`` → ``foo_description``). Returns empty when no such package exists.
+    """
+    key = _strip_eef_key(arm_family)
+    if not key:
+        return ""
+    if _description_package_exists(key):
+        return key
+    base = _KIT_GENERATION_SUFFIX.sub("", key)
+    if base != key and _description_package_exists(base):
+        return base
+    return ""
 
 
 def _apply_ft_and_tcp_to_mappings(

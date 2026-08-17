@@ -48,10 +48,10 @@ ros2 launch robot_common_launch hand.launch.py hand:=freedom type:=freedomv1 dir
 ### Freedom V1 Right Hand
 
 ```bash
-source ~/install/setup.bash
+source ~/ros2_ws/install/setup.bash
 ros2 launch robot_common_launch hand.launch.py hand:=freedom type:=freedomv1 direction:=-1
 ```
-cd /home/king/ros2_ws
+cd ~/ros2_ws
 source install/setup.bash
 ros2 launch robot_common_launch hand.launch.py hand:=freedom direction:=1
 

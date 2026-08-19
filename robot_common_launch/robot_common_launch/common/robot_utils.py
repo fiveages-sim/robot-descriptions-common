@@ -301,6 +301,14 @@ def load_robot_config(
             with open(common_config_path, "r") as file:
                 common_config = yaml.safe_load(file) or {}
 
+        # compliance.yaml 与 common.yaml 同机制：合成链内加载（merged 路径由此吃到），
+        # 静态路径仍由 controller_manager_setup 的文件叠加加载；优先级 common < compliance < 主配置。
+        compliance_config_path = os.path.join(config_dir, "compliance.yaml")
+        compliance_config = {}
+        if config_type == "ros2_control" and os.path.exists(compliance_config_path):
+            with open(compliance_config_path, "r") as file:
+                compliance_config = yaml.safe_load(file) or {}
+
         if common_config:
             print(
                 f"[INFO] Loaded {config_type} config: {config_path} "
@@ -309,10 +317,14 @@ def load_robot_config(
         else:
             print(f"[INFO] Loaded {config_type} config: {config_path}")
 
+        if compliance_config:
+            print(f"[INFO] Loaded compliance config: {compliance_config_path}")
+
         with open(config_path, "r") as file:
             config = yaml.safe_load(file) or {}
 
         config = _deep_merge_dicts(common_config, config)
+        config = _deep_merge_dicts(compliance_config, config)
 
         variant_overlay_applied = False
         if variant_key:

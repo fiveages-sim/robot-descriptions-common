@@ -84,6 +84,11 @@ def _build_ros2_control_node_parameters(
         if os.path.exists(common_config_path):
             node_parameters.append(common_config_path)
             print(f"[INFO] Loading common ros2_control defaults from: {common_config_path}")
+        compliance_config_path = os.path.join(
+            os.path.dirname(ros2_controllers_path or ""), "compliance.yaml")
+        if os.path.exists(compliance_config_path):
+            node_parameters.append(compliance_config_path)
+            print(f"[INFO] Loading compliance config from: {compliance_config_path}")
         if ros2_controllers_path:
             node_parameters.append(ros2_controllers_path)
 

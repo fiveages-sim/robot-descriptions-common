@@ -41,6 +41,7 @@ Mainly located in `dexhands/` directory (Inspire RH56E2 is provided by `gripper/
 | [OyMotion](dexhands/oymotion_description)     | RoHand Gen2           | Yes     | <img src="dexhands/.images/rohand_gen2.png" width="150">                                                                                                                                                                                |
 | [FreeDom](dexhands/freedom_description)       | V1<br>V2              | Yes     | <img src="dexhands/.images/freedom_v1.png" width="150"> <img src="dexhands/.images/freedom_v2.png" width="150">                                                                                                                         |
 | [TheoHand](dexhands/theohand_description)     | STD16A                | Yes     | <img src="dexhands/.images/theohand_std16a.png" width="100">                                                                                                                                                                            |
+| [Wuji](dexhands/wuji_description)             | Hand1<br>Hand2 Beta2  | No      | —                                                                                                                                                                                                                                       |
 
 Features:
 - Full kinematic chain definition
@@ -133,6 +134,7 @@ common/
 │   ├── linkerhand_description/
 │   ├── oymotion_description/
 │   ├── theohand_description/
+│   ├── wuji_description/
 │   └── xhand1_description/
 ├── gripper/               # Gripper descriptions
 │   ├── changingtek_description/

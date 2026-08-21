@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="WujiHand_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<xacro:arg name="type" default="hand2"/>
+	<xacro:arg name="direction" default="1"/>
+	<xacro:arg name="use_mount" default="false"/>
+
+	<!-- type: hand1 (gen1), hand2 (beta2, default) -->
+	<xacro:if value="${'$(arg type)' == 'hand2'}">
+		<xacro:include filename="$(find wuji_description)/xacro/hand2.xacro"/>
+		<xacro:WujiHand2 name="" direction="$(arg direction)" use_mount="$(arg use_mount)"/>
+	</xacro:if>
+
+	<xacro:if value="${'$(arg type)' == 'hand1'}">
+		<xacro:include filename="$(find wuji_description)/xacro/hand1.xacro"/>
+		<xacro:WujiHand name="" direction="$(arg direction)" use_mount="$(arg use_mount)"/>
+	</xacro:if>
+
+</robot>

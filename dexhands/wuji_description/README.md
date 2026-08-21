@@ -93,7 +93,17 @@ Fixed tip / tip-sensor frames exist for TF but are not commanded.
 | Ring (finger4) | `finger4_joint1` … `finger4_joint4` |
 | Pinky (finger5) | `finger5_joint1` … `finger5_joint4` |
 
-## 5. L/R mirroring
+## 5. L/R mirroring and frames
+
+### Hand2 wrist frames
+
+| Link | Role |
+|------|------|
+| `hand_base` | External wrist for fa_w2 / dexhands; **+Z = finger extension** (same idea as LinkerHand O6) |
+| `wrist` | Official beta2 wrist mesh + finger roots; fingers extend in **−Z** of this frame |
+| `wrist_align` | Fixed `R_x(π)` mapping official −Z onto `hand_base` +Z |
+
+Joint names, order, and limits are unchanged — simulation controllers and a future HardwareInterface still use joint-space angles (no sign flip for +Z). When mounting on an arm, calibrate `*_hand_base_joint` against this **+Z** `hand_base`.
 
 - `direction:=1` left (default), `direction:=-1` right
 - Single geometric tree + `direction` formulas (joint origins / axes)

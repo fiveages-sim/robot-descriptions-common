@@ -1,0 +1,61 @@
+{side}_hand_controller:
+  ros__parameters:
+    update_rate: 100
+    target_command_enabled: true
+    target_command_close_config: 1
+    target_command_open_config: 0
+    movej_interpolation_type: "linear"
+    home_interpolation_type: "linear"
+    joints:
+      - {side_}hand_thumb_cmc_flex
+      - {side_}hand_thumb_cmc_abd
+      - {side_}hand_thumb_mcp
+      - {side_}hand_thumb_ip
+      - {side_}hand_index_finger_mcp_flex
+      - {side_}hand_index_finger_mcp_abd
+      - {side_}hand_index_finger_pip
+      - {side_}hand_index_finger_dip
+      - {side_}hand_middle_finger_mcp_flex
+      - {side_}hand_middle_finger_mcp_abd
+      - {side_}hand_middle_finger_pip
+      - {side_}hand_middle_finger_dip
+      - {side_}hand_ring_mcp_flex
+      - {side_}hand_ring_mcp_abd
+      - {side_}hand_ring_pip
+      - {side_}hand_ring_dip
+      - {side_}hand_pinky_mcp_flex
+      - {side_}hand_pinky_mcp_abd
+      - {side_}hand_pinky_pip
+      - {side_}hand_pinky_dip
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    home_2: [0.3, 0.3, 0.5, 0.5, 0.5, 0.2, 0.6, 0.6, 0.5, 0.2, 0.6, 0.6, 0.5, 0.2, 0.6, 0.6, 0.5, 0.2, 0.6, 0.6]
+    home_duration: 3.0
+    movej_duration: 3.0
+    hold_position_threshold: 0.1
+
+joint_state_extra_joints:
+  - {side_}hand_thumb_cmc_flex
+  - {side_}hand_thumb_cmc_abd
+  - {side_}hand_thumb_mcp
+  - {side_}hand_thumb_ip
+  - {side_}hand_index_finger_mcp_flex
+  - {side_}hand_index_finger_mcp_abd
+  - {side_}hand_index_finger_pip
+  - {side_}hand_index_finger_dip
+  - {side_}hand_middle_finger_mcp_flex
+  - {side_}hand_middle_finger_mcp_abd
+  - {side_}hand_middle_finger_pip
+  - {side_}hand_middle_finger_dip
+  - {side_}hand_ring_mcp_flex
+  - {side_}hand_ring_mcp_abd
+  - {side_}hand_ring_pip
+  - {side_}hand_ring_dip
+  - {side_}hand_pinky_mcp_flex
+  - {side_}hand_pinky_mcp_abd
+  - {side_}hand_pinky_pip
+  - {side_}hand_pinky_dip

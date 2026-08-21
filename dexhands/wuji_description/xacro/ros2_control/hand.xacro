@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<robot name="WujiHand_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:arg name="type" default="hand2"/>
+    <xacro:arg name="direction" default="1"/>
+    <xacro:arg name="gazebo" default="false"/>
+    <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
+    <xacro:arg name="use_mount" default="false"/>
+
+    <link name="world"/>
+
+    <joint name="world_fixed" type="fixed">
+        <parent link="world"/>
+        <!-- mount exists only for hand2 -->
+        <xacro:if value="${'$(arg type)' == 'hand2' and '$(arg use_mount)' == 'true'}">
+            <child link="mount"/>
+        </xacro:if>
+        <xacro:unless value="${'$(arg type)' == 'hand2' and '$(arg use_mount)' == 'true'}">
+            <child link="hand_base"/>
+        </xacro:unless>
+        <origin/>
+    </joint>
+
+    <xacro:include filename="$(find wuji_description)/xacro/hand.xacro"/>
+
+    <ros2_control name="wuji_hand_system" type="system">
+        <hardware>
+            <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            </xacro:if>
+
+            <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'mock_components'}">
+                <plugin>mock_components/GenericSystem</plugin>
+            </xacro:if>
+
+            <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'isaac'}">
+                <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+                <param name="joint_commands_topic">/isaac/joint_command</param>
+                <param name="joint_states_topic">/isaac/joint_states</param>
+                <param name="sum_wrapped_joint_states">false</param>
+                <param name="initialize_commands_from_state">true</param>
+            </xacro:if>
+
+            <!-- Placeholder for future fa_w2 Wuji HardwareInterface (not official wujihandros2). -->
+            <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
+                <plugin>wuji_ros2_control/WujiHandHardware</plugin>
+                <param name="hand_type">$(arg type)</param>
+                <xacro:if value="${'$(arg direction)' == '1'}">
+                    <param name="hand_side">left</param>
+                </xacro:if>
+                <xacro:unless value="${'$(arg direction)' == '1'}">
+                    <param name="hand_side">right</param>
+                </xacro:unless>
+            </xacro:if>
+        </hardware>
+
+        <xacro:if value="${'$(arg type)' == 'hand2'}">
+            <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand2.xacro"/>
+            <xacro:wuji_hand2_interfaces name=""/>
+        </xacro:if>
+
+        <xacro:if value="${'$(arg type)' == 'hand1'}">
+            <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand1.xacro"/>
+            <xacro:wuji_hand1_interfaces name=""/>
+        </xacro:if>
+    </ros2_control>
+
+    <xacro:if value="$(arg gazebo)">
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find wuji_description)/config/ros2_control/ros2_controllers.yaml</parameters>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+</robot>

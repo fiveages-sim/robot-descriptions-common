@@ -6,6 +6,17 @@
     <xacro:arg name="gazebo" default="false"/>
     <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
     <xacro:arg name="use_mount" default="false"/>
+    <!-- Real HI (wujihand2_ros2_control) — unused for mock/gz/isaac -->
+    <xacro:arg name="device_address" default=""/>
+    <xacro:arg name="serial_number" default=""/>
+    <xacro:arg name="mit_kp" default="3.0"/>
+    <xacro:arg name="mit_kd" default="0.05"/>
+    <xacro:arg name="effort_limit" default="1.5"/>
+    <xacro:arg name="read_feedback" default="true"/>
+    <xacro:arg name="require_initial_feedback" default="true"/>
+    <xacro:arg name="command_deadband" default="0.0"/>
+    <xacro:arg name="connect_timeout_ms" default="5000"/>
+    <xacro:arg name="enable_timeout_s" default="5.0"/>
 
     <link name="world"/>
 
@@ -41,16 +52,25 @@
                 <param name="initialize_commands_from_state">true</param>
             </xacro:if>
 
-            <!-- Placeholder for future fa_w2 Wuji HardwareInterface (not official wujihandros2). -->
+            <!-- Wuji Hand 2 real hardware (wujihand2_ros2_control). -->
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
-                <plugin>wuji_ros2_control/WujiHandHardware</plugin>
-                <param name="hand_type">$(arg type)</param>
+                <plugin>wujihand2_ros2_control/WujiHand2Hardware</plugin>
                 <xacro:if value="${'$(arg direction)' == '1'}">
                     <param name="hand_side">left</param>
                 </xacro:if>
                 <xacro:unless value="${'$(arg direction)' == '1'}">
                     <param name="hand_side">right</param>
                 </xacro:unless>
+                <param name="device_address">$(arg device_address)</param>
+                <param name="serial_number">$(arg serial_number)</param>
+                <param name="mit_kp">$(arg mit_kp)</param>
+                <param name="mit_kd">$(arg mit_kd)</param>
+                <param name="effort_limit">$(arg effort_limit)</param>
+                <param name="read_feedback">$(arg read_feedback)</param>
+                <param name="require_initial_feedback">$(arg require_initial_feedback)</param>
+                <param name="command_deadband">$(arg command_deadband)</param>
+                <param name="connect_timeout_ms">$(arg connect_timeout_ms)</param>
+                <param name="enable_timeout_s">$(arg enable_timeout_s)</param>
             </xacro:if>
         </hardware>
 

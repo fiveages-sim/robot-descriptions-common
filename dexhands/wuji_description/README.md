@@ -120,16 +120,24 @@ Whole-robot attach pattern (same as LinkerHand):
 
 Side controller templates: `config/ros2_control/templates/hand1.side.yaml`, `hand2.side.yaml`.
 
-## 6. Real hardware (fa_w2)
+## 6. Real hardware (Hand2)
 
-This package does **not** integrate the official [wujihandros2](https://github.com/wuji-technology/wujihandros2) topic driver.
+Hand1 USB / official [wujihandros2](https://github.com/wuji-technology/wujihandros2) is **not** used here.
 
-- Current demos: `mock_components` / `gz` / `isaac`
-- `ros2_control_hardware_type:=real` selects placeholder plugin `wuji_ros2_control/WujiHandHardware` (`hand_type` = `hand1`|`hand2`, `hand_side` from `direction`) — **not implemented**; reserved for a future fa_w2 HardwareInterface (hand2 first)
+- Demos: `mock_components` / `gz` / `isaac`
+- `hardware:=real` → plugin `wujihand2_ros2_control/WujiHand2Hardware` (package `wujihand2_ros2_control`, Ethernet + `libwuji_sdk_c`)
 
-Controller YAML contract for that HI: 20 joints in `hand2.yaml` / `hand1.yaml`; at least `position` command/state (xacro also declares velocity/effort).
+```bash
+export WUJI_SDK_ROOT=/path/to/wuji-sdk-c-*-linux-gnu
+# mock
+ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand2
+# real — scan (no address) or direct IP / SN; see wujihand2_ros2_control README
+ros2 launch wujihand2_ros2_control hand2.launch.py hardware:=real direction:=1
+ros2 launch wujihand2_ros2_control hand2.launch.py \
+  hardware:=real direction:=1 device_address:=192.168.1.110:50001
+```
 
-Agent notes for HI + shared-stack policy: workspace `.cursor/rules/wuji-hand2-hardware.mdc` and `shared-control-stack.mdc`.
+Controller YAML: `hand2.yaml` (position command; position+velocity state). See `wujihand2_ros2_control` README for MIT / network params and joint-index calibration.
 
 ## 7. Package layout
 

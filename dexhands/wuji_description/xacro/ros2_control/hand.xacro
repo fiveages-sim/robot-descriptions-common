@@ -62,7 +62,9 @@
                     <param name="hand_side">right</param>
                 </xacro:unless>
                 <param name="device_address">$(arg device_address)</param>
-                <param name="serial_number">$(arg serial_number)</param>
+                <xacro:if value="${'$(arg serial_number)' != ''}">
+                    <param name="serial_number">$(arg serial_number)</param>
+                </xacro:if>
                 <param name="mit_kp">$(arg mit_kp)</param>
                 <param name="mit_kd">$(arg mit_kd)</param>
                 <param name="effort_limit">$(arg effort_limit)</param>

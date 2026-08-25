@@ -128,10 +128,9 @@ Hand1 USB / official [wujihandros2](https://github.com/wuji-technology/wujihandr
 - `hardware:=real` → plugin `wujihand2_ros2_control/WujiHand2Hardware` (package `wujihand2_ros2_control`, Ethernet + `libwuji_sdk_c`)
 
 ```bash
-export WUJI_SDK_ROOT=/path/to/wuji-sdk-c-*-linux-gnu
 # mock
 ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand2
-# real — scan (no address) or direct IP / SN; see wujihand2_ros2_control README
+# real — SDK vendored in wujihand2_ros2_control/external/; scan or direct IP / SN
 ros2 launch wujihand2_ros2_control hand2.launch.py hardware:=real direction:=1
 ros2 launch wujihand2_ros2_control hand2.launch.py \
   hardware:=real direction:=1 device_address:=192.168.1.110:50001

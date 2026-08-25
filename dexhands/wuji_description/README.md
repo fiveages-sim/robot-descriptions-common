@@ -65,6 +65,19 @@ ros2 topic pub --once /hand_joint_controller/target_command std_msgs/msg/Int32 "
 ros2 topic pub --once /hand_joint_controller/target_command std_msgs/msg/Int32 "data: 1"  # open  -> home_1
 ```
 
+### 3.1 Dual Hand2 (standalone)
+
+One robot tree with `left_hand_*` / `right_hand_*` prefixes, two HI systems, `left_hand_controller` + `right_hand_controller`:
+
+- Xacro: `xacro/ros2_control/hands2.xacro` (instantiates `WujiHand2` twice)
+- Controllers: `config/ros2_control/hands2.yaml`
+- Launch: `ros2 launch wujihand2_ros2_control hands2.launch.py hardware:=mock_components`
+
+```bash
+ros2 topic pub --once /left_hand_controller/target_command std_msgs/msg/Int32 "data: 1"
+ros2 topic pub --once /right_hand_controller/target_command std_msgs/msg/Int32 "data: 1"
+```
+
 ## 4. Joint names
 
 Standalone uses empty `name` prefix. On an arm, pass `name:=left_hand` / `right_hand` → `left_hand_<joint>`.

@@ -1,0 +1,84 @@
+<?xml version="1.0"?>
+<!-- Dual Wuji Hand2 standalone: reuses WujiHand2 + wuji_hand2_interfaces twice. -->
+<robot name="WujiHands2" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
+  <xacro:arg name="device_address_left" default=""/>
+  <xacro:arg name="device_address_right" default=""/>
+  <xacro:arg name="serial_number_left" default=""/>
+  <xacro:arg name="serial_number_right" default=""/>
+  <xacro:arg name="mit_kp" default="3.0"/>
+  <xacro:arg name="mit_kd" default="0.05"/>
+  <xacro:arg name="effort_limit" default="1.5"/>
+  <xacro:arg name="read_feedback" default="true"/>
+  <xacro:arg name="require_initial_feedback" default="true"/>
+  <xacro:arg name="command_deadband" default="0.0"/>
+  <xacro:arg name="connect_timeout_ms" default="5000"/>
+  <xacro:arg name="enable_timeout_s" default="5.0"/>
+
+  <xacro:include filename="$(find wuji_description)/xacro/hand2.xacro"/>
+  <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand2.xacro"/>
+
+  <link name="world"/>
+
+  <xacro:WujiHand2 name="left_hand" direction="1" use_mount="false"/>
+  <xacro:WujiHand2 name="right_hand" direction="-1" use_mount="false"/>
+
+  <joint name="world_left_hand_fixed" type="fixed">
+    <origin xyz="0 0.15 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="left_hand_hand_base"/>
+  </joint>
+  <joint name="world_right_hand_fixed" type="fixed">
+    <origin xyz="0 -0.15 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="right_hand_hand_base"/>
+  </joint>
+
+  <xacro:macro name="wuji_hand2_side_system" params="side hand_side device_address serial_number">
+    <ros2_control name="wuji_hand2_${side}_system" type="system">
+      <hardware>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'mock_components'}">
+          <plugin>mock_components/GenericSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'isaac'}">
+          <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+          <param name="joint_commands_topic">/isaac/joint_command</param>
+          <param name="joint_states_topic">/isaac/joint_states</param>
+          <param name="sum_wrapped_joint_states">false</param>
+          <param name="initialize_commands_from_state">true</param>
+        </xacro:if>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
+          <plugin>wujihand2_ros2_control/WujiHand2Hardware</plugin>
+          <param name="hand_side">${hand_side}</param>
+          <param name="device_address">${device_address}</param>
+          <xacro:if value="${serial_number != ''}">
+            <param name="serial_number">${serial_number}</param>
+          </xacro:if>
+          <param name="mit_kp">$(arg mit_kp)</param>
+          <param name="mit_kd">$(arg mit_kd)</param>
+          <param name="effort_limit">$(arg effort_limit)</param>
+          <param name="read_feedback">$(arg read_feedback)</param>
+          <param name="require_initial_feedback">$(arg require_initial_feedback)</param>
+          <param name="command_deadband">$(arg command_deadband)</param>
+          <param name="connect_timeout_ms">$(arg connect_timeout_ms)</param>
+          <param name="enable_timeout_s">$(arg enable_timeout_s)</param>
+        </xacro:if>
+      </hardware>
+      <xacro:wuji_hand2_interfaces name="${side}_hand"/>
+    </ros2_control>
+  </xacro:macro>
+
+  <xacro:wuji_hand2_side_system
+    side="left" hand_side="left"
+    device_address="$(arg device_address_left)"
+    serial_number="$(arg serial_number_left)"/>
+  <xacro:wuji_hand2_side_system
+    side="right" hand_side="right"
+    device_address="$(arg device_address_right)"
+    serial_number="$(arg serial_number_right)"/>
+
+</robot>

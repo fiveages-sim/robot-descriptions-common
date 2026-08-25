@@ -7,6 +7,7 @@ from __future__ import annotations
 import ast
 import math
 import os
+import re
 import sys
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -124,9 +125,14 @@ def extract_prefixed_args(
 
 _PLATFORM_XACRO_KEYS = (
     "chassis",
+    "arms",
     "variant",
     "chassis_joints_movable",
 )
+
+# Kit keys like ``foo_v2`` live in ``foo_description`` when ``foo_v2_description``
+# does not exist.
+_KIT_GENERATION_SUFFIX = re.compile(r"_v\d+$")
 
 
 def create_platform_launch_arguments():
@@ -138,6 +144,11 @@ def create_platform_launch_arguments():
             "chassis",
             default_value="",
             description="Xacro chassis model key (robot-specific). Empty means no chassis parameter passed to xacro.",
+        ),
+        DeclareLaunchArgument(
+            "arms",
+            default_value="",
+            description="Xacro dual-arm kit key (robot-specific). Empty means no arms parameter passed to xacro.",
         ),
         DeclareLaunchArgument(
             "chassis_joints_movable",
@@ -506,11 +517,80 @@ def resolve_control_sides(
     return resolve_side_eef_types(launch_configurations, profile)
 
 
+def get_xacro_arg_default(xacro_file: str, arg_name: str) -> str:
+    """Read ``<xacro:arg name="..." default="...">`` from a xacro file."""
+    try:
+        with open(xacro_file, "r", encoding="utf-8") as handle:
+            content = handle.read()
+    except OSError:
+        return ""
+    match = re.search(
+        rf"""xacro:arg\s+name=["']{re.escape(arg_name)}["']\s+default=["']([^"']*)["']""",
+        content,
+    )
+    return _strip_eef_key(match.group(1) if match else "")
+
+
+def _xacro_declares_arg(xacro_file: str, arg_name: str) -> bool:
+    try:
+        with open(xacro_file, "r", encoding="utf-8") as handle:
+            content = handle.read()
+    except OSError:
+        return False
+    return re.search(
+        rf"""xacro:arg\s+name=["']{re.escape(arg_name)}["']""",
+        content,
+    ) is not None
+
+
+def get_robot_xacro_arg_default(robot_name: str, arg_name: str) -> str:
+    """Read a xacro arg default from ``<robot>_description/xacro/robot.xacro``."""
+    xacro_file = _robot_xacro_path(robot_name)
+    if not xacro_file:
+        return ""
+    return get_xacro_arg_default(xacro_file, arg_name)
+
+
+def robot_xacro_declares_arg(robot_name: str, arg_name: str) -> bool:
+    """True when ``<robot>_description/xacro/robot.xacro`` declares ``arg_name``."""
+    xacro_file = _robot_xacro_path(robot_name)
+    if not xacro_file:
+        return False
+    return _xacro_declares_arg(xacro_file, arg_name)
+
+
+def _robot_xacro_path(robot_name: str) -> str:
+    if not robot_name:
+        return ""
+    try:
+        from ament_index_python.packages import get_package_share_directory
+
+        pkg_path = get_package_share_directory(f"{robot_name}_description")
+    except Exception:
+        return ""
+    xacro_file = os.path.join(pkg_path, "xacro", "robot.xacro")
+    return xacro_file if os.path.isfile(xacro_file) else ""
+
+
+def _description_package_exists(robot_name: str) -> bool:
+    """True when ``{robot_name}_description`` is on the ament index. Quiet on miss."""
+    if not robot_name:
+        return False
+    try:
+        from ament_index_python.packages import get_package_share_directory
+
+        get_package_share_directory(f"{robot_name}_description")
+        return True
+    except Exception:
+        return False
+
+
 def resolve_robot_variant(
     launch_configurations: Dict[str, str],
     profile: Optional[Dict[str, Any]] = None,
+    robot_name: str = "",
 ) -> str:
-    """Platform variant from launch ``variant`` or profile ``platform.variant``."""
+    """Platform variant: launch ``variant`` > profile ``xacro.variant`` > robot xacro default."""
     variant = _strip_eef_key(_cli_launch_value(launch_configurations, "variant"))
     if variant:
         return variant
@@ -520,6 +600,46 @@ def resolve_robot_variant(
             profile_variant = _strip_eef_key(str(xacro_section.get("variant", "") or ""))
             if profile_variant:
                 return profile_variant
+    if robot_name:
+        return get_robot_xacro_arg_default(robot_name, "variant")
+    return ""
+
+
+def resolve_robot_arms(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+    robot_name: str = "",
+) -> str:
+    """Dual-arm kit: launch ``arms`` > profile ``xacro.arms`` > robot xacro default."""
+    arms = _strip_eef_key(_cli_launch_value(launch_configurations, "arms"))
+    if arms:
+        return arms
+    if profile:
+        xacro_section = profile.get("xacro") or {}
+        if isinstance(xacro_section, dict):
+            profile_arms = _strip_eef_key(str(xacro_section.get("arms", "") or ""))
+            if profile_arms:
+                return profile_arms
+    if robot_name:
+        return get_robot_xacro_arg_default(robot_name, "arms")
+    return ""
+
+
+def planning_robot_for_arm_family(arm_family: str) -> str:
+    """Resolve an ``arms:=`` / ``variant:=`` kit key to a ``{name}_description`` stem.
+
+    Uses the kit key as the package name when ``{key}_description`` exists.
+    Otherwise strips a trailing ``_v<digits>`` generation suffix and retries
+    (``foo_v2`` → ``foo_description``). Returns empty when no such package exists.
+    """
+    key = _strip_eef_key(arm_family)
+    if not key:
+        return ""
+    if _description_package_exists(key):
+        return key
+    base = _KIT_GENERATION_SUFFIX.sub("", key)
+    if base != key and _description_package_exists(base):
+        return base
     return ""
 
 

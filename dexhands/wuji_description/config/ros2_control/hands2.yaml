@@ -94,7 +94,7 @@ left_hand_controller:
     target_command_enabled: true
     target_command_close_config: 1
     target_command_open_config: 0
-    home_interpolation_type: "linear"
+    home_interpolation_type: "none"
     movej_interpolation_type: "linear"
     home_duration: 3.0
     movej_duration: 3.0
@@ -134,7 +134,7 @@ right_hand_controller:
     target_command_enabled: true
     target_command_close_config: 1
     target_command_open_config: 0
-    home_interpolation_type: "linear"
+    home_interpolation_type: "none"
     movej_interpolation_type: "linear"
     home_duration: 3.0
     movej_duration: 3.0

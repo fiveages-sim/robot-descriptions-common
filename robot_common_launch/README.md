@@ -48,6 +48,11 @@ platform:
   arms: <key>                 # 双臂套件（机型相关；对应 {key}_description 或带 _vN 后缀）
   variant: <key>
   chassis_joints_movable: "true"|"false"
+  # Optional — remote chassis over ROS 2 / Zenoh (default off):
+  # remote_chassis: "true"
+  # remote_chassis_joint_states_topic: "/chassis/joint_states"
+  # body_joint_states_topic: "/body/joint_states"
+  # merged_joint_states_topic: "/joint_states"
 
 defaults:
   end_effectors:
@@ -143,7 +148,7 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `ft` / `left_ft` / `right_ft` | 力传感器（覆盖 profile `defaults.ft`） |
 | `tcp_offset_xyz` / `tcp_offset_rpy` | 对称 TCP 偏移 |
 | `left_tcp_offset_*` / `right_tcp_offset_*` | 分侧 TCP 偏移 |
-| `chassis` / `arms` / `variant` / `chassis_joints_movable` | 平台 xacro，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
+| `chassis` / `arms` / `variant` / `chassis_joints_movable` / `remote_chassis` | 平台 xacro 与远程底盘 mux，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
 | `hardware` | 仿真/真机插件（→ xacro `ros2_control_hardware_type`）；并可触发 `{hardware}.yaml` overlay |
 | `collider` / `skin` / `direction` | 常用模型 xacro |
 
@@ -159,6 +164,19 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `arms` | 人形双臂套件 | 机型相关；键名应对应 `{key}_description`，或带 `_v<digits>` 代际后缀（落到去掉后缀的包） |
 | `variant` | 机型变体（外观、立柱、独立机械臂代际） | 机型相关。选臂的人形用 `arms`，不要把臂套件写进 `platform.variant` |
 | `chassis_joints_movable` | 底盘关节是否可动 | `true` / `false` |
+| `remote_chassis` | 远端真机底盘 JS mux（跨机 Zenoh） | `true` / `false`（默认 `false`） |
+
+### 远程底盘（`remote_chassis`，可选）
+
+上半身 mock 与远端真机底盘分机部署时使用（`rmw_zenoh_cpp`）。`platform.remote_chassis: "true"` 或 launch `remote_chassis:=true` 启用；未配置时行为与现网一致。
+
+`create_controller_manager_nodes` 将 JSB remap 到 `/body/joint_states`，启动 `joint_state_mux` 合并远端 `/chassis/joint_states`，并发布 `world→odom` 静态 TF；需 `chassis_joints_movable:=true` 才能驱动轮系 TF。OCS2 `full_body` / `split_body` 已接入。
+
+| 参数 | 默认 | 说明 |
+|------|------|------|
+| `remote_chassis_joint_states_topic` | `/chassis/joint_states` | 远端底盘 JS |
+| `body_joint_states_topic` | `/body/joint_states` | 本地 JSB 输出 |
+| `merged_joint_states_topic` | `/joint_states` | RSP / RViz 订阅 |
 
 `arms` **不会**触发 `config/ros2_control/{arms}.yaml` overlay（那是 `variant` 的职责）。分体规划若落到独立机械臂包（该包 xacro 不声明 `arms`），会丢掉人形的 `arms` 参数；若该包声明了 `variant`，则把同一键写入 `variant`。`planning_robot_for_arm_family` 用 ament 查找 `{key}_description`；找不到时去掉末尾 `_v<digits>` 再试。
 

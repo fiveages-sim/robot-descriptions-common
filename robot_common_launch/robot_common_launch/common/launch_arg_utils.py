@@ -156,6 +156,12 @@ def create_platform_launch_arguments():
             default_value="",
             description="Xacro flag for movable chassis joints (true/false). Empty means no chassis_joints_movable parameter passed to xacro.",
         ),
+        DeclareLaunchArgument(
+            "remote_chassis",
+            default_value="",
+            description="When true, merge /chassis/joint_states with local body JSB on /joint_states. "
+            "Opt-in via robot_profile platform.remote_chassis or this launch arg.",
+        ),
     ]
 
 
@@ -342,13 +348,23 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(patch, dict) and patch:
         control["patch"] = patch
 
-    return {
+    platform_meta: Dict[str, str] = {}
+    for key, value in plat.items():
+        if key in _PLATFORM_XACRO_KEYS:
+            continue
+        if _mapping_value_ok(value):
+            platform_meta[str(key)] = str(value).strip()
+
+    result: Dict[str, Any] = {
         "xacro": xacro,
         "eef": eef,
         "ft": ft,
         "hardware": hardware,
         "control": control,
     }
+    if platform_meta:
+        result["platform_meta"] = platform_meta
+    return result
 
 
 def load_robot_profile(profile_path: str) -> Dict[str, Any]:
@@ -626,6 +642,65 @@ def resolve_robot_arms(
     return ""
 
 
+def _profile_platform_meta(profile: Optional[Dict[str, Any]], key: str) -> str:
+    if not profile:
+        return ""
+    meta = profile.get("platform_meta") or {}
+    if isinstance(meta, dict):
+        value = str(meta.get(key, "") or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _truthy(value: str) -> bool:
+    return str(value or "").strip().lower() in ("true", "1", "yes")
+
+
+def resolve_remote_chassis(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+) -> bool:
+    """True when profile platform.remote_chassis or launch remote_chassis:=true."""
+    cli = _cli_launch_value(launch_configurations, "remote_chassis")
+    if cli:
+        return _truthy(cli)
+    return _truthy(_profile_platform_meta(profile, "remote_chassis"))
+
+
+def resolve_remote_chassis_joint_states_topic(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+) -> str:
+    cli = _cli_launch_value(launch_configurations, "remote_chassis_joint_states_topic")
+    if cli:
+        return cli
+    topic = _profile_platform_meta(profile, "remote_chassis_joint_states_topic")
+    return topic or "/chassis/joint_states"
+
+
+def resolve_body_joint_states_topic(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+) -> str:
+    cli = _cli_launch_value(launch_configurations, "body_joint_states_topic")
+    if cli:
+        return cli
+    topic = _profile_platform_meta(profile, "body_joint_states_topic")
+    return topic or "/body/joint_states"
+
+
+def resolve_merged_joint_states_topic(
+    launch_configurations: Dict[str, str],
+    profile: Optional[Dict[str, Any]] = None,
+) -> str:
+    cli = _cli_launch_value(launch_configurations, "merged_joint_states_topic")
+    if cli:
+        return cli
+    topic = _profile_platform_meta(profile, "merged_joint_states_topic")
+    return topic or "/joint_states"
+
+
 def planning_robot_for_arm_family(arm_family: str) -> str:
     """Resolve an ``arms:=`` / ``variant:=`` kit key to a ``{name}_description`` stem.
 
@@ -748,6 +823,12 @@ def build_xacro_mappings(
         )
         if launch_arms:
             mappings["arms"] = launch_arms
+
+    if resolve_remote_chassis(launch_configurations, profile):
+        if not _cli_launch_value(launch_configurations, "chassis_joints_movable"):
+            profile_movable = str((profile.get("xacro") or {}).get("chassis_joints_movable", "") or "").strip()
+            if not profile_movable:
+                mappings["chassis_joints_movable"] = "true"
 
     return mappings
 

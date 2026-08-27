@@ -12,9 +12,13 @@ from launch_ros.actions import Node
 from .control_compose import is_compose_asymmetric
 from .launch_arg_utils import (
     load_robot_profile,
+    resolve_body_joint_states_topic,
     resolve_control_patch,
     resolve_control_sides,
+    resolve_merged_joint_states_topic,
     resolve_profile_path,
+    resolve_remote_chassis,
+    resolve_remote_chassis_joint_states_topic,
     resolve_robot_variant,
 )
 from .robot_utils import (
@@ -134,6 +138,10 @@ def create_controller_manager_nodes(
     configs = launch_configurations or {}
     robot_profile_path = resolve_profile_path(configs)
     profile = load_robot_profile(robot_profile_path) if robot_profile_path else {}
+    remote_chassis = resolve_remote_chassis(configs, profile)
+    body_joint_states_topic = resolve_body_joint_states_topic(configs, profile)
+    chassis_joint_states_topic = resolve_remote_chassis_joint_states_topic(configs, profile)
+    merged_joint_states_topic = resolve_merged_joint_states_topic(configs, profile)
     control_left, control_right = resolve_control_sides(configs, profile)
     control_patch = resolve_control_patch(profile)
     robot_variant = resolve_robot_variant(configs, profile, robot_name=robot_name)
@@ -283,6 +291,13 @@ def create_controller_manager_nodes(
             default_remappings = [
                 ("/controller_manager/robot_description", "/robot_description"),
             ]
+            if remote_chassis:
+                default_remappings.append(("/joint_states", body_joint_states_topic))
+                print(
+                    "[INFO] remote_chassis enabled: local JSB -> "
+                    f"{body_joint_states_topic}; mux {chassis_joint_states_topic} + "
+                    f"{body_joint_states_topic} -> {merged_joint_states_topic}"
+                )
             all_remappings = default_remappings + _parse_remappings(remappings_str)
             nodes.append(
                 Node(
@@ -309,5 +324,24 @@ def create_controller_manager_nodes(
             output="screen",
         )
     )
+
+    if remote_chassis:
+        nodes.append(
+            Node(
+                package="robot_common_launch",
+                executable="joint_state_mux",
+                name="joint_state_mux",
+                output="screen",
+                parameters=[
+                    {
+                        "use_sim_time": use_sim_time,
+                        "chassis_joint_states_topic": chassis_joint_states_topic,
+                        "body_joint_states_topic": body_joint_states_topic,
+                        "output_topic": merged_joint_states_topic,
+                        "publish_rate_hz": 100.0,
+                    }
+                ],
+            )
+        )
 
     return nodes

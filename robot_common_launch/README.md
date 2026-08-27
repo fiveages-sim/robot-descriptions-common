@@ -48,6 +48,11 @@ platform:
   arms: <key>                 # 双臂套件（机型相关；对应 {key}_description 或带 _vN 后缀）
   variant: <key>
   chassis_joints_movable: "true"|"false"
+  # Optional — remote chassis over ROS 2 / Zenoh (default off):
+  # remote_chassis: "true"
+  # remote_chassis_joint_states_topic: "/chassis/joint_states"
+  # body_joint_states_topic: "/body/joint_states"
+  # merged_joint_states_topic: "/joint_states"
 
 defaults:
   end_effectors:
@@ -143,7 +148,7 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `ft` / `left_ft` / `right_ft` | 力传感器（覆盖 profile `defaults.ft`） |
 | `tcp_offset_xyz` / `tcp_offset_rpy` | 对称 TCP 偏移 |
 | `left_tcp_offset_*` / `right_tcp_offset_*` | 分侧 TCP 偏移 |
-| `chassis` / `arms` / `variant` / `chassis_joints_movable` | 平台 xacro，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
+| `chassis` / `arms` / `variant` / `chassis_joints_movable` / `remote_chassis` | 平台 xacro 与远程底盘 mux，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
 | `hardware` | 仿真/真机插件（→ xacro `ros2_control_hardware_type`）；并可触发 `{hardware}.yaml` overlay |
 | `collider` / `skin` / `direction` | 常用模型 xacro |
 
@@ -159,6 +164,54 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `arms` | 人形双臂套件 | 机型相关；键名应对应 `{key}_description`，或带 `_v<digits>` 代际后缀（落到去掉后缀的包） |
 | `variant` | 机型变体（外观、立柱、独立机械臂代际） | 机型相关。选臂的人形用 `arms`，不要把臂套件写进 `platform.variant` |
 | `chassis_joints_movable` | 底盘关节是否可动 | `true` / `false` |
+
+### 远程底盘（`remote_chassis`，可选，默认关闭）
+
+用于**上半身 mock 运控 + 远端真机底盘**（ROS 2 / `rmw_zenoh_cpp` 跨机）。未配置时行为与现网完全一致，不影响其它机器人。
+
+**启用条件**（任一即可）：
+
+- `robot_profile` → `platform.remote_chassis: "true"`
+- Launch：`remote_chassis:=true`
+
+**Profile 示例**（联调 fa-w2 + 3588 底盘）：
+
+```yaml
+platform:
+  chassis: linkhou_s2
+  chassis_joints_movable: "true"   # 控制 URDF 轮系可动；规划 URDF 仍冻结
+  remote_chassis: "true"
+  remote_chassis_joint_states_topic: "/chassis/joint_states"
+  body_joint_states_topic: "/body/joint_states"
+  merged_joint_states_topic: "/joint_states"
+```
+
+**机制**（`create_controller_manager_nodes`）：
+
+1. 本地 `joint_state_broadcaster` 经 remap 发布到 `/body/joint_states`（仅躯干/臂/手，不含轮系）。
+2. 启动 `joint_state_mux`：订阅远端 `/chassis/joint_states` + 本地 `/body/joint_states`，按关节名合并后发布 `/joint_states`。
+3. `robot_state_publisher` 仍读控制 URDF；需 `chassis_joints_movable:=true` 才能用合并后的轮系关节驱动 TF。
+
+**适用 launch**：OCS2 `full_body.launch.py`、`split_body.launch.py`（均走 `create_controller_manager_nodes`）。`split_body` 仅 mock 双臂时通常 `planning_scope:=arms`，控制栈仍可用 `remote_chassis` 合并全身 JS。
+
+**底盘侧约定**（非本包）：3588 上 `linkhou_s2_description` 以 `namespace:=chassis` 启动，发布 `/chassis/joint_states`、`/chassis/odom` 等；与上半身联调时建议 `publish_robot_state:=false`，避免与上半身 RSP 的 TF 冲突。
+
+**验证顺序**：
+
+```bash
+# 1) 主机 Zenoh router 已起；3588 底盘 launch
+# 2) 主机：ros2 topic hz /chassis/joint_states
+# 3) 主机 mock 运控（profile 含 remote_chassis）
+ros2 topic hz /joint_states
+ros2 run tf2_ros tf2_echo odom base_link   # 来自 /chassis/odom TF
+```
+
+| 参数 | 默认 | 说明 |
+|------|------|------|
+| `remote_chassis` | `false` | 启用 mux + JSB remap |
+| `remote_chassis_joint_states_topic` | `/chassis/joint_states` | 远端底盘 JS |
+| `body_joint_states_topic` | `/body/joint_states` | 本地 JSB 输出 |
+| `merged_joint_states_topic` | `/joint_states` | RSP / RViz 订阅 |
 
 `arms` **不会**触发 `config/ros2_control/{arms}.yaml` overlay（那是 `variant` 的职责）。分体规划若落到独立机械臂包（该包 xacro 不声明 `arms`），会丢掉人形的 `arms` 参数；若该包声明了 `variant`，则把同一键写入 `variant`。`planning_robot_for_arm_family` 用 ament 查找 `{key}_description`；找不到时去掉末尾 `_v<digits>` 再试。
 

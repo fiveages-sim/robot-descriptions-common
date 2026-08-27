@@ -38,6 +38,7 @@ setup(
     license='BSD-3',
     entry_points={
         'console_scripts': [
+            'joint_state_mux = robot_common_launch.joint_state_mux:main',
         ],
     },
 )

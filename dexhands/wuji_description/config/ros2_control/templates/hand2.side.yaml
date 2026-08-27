@@ -4,7 +4,7 @@
     target_command_enabled: true
     target_command_close_config: 1
     target_command_open_config: 0
-    movej_interpolation_type: "linear"
+    movej_interpolation_type: "none"
     home_interpolation_type: "none"
     joints:
       - {side_}hand_thumb_cmc_flex

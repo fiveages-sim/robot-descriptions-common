@@ -35,8 +35,8 @@
     <child link="right_hand_hand_base"/>
   </joint>
 
-  <xacro:macro name="wuji_hand2_side_system" params="side hand_side device_address serial_number">
-    <ros2_control name="wuji_hand2_${side}_system" type="system">
+  <xacro:macro name="wuji_hand2_side_system" params="side hand_side device_address serial_number rw_rate:=200">
+    <ros2_control name="wuji_hand2_${side}_system" type="system" rw_rate="${rw_rate}">
       <hardware>
         <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
           <plugin>gz_ros2_control/GazeboSimSystem</plugin>

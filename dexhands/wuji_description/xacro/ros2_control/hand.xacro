@@ -34,7 +34,7 @@
 
     <xacro:include filename="$(find wuji_description)/xacro/hand.xacro"/>
 
-    <ros2_control name="wuji_hand_system" type="system">
+    <ros2_control name="wuji_hand_system" type="system" rw_rate="200">
         <hardware>
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
                 <plugin>gz_ros2_control/GazeboSimSystem</plugin>

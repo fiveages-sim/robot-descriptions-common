@@ -1,7 +1,7 @@
 # Standalone ros2_control config for Wuji Hand 2 (Beta 2).
 controller_manager:
   ros__parameters:
-    update_rate: 100
+    update_rate: 200
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -39,7 +39,7 @@ joint_state_broadcaster:
 
 hand_joint_controller:
   ros__parameters:
-    update_rate: 100
+    update_rate: 200
     joints:
       - thumb_cmc_flex
       - thumb_cmc_abd
@@ -75,10 +75,10 @@ hand_joint_controller:
     target_command_close_config: 1
     target_command_open_config: 0
 
-    # Match LinkerHand / controller defaults: interpolate over home_duration / movej_duration
-    home_interpolation_type: "none"
-    movej_interpolation_type: "none"
+    # Linear interpolation over home_duration / movej_duration (real Hand2 @ 200 Hz).
+    home_interpolation_type: "linear"
+    movej_interpolation_type: "linear"
 
-    home_duration: 3.0
-    movej_duration: 3.0
+    home_duration: 0.5
+    movej_duration: 0.5
     hold_position_threshold: 0.1

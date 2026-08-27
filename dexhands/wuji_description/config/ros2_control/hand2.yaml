@@ -77,7 +77,7 @@ hand_joint_controller:
 
     # Match LinkerHand / controller defaults: interpolate over home_duration / movej_duration
     home_interpolation_type: "none"
-    movej_interpolation_type: "linear"
+    movej_interpolation_type: "none"
 
     home_duration: 3.0
     movej_duration: 3.0

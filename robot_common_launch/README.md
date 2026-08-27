@@ -191,6 +191,9 @@ platform:
 1. 本地 `joint_state_broadcaster` 经 remap 发布到 `/body/joint_states`（仅躯干/臂/手，不含轮系）。
 2. 启动 `joint_state_mux`：订阅远端 `/chassis/joint_states` + 本地 `/body/joint_states`，按关节名合并后发布 `/joint_states`。
 3. `robot_state_publisher` 仍读控制 URDF；需 `chassis_joints_movable:=true` 才能用合并后的轮系关节驱动 TF。
+4. 启动 `static_transform_publisher`：`world → odom`（恒等），与底盘 `odom → base_link`（Zenoh）及 RSP 的 `base_footprint → base_link` 拼成 WBC 所需的 `world → base_footprint`。
+
+**底盘侧为何不跑 RSP**：真机轮角/舵角走 `/chassis/joint_states`，里程走 `/chassis/odom` + `odom→base_link` TF；若 3588 也跑 RSP 会与主机抢同一 link 名的 TF。Jazzy 仍需要 URDF topic → 用 `robot_description_publisher`（无 TF）。
 
 **适用 launch**：OCS2 `full_body.launch.py`、`split_body.launch.py`（均走 `create_controller_manager_nodes`）。`split_body` 仅 mock 双臂时通常 `planning_scope:=arms`，控制栈仍可用 `remote_chassis` 合并全身 JS。
 
@@ -199,11 +202,9 @@ platform:
 **验证顺序**：
 
 ```bash
-# 1) 主机 Zenoh router 已起；3588 底盘 launch
-# 2) 主机：ros2 topic hz /chassis/joint_states
-# 3) 主机 mock 运控（profile 含 remote_chassis）
 ros2 topic hz /joint_states
-ros2 run tf2_ros tf2_echo odom base_link   # 来自 /chassis/odom TF
+ros2 run tf2_ros tf2_echo world base_footprint   # WBC 所需
+ros2 run tf2_ros tf2_echo odom base_link           # 来自 /chassis/odom TF
 ```
 
 | 参数 | 默认 | 说明 |

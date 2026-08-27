@@ -328,6 +328,16 @@ def create_controller_manager_nodes(
     if remote_chassis:
         nodes.append(
             Node(
+                package="tf2_ros",
+                executable="static_transform_publisher",
+                name="world_to_odom",
+                arguments=["0", "0", "0", "0", "0", "0", "world", "odom"],
+                parameters=[{"use_sim_time": use_sim_time}],
+                output="screen",
+            )
+        )
+        nodes.append(
+            Node(
                 package="robot_common_launch",
                 executable="joint_state_mux",
                 name="joint_state_mux",
@@ -342,6 +352,10 @@ def create_controller_manager_nodes(
                     }
                 ],
             )
+        )
+        print(
+            "[INFO] remote_chassis TF chain: chassis odom->base_link (Zenoh) + "
+            "world->odom (static) + host RSP base_footprint->base_link + merged joint_states"
         )
 
     return nodes

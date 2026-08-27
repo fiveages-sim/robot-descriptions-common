@@ -1,7 +1,7 @@
 # Dual Wuji Hand2 standalone ros2_control (left_hand_* / right_hand_* prefixes).
 controller_manager:
   ros__parameters:
-    update_rate: 100
+    update_rate: 200
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -62,7 +62,7 @@ joint_state_broadcaster:
 
 left_hand_controller:
   ros__parameters:
-    update_rate: 100
+    update_rate: 200
     joints:
       - left_hand_thumb_cmc_flex
       - left_hand_thumb_cmc_abd
@@ -94,15 +94,15 @@ left_hand_controller:
     target_command_enabled: true
     target_command_close_config: 1
     target_command_open_config: 0
-    home_interpolation_type: "none"
-    movej_interpolation_type: "none"
-    home_duration: 3.0
-    movej_duration: 3.0
+    home_interpolation_type: "linear"
+    movej_interpolation_type: "linear"
+    home_duration: 0.5
+    movej_duration: 0.5
     hold_position_threshold: 0.1
 
 right_hand_controller:
   ros__parameters:
-    update_rate: 100
+    update_rate: 200
     joints:
       - right_hand_thumb_cmc_flex
       - right_hand_thumb_cmc_abd
@@ -134,8 +134,8 @@ right_hand_controller:
     target_command_enabled: true
     target_command_close_config: 1
     target_command_open_config: 0
-    home_interpolation_type: "none"
-    movej_interpolation_type: "none"
-    home_duration: 3.0
-    movej_duration: 3.0
+    home_interpolation_type: "linear"
+    movej_interpolation_type: "linear"
+    home_duration: 0.5
+    movej_duration: 0.5
     hold_position_threshold: 0.1

@@ -354,8 +354,8 @@ def create_controller_manager_nodes(
             )
         )
         print(
-            "[INFO] remote_chassis TF chain: chassis odom->base_link (Zenoh) + "
-            "world->odom (static) + host RSP base_footprint->base_link + merged joint_states"
+            "[INFO] remote_chassis TF chain: world->odom (static) + chassis odom->base_footprint "
+            "(Zenoh) + host RSP base_footprint->base_link + merged joint_states"
         )
 
     return nodes

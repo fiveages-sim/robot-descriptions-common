@@ -193,7 +193,7 @@ platform:
 3. `robot_state_publisher` 仍读控制 URDF；需 `chassis_joints_movable:=true` 才能用合并后的轮系关节驱动 TF。
 4. 启动 `static_transform_publisher`：`world → odom`（恒等），与底盘 `odom → base_footprint`（Zenoh）及 RSP 的 `base_footprint → base_link` 拼成 WBC 所需的 `world → base_footprint`。
 
-**底盘侧为何不跑 RSP**：真机轮角/舵角走 `/chassis/joint_states`，里程走 `/chassis/odom` + `odom→base_link` TF；若 3588 也跑 RSP 会与主机抢同一 link 名的 TF。Jazzy 仍需要 URDF topic → 用 `robot_description_publisher`（无 TF）。
+**底盘侧为何不跑 RSP**：真机轮角/舵角走 `/chassis/joint_states`，里程走 `/chassis/odom` + `odom→base_footprint` TF；若 3588 也跑 RSP 会与主机抢同一 link 名的 TF。Jazzy 仍需要 URDF topic → 用 `robot_description_publisher`（无 TF）。
 
 **适用 launch**：OCS2 `full_body.launch.py`、`split_body.launch.py`（均走 `create_controller_manager_nodes`）。`split_body` 仅 mock 双臂时通常 `planning_scope:=arms`，控制栈仍可用 `remote_chassis` 合并全身 JS。
 

@@ -17,7 +17,7 @@ XACRO_PREFIX = "xacro_"
 HARDWARE_PREFIX = "hardware_"
 CONTROL_PREFIX = "control_"
 
-REAL_HARDWARE = frozenset({"real", "real_usb"})
+REAL_HARDWARE = frozenset({"real"})
 
 _EEF_XACRO_KEYS = frozenset({"type", "left_type", "right_type"})
 
@@ -259,7 +259,7 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
       defaults.end_effectors: type|left|right — when use_profile_eef
       defaults.ft: type|left|right — always with profile
       defaults.tcp_offset: xyz|rpy|left_*|right_* — always with profile → xacro keys
-      hardware: applied when hardware:=real / real_usb
+      hardware: applied when hardware:=real
       control.patch: ros2_control overrides
     """
     if not isinstance(data, dict) or not data:

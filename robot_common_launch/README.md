@@ -37,7 +37,7 @@ ros2 launch … robot_profile:=/path/to/profile.yaml  [+ CLI args]
 | `defaults.end_effectors` | 仅 `use_profile_eef:=true`（默认） | 末端类型；可被 CLI 关掉以改用 `type` / `left_type` / `right_type` |
 | `defaults.ft` | 始终 | 力传感器；**不受** `use_profile_eef` 影响 |
 | `defaults.tcp_offset` | 始终 | 虚拟 tip 偏移；注入前做表达式求值 |
-| `hardware` | 仅 `hardware:=real` / `real_usb` | 真机参数（串口、`arm_ctrl_mode`、`*_dyn_param` 等） |
+| `hardware` | 仅 `hardware:=real` | 真机参数（串口、`arm_ctrl_mode`、`*_dyn_param` 等） |
 | `control.patch` | 始终 | 深合并进 ros2_control 配置 |
 
 ### Profile schema（包约定）
@@ -101,7 +101,7 @@ common.yaml
 - 后写入覆盖先写入的同名键（list / 标量整段替换；dict 递归 merge）
 - 任一 overlay / compose / patch 生效时会写出临时 merged YAML 供 `ros2_control_node` 使用
 
-与上文 profile 段里的 `hardware:`（真机串口、`arm_ctrl_mode` 等 → xacro）**不是同一层**：后者只在 `hardware:=real` / `real_usb` 时注入 xacro；此处 `{hardware}.yaml` 改的是 **控制器 claim / 参数**。
+与上文 profile 段里的 `hardware:`（真机串口、`arm_ctrl_mode` 等 → xacro）**不是同一层**：后者只在 `hardware:=real` 时注入 xacro；此处 `{hardware}.yaml` 改的是 **控制器 claim / 参数**。
 
 ### `{hardware}.yaml` 典型用途（Isaac）
 
@@ -172,7 +172,7 @@ ros2 launch robot_common_launch humanoid.launch.py robot:=fiveages_w2r arms:=ar5
 | 前缀 | 用途 |
 |------|------|
 | `xacro_*` | 任意 xacro arg |
-| `hardware_*` | 真机参数（仅 real / real_usb 路径注入） |
+| `hardware_*` | 真机参数（仅 real 路径注入） |
 
 一等参数优先于同名的 `xacro_left_ft` / `xacro_left_tcp_offset_*` 等。
 

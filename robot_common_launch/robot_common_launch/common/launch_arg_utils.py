@@ -88,6 +88,7 @@ CORE_LAUNCH_KEYS = frozenset({
     "ros2_controllers_override",
     "chassis",
     "arms",
+    "skin",
     "variant",
     "chassis_joints_movable",
 })
@@ -127,6 +128,7 @@ def extract_prefixed_args(
 _PLATFORM_XACRO_KEYS = (
     "chassis",
     "arms",
+    "skin",
     "variant",
     "chassis_joints_movable",
 )
@@ -869,6 +871,16 @@ def create_robot_profile_launch_arguments():
             "use_profile_eef",
             default_value="true",
             description="Apply defaults.end_effectors from robot_profile (false for quick_start templates)",
+        ),
+        DeclareLaunchArgument(
+            "skin",
+            default_value="",
+            description="Xacro visual skin key. Empty falls back to robot_profile or the robot xacro default.",
+        ),
+        DeclareLaunchArgument(
+            "variant",
+            default_value="",
+            description="Robot-specific platform variant. Independent from arms and skin.",
         ),
         *create_eef_side_launch_arguments(),
         *create_ft_launch_arguments(),

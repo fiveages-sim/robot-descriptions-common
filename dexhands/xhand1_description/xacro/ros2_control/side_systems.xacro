@@ -103,7 +103,7 @@
   </xacro:macro>
 
   <xacro:macro name="xhand1_rs485_side_system" params="side serial_port baudrate:=3000000 host_id:=0xFE hand_id:=0">
-    <ros2_control name="xhand1_${side}_system" type="system">
+    <ros2_control name="xhand1_${side}_system" type="system" rw_rate="50">
       <hardware>
         <plugin>modbus_ros2_control/XHand1RS485Hardware</plugin>
         <param name="serial_port">${serial_port}</param>
@@ -112,7 +112,6 @@
         <param name="hand_id">${hand_id}</param>
         <param name="require_initial_feedback">true</param>
         <param name="feedback_timeout_ms">50</param>
-        <param name="background_period_ms">12</param>
         <param name="control_mode">3</param>
       </hardware>
       <xacro:xhand1_interfaces name="${side}_hand"/>

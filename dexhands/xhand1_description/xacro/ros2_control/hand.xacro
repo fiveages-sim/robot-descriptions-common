@@ -10,7 +10,6 @@
     <xacro:arg name="hand_id" default="0"/>
     <xacro:arg name="require_initial_feedback" default="true"/>
     <xacro:arg name="feedback_timeout_ms" default="50"/>
-    <xacro:arg name="background_period_ms" default="12"/>
 
     <link name="world"/>
 
@@ -23,7 +22,7 @@
     <xacro:include filename="$(find xhand1_description)/xacro/xhand1.xacro"/>
     <xacro:XHand1 name="" direction="$(arg direction)"/>
 
-    <ros2_control name="xhand1_system" type="system">
+    <ros2_control name="xhand1_system" type="system" rw_rate="50">
         <hardware>
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
                 <plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -49,7 +48,6 @@
                 <param name="hand_id">$(arg hand_id)</param>
                 <param name="require_initial_feedback">$(arg require_initial_feedback)</param>
                 <param name="feedback_timeout_ms">$(arg feedback_timeout_ms)</param>
-                <param name="background_period_ms">$(arg background_period_ms)</param>
                 <param name="control_mode">3</param>
             </xacro:if>
         </hardware>

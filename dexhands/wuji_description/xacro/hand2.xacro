@@ -27,7 +27,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_mount.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_mount.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.627450980392157 0.627450980392157 0.627450980392157 1"/>
@@ -36,7 +36,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_mount.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_mount.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -72,7 +72,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_wrist.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_wrist.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -81,7 +81,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_wrist.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_wrist.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -94,7 +94,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.627450980392157 0.627450980392157 0.627450980392157 1"/>
@@ -103,7 +103,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -125,7 +125,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.627450980392157 0.627450980392157 0.627450980392157 1"/>
@@ -134,7 +134,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -156,7 +156,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.627450980392157 0.627450980392157 0.627450980392157 1"/>
@@ -165,7 +165,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -187,7 +187,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -196,7 +196,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -224,7 +224,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.55 0.78 0.95 1"/>
@@ -233,7 +233,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_thumb_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_thumb_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -251,7 +251,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -260,7 +260,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -282,7 +282,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -291,7 +291,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -313,7 +313,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -322,7 +322,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -344,7 +344,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -353,7 +353,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -381,7 +381,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.55 0.78 0.95 1"/>
@@ -390,7 +390,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -408,7 +408,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -417,7 +417,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -439,7 +439,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -448,7 +448,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -470,7 +470,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -479,7 +479,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -501,7 +501,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -510,7 +510,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -538,7 +538,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.55 0.78 0.95 1"/>
@@ -547,7 +547,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -565,7 +565,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -574,7 +574,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -596,7 +596,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -605,7 +605,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -627,7 +627,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -636,7 +636,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -658,7 +658,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -667,7 +667,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -695,7 +695,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.55 0.78 0.95 1"/>
@@ -704,7 +704,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -722,7 +722,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -731,7 +731,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_proximal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -753,7 +753,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_pinky_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_pinky_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -762,7 +762,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_pinky_proximal_abd.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_pinky_proximal_abd.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -784,7 +784,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_pinky_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_pinky_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="1 1 1 1"/>
@@ -793,7 +793,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_pinky_middle.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_pinky_middle.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -815,7 +815,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1"/>
@@ -824,7 +824,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_distal.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>
@@ -852,7 +852,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
         <material name="">
           <color rgba="0.55 0.78 0.95 1"/>
@@ -861,7 +861,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand2/left/l_digit_tip_sensor_frame.STL" scale="1 ${direction} 1"/>
         </geometry>
       </collision>
     </link>

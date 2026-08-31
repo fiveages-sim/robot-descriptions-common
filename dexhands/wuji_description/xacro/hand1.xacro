@@ -22,7 +22,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_palm_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_palm_link.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -31,7 +31,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_palm_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_palm_link.STL"/>
         </geometry>
       </collision>
     </link>
@@ -44,7 +44,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link1.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -53,7 +53,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link1.STL"/>
         </geometry>
       </collision>
     </link>
@@ -75,7 +75,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link2.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -84,7 +84,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link2.STL"/>
         </geometry>
       </collision>
     </link>
@@ -106,7 +106,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link3.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -115,7 +115,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link3.STL"/>
         </geometry>
       </collision>
     </link>
@@ -137,7 +137,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link4.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -146,7 +146,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_link4.STL"/>
         </geometry>
       </collision>
     </link>
@@ -168,7 +168,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_tip_link.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -177,7 +177,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_finger1_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_finger1_tip_link.STL"/>
         </geometry>
       </collision>
     </link>
@@ -195,7 +195,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -204,7 +204,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
       </collision>
     </link>
@@ -226,7 +226,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -235,7 +235,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
       </collision>
     </link>
@@ -257,7 +257,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -266,7 +266,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
       </collision>
     </link>
@@ -288,7 +288,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -297,7 +297,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
       </collision>
     </link>
@@ -319,7 +319,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -328,7 +328,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
       </collision>
     </link>
@@ -346,7 +346,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -355,7 +355,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
       </collision>
     </link>
@@ -377,7 +377,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -386,7 +386,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
       </collision>
     </link>
@@ -408,7 +408,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -417,7 +417,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
       </collision>
     </link>
@@ -439,7 +439,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -448,7 +448,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
       </collision>
     </link>
@@ -470,7 +470,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -479,7 +479,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
       </collision>
     </link>
@@ -497,7 +497,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -506,7 +506,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
       </collision>
     </link>
@@ -528,7 +528,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -537,7 +537,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
       </collision>
     </link>
@@ -559,7 +559,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -568,7 +568,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
       </collision>
     </link>
@@ -590,7 +590,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -599,7 +599,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
       </collision>
     </link>
@@ -621,7 +621,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -630,7 +630,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
       </collision>
     </link>
@@ -648,7 +648,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -657,7 +657,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link1.STL"/>
         </geometry>
       </collision>
     </link>
@@ -679,7 +679,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -688,7 +688,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link2.STL"/>
         </geometry>
       </collision>
     </link>
@@ -710,7 +710,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.627451 0.627451 0.627451 1"/>
@@ -719,7 +719,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link3.STL"/>
         </geometry>
       </collision>
     </link>
@@ -741,7 +741,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -750,7 +750,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_link4.STL"/>
         </geometry>
       </collision>
     </link>
@@ -772,7 +772,7 @@
       <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
         <material name="">
           <color rgba="0.5294118 0.5490196 0.5490196 1"/>
@@ -781,7 +781,7 @@
       <collision>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
-          <mesh filename="package://wuji_description/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
+          <mesh filename="file://$(find wuji_description)/meshes/hand1/${mesh_side}/${mesh_side}_digit_tip_link.STL"/>
         </geometry>
       </collision>
     </link>

@@ -164,19 +164,6 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `arms` | 人形双臂套件 | 机型相关；键名应对应 `{key}_description`，或带 `_v<digits>` 代际后缀（落到去掉后缀的包） |
 | `variant` | 机型变体（外观、立柱、独立机械臂代际） | 机型相关。选臂的人形用 `arms`，不要把臂套件写进 `platform.variant` |
 | `chassis_joints_movable` | 底盘关节是否可动 | `true` / `false` |
-| `remote_chassis` | 远端真机底盘 JS mux（跨机 Zenoh） | `true` / `false`（默认 `false`） |
-
-### 远程底盘（`remote_chassis`，可选）
-
-上半身 mock 与远端真机底盘分机部署时使用（`rmw_zenoh_cpp`）。`platform.remote_chassis: "true"` 或 launch `remote_chassis:=true` 启用；未配置时行为与现网一致。
-
-`create_controller_manager_nodes` 将 JSB remap 到 `/body/joint_states`，启动 `joint_state_mux` 合并远端 `/chassis/joint_states`，并发布 `world→odom` 静态 TF；需 `chassis_joints_movable:=true` 才能驱动轮系 TF。OCS2 `full_body` / `split_body` 已接入。
-
-| 参数 | 默认 | 说明 |
-|------|------|------|
-| `remote_chassis_joint_states_topic` | `/chassis/joint_states` | 远端底盘 JS |
-| `body_joint_states_topic` | `/body/joint_states` | 本地 JSB 输出 |
-| `merged_joint_states_topic` | `/joint_states` | RSP / RViz 订阅 |
 
 ### 远程底盘（`remote_chassis`，可选，默认关闭）
 

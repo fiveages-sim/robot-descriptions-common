@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="side_ros2_control_system" params="name rw_rate:='' *contents">
+    <xacro:if value="${rw_rate != ''}">
+      <ros2_control name="${name}" type="system" rw_rate="${rw_rate}">
+        <xacro:insert_block name="contents"/>
+      </ros2_control>
+    </xacro:if>
+    <xacro:unless value="${rw_rate != ''}">
+      <ros2_control name="${name}" type="system">
+        <xacro:insert_block name="contents"/>
+      </ros2_control>
+    </xacro:unless>
+  </xacro:macro>
+
+  <xacro:macro name="changingtek_usb_side_system" params="side variant serial_port rw_rate:=''">
+    <xacro:side_ros2_control_system name="changingtek_${side}_system" rw_rate="${rw_rate}">
+      <contents>
+        <hardware>
+          <plugin>modbus_ros2_control/ModbusHardware</plugin>
+          <param name="gripper_type">changingtek</param>
+          <param name="variant">${variant}</param>
+          <param name="serial_port">${serial_port}</param>
+        </hardware>
+        <joint name="${side}_gripper_joint">
+          <command_interface name="position"/>
+          <state_interface name="position">
+            <param name="initial_value">0</param>
+          </state_interface>
+        </joint>
+      </contents>
+    </xacro:side_ros2_control_system>
+  </xacro:macro>
+
+</robot>

@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find linkerhand_description)/xacro/ros2_control/o6.xacro"/>
+  <xacro:include filename="$(find linkerhand_description)/xacro/ros2_control/o7.xacro"/>
+
+  <xacro:macro name="side_ros2_control_system" params="name rw_rate:='' *contents">
+    <xacro:if value="${rw_rate != ''}">
+      <ros2_control name="${name}" type="system" rw_rate="${rw_rate}">
+        <xacro:insert_block name="contents"/>
+      </ros2_control>
+    </xacro:if>
+    <xacro:unless value="${rw_rate != ''}">
+      <ros2_control name="${name}" type="system">
+        <xacro:insert_block name="contents"/>
+      </ros2_control>
+    </xacro:unless>
+  </xacro:macro>
+
+  <xacro:macro name="side_usb_hand_system" params="side hand_type serial_port rw_rate:=''">
+    <xacro:property name="usb_hand_system_name" value="${str('linkerhand_7' if hand_type == 'linkerhand_o7' else 'linkerhand_6')}"/>
+    <xacro:side_ros2_control_system name="${usb_hand_system_name}_${side}_system" rw_rate="${rw_rate}">
+      <contents>
+        <hardware>
+          <plugin>modbus_ros2_control/DexterousHandHardware</plugin>
+          <param name="serial_port">${serial_port}</param>
+          <param name="hand_type">${hand_type}</param>
+          <param name="hand_side">${side}</param>
+          <param name="max_speed_ratio">1.0</param>
+        </hardware>
+        <xacro:if value="${hand_type == 'linkerhand_o7'}">
+          <xacro:linkerhand_o7_interfaces name="${side}_hand"/>
+        </xacro:if>
+        <xacro:unless value="${hand_type == 'linkerhand_o7'}">
+          <xacro:linkerhand_o6_interfaces name="${side}_hand"/>
+        </xacro:unless>
+      </contents>
+    </xacro:side_ros2_control_system>
+  </xacro:macro>
+
+  <xacro:macro name="linkerhand_usb_can_side_system" params="side hand_type can_interface read_tactile:=false rw_rate:=''">
+    <xacro:property name="linkerhand_can_rw_rate" value="${rw_rate if rw_rate != '' else 50}"/>
+    <xacro:side_ros2_control_system name="${hand_type}_${side}_can_system" rw_rate="${linkerhand_can_rw_rate}">
+      <contents>
+        <hardware>
+          <xacro:if value="${hand_type == 'linkerhand_o6'}">
+            <plugin>can_ros2_control/O6CanHardware</plugin>
+          </xacro:if>
+          <xacro:if value="${hand_type == 'linkerhand_l6'}">
+            <plugin>can_ros2_control/L6CanHardware</plugin>
+          </xacro:if>
+          <xacro:if value="${hand_type == 'linkerhand_o7'}">
+            <plugin>can_ros2_control/O7CanHardware</plugin>
+          </xacro:if>
+          <param name="can_interface">${can_interface}</param>
+          <param name="hand_side">${side}</param>
+          <param name="read_feedback">true</param>
+          <param name="read_tactile">${read_tactile}</param>
+          <param name="${side}_tool_torque">1.0</param>
+          <param name="${side}_tool_velocity">1.0</param>
+        </hardware>
+        <xacro:if value="${hand_type == 'linkerhand_o7'}">
+          <xacro:linkerhand_o7_interfaces name="${side}_hand"/>
+        </xacro:if>
+        <xacro:unless value="${hand_type == 'linkerhand_o7'}">
+          <xacro:linkerhand_o6_interfaces name="${side}_hand"/>
+        </xacro:unless>
+      </contents>
+    </xacro:side_ros2_control_system>
+  </xacro:macro>
+
+</robot>

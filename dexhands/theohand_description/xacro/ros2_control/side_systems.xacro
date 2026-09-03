@@ -1,20 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <xacro:include filename="$(find robot_common_launch)/xacro/ros2_control/side_system.xacro"/>
   <xacro:include filename="$(find theohand_description)/xacro/ros2_control/std16a.xacro"/>
-
-  <xacro:macro name="side_ros2_control_system" params="name rw_rate:='' *contents">
-    <xacro:if value="${rw_rate != ''}">
-      <ros2_control name="${name}" type="system" rw_rate="${rw_rate}">
-        <xacro:insert_block name="contents"/>
-      </ros2_control>
-    </xacro:if>
-    <xacro:unless value="${rw_rate != ''}">
-      <ros2_control name="${name}" type="system">
-        <xacro:insert_block name="contents"/>
-      </ros2_control>
-    </xacro:unless>
-  </xacro:macro>
 
   <xacro:macro name="theohand_usb_side_system" params="side serial_port baudrate:=115200 slave_id:=auto rw_rate:=''">
     <xacro:property name="theohand_slave_id" value="${2 if side == 'left' and slave_id == 'auto' else 1 if side == 'right' and slave_id == 'auto' else slave_id}"/>

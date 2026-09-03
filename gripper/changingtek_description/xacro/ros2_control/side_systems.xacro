@@ -1,18 +1,7 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="side_ros2_control_system" params="name rw_rate:='' *contents">
-    <xacro:if value="${rw_rate != ''}">
-      <ros2_control name="${name}" type="system" rw_rate="${rw_rate}">
-        <xacro:insert_block name="contents"/>
-      </ros2_control>
-    </xacro:if>
-    <xacro:unless value="${rw_rate != ''}">
-      <ros2_control name="${name}" type="system">
-        <xacro:insert_block name="contents"/>
-      </ros2_control>
-    </xacro:unless>
-  </xacro:macro>
+  <xacro:include filename="$(find robot_common_launch)/xacro/ros2_control/side_system.xacro"/>
 
   <xacro:macro name="changingtek_usb_side_system" params="side variant serial_port rw_rate:=''">
     <xacro:side_ros2_control_system name="changingtek_${side}_system" rw_rate="${rw_rate}">

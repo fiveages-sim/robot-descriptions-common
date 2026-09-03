@@ -1,21 +1,9 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <xacro:include filename="$(find robot_common_launch)/xacro/ros2_control/side_system.xacro"/>
   <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedomv1.xacro"/>
   <xacro:include filename="$(find freedom_description)/xacro/ros2_control/freedomv2.xacro"/>
-
-  <xacro:macro name="side_ros2_control_system" params="name rw_rate:='' *contents">
-    <xacro:if value="${rw_rate != ''}">
-      <ros2_control name="${name}" type="system" rw_rate="${rw_rate}">
-        <xacro:insert_block name="contents"/>
-      </ros2_control>
-    </xacro:if>
-    <xacro:unless value="${rw_rate != ''}">
-      <ros2_control name="${name}" type="system">
-        <xacro:insert_block name="contents"/>
-      </ros2_control>
-    </xacro:unless>
-  </xacro:macro>
 
   <xacro:macro name="freedom_rs485_side_system" params="side serial_port slave_id:=auto baudrate:=115200 type:=freedomv1 command_speed:=100 rw_rate:=''">
     <xacro:side_ros2_control_system name="${type}_${side}_system" rw_rate="${rw_rate}">

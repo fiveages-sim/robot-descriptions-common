@@ -1,6 +1,8 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+  <xacro:include filename="$(find robot_common_launch)/xacro/ros2_control/side_system.xacro"/>
+
   <xacro:macro name="xhand1_interfaces" params="name">
     <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
 
@@ -102,20 +104,22 @@
     </joint>
   </xacro:macro>
 
-  <xacro:macro name="xhand1_rs485_side_system" params="side serial_port baudrate:=3000000 host_id:=0xFE hand_id:=0">
-    <ros2_control name="xhand1_${side}_system" type="system" rw_rate="50">
-      <hardware>
-        <plugin>modbus_ros2_control/XHand1RS485Hardware</plugin>
-        <param name="serial_port">${serial_port}</param>
-        <param name="baudrate">${baudrate}</param>
-        <param name="host_id">${host_id}</param>
-        <param name="hand_id">${hand_id}</param>
-        <param name="require_initial_feedback">true</param>
-        <param name="feedback_timeout_ms">50</param>
-        <param name="control_mode">3</param>
-      </hardware>
-      <xacro:xhand1_interfaces name="${side}_hand"/>
-    </ros2_control>
+  <xacro:macro name="xhand1_rs485_side_system" params="side serial_port baudrate:=3000000 host_id:=0xFE hand_id:=0 rw_rate:=''">
+    <xacro:side_ros2_control_system name="xhand1_${side}_system" rw_rate="${rw_rate}">
+      <contents>
+        <hardware>
+          <plugin>modbus_ros2_control/XHand1RS485Hardware</plugin>
+          <param name="serial_port">${serial_port}</param>
+          <param name="baudrate">${baudrate}</param>
+          <param name="host_id">${host_id}</param>
+          <param name="hand_id">${hand_id}</param>
+          <param name="require_initial_feedback">true</param>
+          <param name="feedback_timeout_ms">50</param>
+          <param name="control_mode">3</param>
+        </hardware>
+        <xacro:xhand1_interfaces name="${side}_hand"/>
+      </contents>
+    </xacro:side_ros2_control_system>
   </xacro:macro>
 
 </robot>

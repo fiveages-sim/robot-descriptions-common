@@ -143,11 +143,11 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `ft` / `left_ft` / `right_ft` | 力传感器（覆盖 profile `defaults.ft`） |
 | `tcp_offset_xyz` / `tcp_offset_rpy` | 对称 TCP 偏移 |
 | `left_tcp_offset_*` / `right_tcp_offset_*` | 分侧 TCP 偏移 |
-| `chassis` / `arms` / `skin` / `variant` / `chassis_joints_movable` | 平台 xacro，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
+| `chassis` / `arms` / `variant` / `chassis_joints_movable` | 平台 xacro，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
 | `hardware` | 仿真/真机插件（→ xacro `ros2_control_hardware_type`）；并可触发 `{hardware}.yaml` overlay |
-| `collider` / `direction` | 常用模型 xacro |
+| `collider` / `skin` / `direction` | 常用模型 xacro |
 
-### 平台槽位：`chassis` / `arms` / `skin` / `variant`
+### 平台槽位：`chassis` / `arms` / `variant`
 
 由 `create_platform_launch_arguments()` 声明，供人形 / 移动底盘 xacro 使用（独立机械臂 launch 不挂这组）。`humanoid.launch.py`、`component.launch.py` 以及 OCS2 `full_body` / `split_body` / `demo` 已接入。
 
@@ -157,7 +157,6 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 |------|------|--------|
 | `chassis` | 底盘型号 | 机型相关 |
 | `arms` | 人形双臂套件 | 机型相关；键名应对应 `{key}_description`，或带 `_v<digits>` 代际后缀（落到去掉后缀的包） |
-| `skin` | visual 配色 | 仅影响声明该参数的模型外观，不改变运动学或碰撞模型 |
 | `variant` | 机型变体（外观、立柱等） | 机型相关；不要把机械臂套件或代际写进 `platform.variant` |
 | `chassis_joints_movable` | 底盘关节是否可动 | `true` / `false` |
 

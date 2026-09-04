@@ -257,7 +257,7 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     Normalize robot profile to {xacro, eef, ft, hardware, control} for launch code.
 
     Schema:
-      platform: chassis / arms / variant / chassis_joints_movable — always apply
+      platform: chassis / arms / skin / variant / chassis_joints_movable — always apply
       defaults.end_effectors: type|left|right — when use_profile_eef
       defaults.ft: type|left|right — always with profile
       defaults.tcp_offset: xyz|rpy|left_*|right_* — always with profile → xacro keys

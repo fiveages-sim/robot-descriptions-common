@@ -156,11 +156,11 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | 参数 | 作用 | 典型键 |
 |------|------|--------|
 | `chassis` | 底盘型号 | 机型相关 |
-| `arms` | 人形双臂套件 | 机型相关；键名应对应 `{key}_description`，或带 `_v<digits>` 代际后缀（落到去掉后缀的包） |
+| `arms` | 可换双臂套件 | 仅换臂人形需要（如 W1 / W2R）。键名应对应 `{key}_description`，或带 `_v<digits>` 代际后缀（落到去掉后缀的包）。臂写死的机型（如 W2 = M6-CCS）不必声明 |
 | `variant` | 机型变体（外观、立柱等） | 机型相关；不要把机械臂套件或代际写进 `platform.variant` |
 | `chassis_joints_movable` | 底盘关节是否可动 | `true` / `false` |
 
-`arms` **不会**触发 `config/ros2_control/{arms}.yaml` overlay（那是 `variant` 的职责）。整机与独立机械臂描述应声明同一个 `arms` 参数，确保 ros2_control 可视化 URDF 与 OCS2 planning URDF 使用相同套件；公共层不再把 `arms` 隐式改写成 `variant`。`planning_robot_for_arm_family` 用 ament 查找 `{key}_description`；找不到时去掉末尾 `_v<digits>` 再试。
+`arms` **不会**触发 `config/ros2_control/{arms}.yaml` overlay（那是 `variant` 的职责）。只有会换臂的人形才需要 `arms`：整机与对应独立臂描述应声明同一个参数，保证可视化 URDF 与 OCS2 planning URDF 用同一套件。臂固定的机型保持不声明即可。公共层不再把 `arms` 隐式改写成 `variant`（`variant` 留给外观 / OEM）。`planning_robot_for_arm_family` 用 ament 查找 `{key}_description`；找不到时去掉末尾 `_v<digits>` 再试。
 
 ```bash
 ros2 launch robot_common_launch humanoid.launch.py robot:=fiveages_w1 arms:=ar5_ccs

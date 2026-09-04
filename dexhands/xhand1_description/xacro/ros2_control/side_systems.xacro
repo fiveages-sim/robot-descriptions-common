@@ -115,7 +115,6 @@
           <param name="hand_id">${hand_id}</param>
           <param name="require_initial_feedback">true</param>
           <param name="feedback_timeout_ms">50</param>
-          <param name="background_period_ms">12</param>
           <param name="control_mode">3</param>
         </hardware>
         <xacro:xhand1_interfaces name="${side}_hand"/>

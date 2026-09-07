@@ -679,19 +679,6 @@ def _planning_xacro_mappings(
                 # (e.g. galaxea_a1 default a1, cr5 default empty).
                 mappings.pop("type", None)
 
-    # Humanoid launch injects ``arms``. Standalone manipulator xacro typically
-    # has no ``arms`` arg; copy the kit key to ``variant`` when that arg exists.
-    if planning_robot_name and not robot_xacro_declares_arg(planning_robot_name, "arms"):
-        arms_key = str(mappings.get("arms") or "").strip()
-        if not arms_key:
-            arms_key = resolve_robot_arms(
-                configs,
-                robot_name=str(configs.get("robot") or ""),
-            )
-        if arms_key and robot_xacro_declares_arg(planning_robot_name, "variant"):
-            mappings["variant"] = arms_key
-        mappings.pop("arms", None)
-
     return mappings
 
 

@@ -22,7 +22,7 @@
     <xacro:include filename="$(find xhand1_description)/xacro/xhand1.xacro"/>
     <xacro:XHand1 name="" direction="$(arg direction)"/>
 
-    <ros2_control name="xhand1_system" type="system" rw_rate="50">
+    <ros2_control name="xhand1_system" type="system">
         <hardware>
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
                 <plugin>gz_ros2_control/GazeboSimSystem</plugin>

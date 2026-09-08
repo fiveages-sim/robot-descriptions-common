@@ -121,7 +121,7 @@ Joint names, order, and limits are unchanged — simulation controllers and a fu
 - `direction:=1` left (default), `direction:=-1` right
 - Single geometric tree + `direction` formulas (joint origins / axes)
 - **Hand1 mesh:** `meshes/hand1/{left,right}/` side STL, **no** Y-scale. Four-finger segments share `digit_*` meshes.
-- **Hand2 mesh:** left STL + `scale="1 ${direction} 1"`. Four-finger segments share `digit_*` (pinky `proximal_abd` / `middle` stay unique).
+- **Hand2 mesh:** left `.glb` + `scale="1 ${direction} 1"` (same mesh format family as LinkerHand / BrainCo). Index/middle/ring share `digit_*`; pinky keeps official `l_pinky_proximal` / `proximal_abd` / `middle` (distal + tip_sensor still share `digit_*`).
 - **Hand1** `finger1_joint2` / `finger1_joint3`: **rpy ternary** (official L/R); do not hard-mirror those rpy fields
 - **Hand2** `thumb_mcp` / `pinky_mcp_flex`: forced mirror for joint-space control (~1–3 mm fingertip FK vs official right URDF)
 
@@ -156,7 +156,7 @@ Controller YAML: `hand2.yaml` (position command; position+velocity state). See `
 ```
 wuji_description/
 ├── meshes/hand1/{left,right}/   # gen1 side STLs + digit_* share
-├── meshes/hand2/left/           # beta2 left + digit_* (+ Y-scale in xacro)
+├── meshes/hand2/left/           # beta2 left .glb + digit_* (+ Y-scale in xacro)
 ├── xacro/hand.xacro             # type + direction dispatcher
 ├── xacro/hand1.xacro            # WujiHand
 ├── xacro/hand2.xacro            # WujiHand2

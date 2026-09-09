@@ -128,10 +128,7 @@ def extract_prefixed_args(
 _PLATFORM_XACRO_KEYS = (
     "chassis",
     "arms",
-<<<<<<< HEAD
     "skin",
-=======
->>>>>>> 20b28ce (Register wuji_hand2 in eef_control_registry)
     "variant",
     "chassis_joints_movable",
 )

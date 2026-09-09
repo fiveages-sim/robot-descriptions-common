@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<robot name="WujiHand_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="Wuji_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
     <xacro:arg name="type" default="hand2"/>
     <xacro:arg name="direction" default="1"/>

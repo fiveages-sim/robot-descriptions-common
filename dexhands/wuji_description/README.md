@@ -15,7 +15,7 @@ Do **not** use `type:=hand` (legacy); it will not load the gen1 model or `hand1.
 
 Not packaged: `hand_soft`, `hand2_beta1`, `glove`, MJCF/USD/STEP.
 
-Naming: `hand:=wuji` selects this package; `type` selects the hand model. Entry files are still named `hand.xacro`.
+Naming: `hand:=wuji` selects this package; `type` selects the hand model. Entry files are still named `hand.xacro`. Generated URDF robot name is `Wuji_<type>` (e.g. `Wuji_hand2`, `Wuji_hand1`; dual standalone uses `Wuji_hands2`).
 
 ## 1. Build
 

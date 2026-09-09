@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!-- Dual Wuji Hand2 standalone: reuses WujiHand2 + wuji_hand2_interfaces twice. -->
-<robot name="WujiHands2" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot name="Wuji_hands2" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
   <xacro:arg name="device_address_left" default=""/>

@@ -485,7 +485,8 @@
 		<joint name="${prefix}eef_joint" type="fixed">
 			<parent link="${prefix}gripper_base"/>
 			<child link="${prefix}eef"/>
-			<xacro:if value="${pad == 'default'}">
+			<!-- default / none(D): fingertip ~0.186 m along gripper_base +Z; soft pad is longer -->
+			<xacro:if value="${pad == 'default' or pad == 'none'}">
 				<origin xyz="0 0 0.19"/>
 			</xacro:if>
 			<xacro:if value="${pad == 'soft'}">

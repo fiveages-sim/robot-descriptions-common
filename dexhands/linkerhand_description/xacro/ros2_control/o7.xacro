@@ -14,7 +14,9 @@
         <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
-      <state_interface name="effort"/>
+      <xacro:unless value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <state_interface name="effort"/>
+      </xacro:unless>
     </joint>
 
     <joint name="${prefix}thumb_joint2">
@@ -23,7 +25,9 @@
         <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
-      <state_interface name="effort"/>
+      <xacro:unless value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <state_interface name="effort"/>
+      </xacro:unless>
     </joint>
 
     <joint name="${prefix}thumb_joint3">
@@ -32,7 +36,9 @@
         <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
-      <state_interface name="effort"/>
+      <xacro:unless value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <state_interface name="effort"/>
+      </xacro:unless>
     </joint>
 
     <!-- 食指关节 -->
@@ -42,7 +48,9 @@
         <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
-      <state_interface name="effort"/>
+      <xacro:unless value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <state_interface name="effort"/>
+      </xacro:unless>
     </joint>
 
     <!-- 中指关节 -->
@@ -52,7 +60,9 @@
         <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
-      <state_interface name="effort"/>
+      <xacro:unless value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <state_interface name="effort"/>
+      </xacro:unless>
     </joint>
 
     <!-- 无名指关节 -->
@@ -62,7 +72,9 @@
         <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
-      <state_interface name="effort"/>
+      <xacro:unless value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <state_interface name="effort"/>
+      </xacro:unless>
     </joint>
 
     <!-- 小指关节 -->
@@ -72,7 +84,9 @@
         <param name="initial_value">0.0</param>
       </state_interface>
       <state_interface name="velocity"/>
-      <state_interface name="effort"/>
+      <xacro:unless value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">
+        <state_interface name="effort"/>
+      </xacro:unless>
     </joint>
 
     <xacro:if value="$(arg gazebo)">
@@ -131,4 +145,3 @@
   </xacro:macro>
 
 </robot>
-

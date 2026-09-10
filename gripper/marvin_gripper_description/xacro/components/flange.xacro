@@ -53,7 +53,7 @@
     <link name="${prefix}camera">
       <visual>
         <geometry>
-          <mesh filename="file://$(find sensor_models)/meshes/gsml_camera/Sensing-SHW5G.glb"/>
+          <mesh filename="file://$(find sensor_models)/meshes/sensing/SHW5G.glb"/>
         </geometry>
       </visual>
     </link>

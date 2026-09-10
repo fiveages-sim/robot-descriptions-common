@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+	<!-- Optional ros2_control rw_rate: omit the attribute when empty so CM rate is used.
+	     Use **contents (not *contents): insert_block must unwrap <contents>, or URDF keeps that tag. -->
+	<xacro:macro name="side_ros2_control_system" params="name rw_rate:='' **contents">
+		<xacro:if value="${rw_rate != ''}">
+			<ros2_control name="${name}" type="system" rw_rate="${rw_rate}">
+				<xacro:insert_block name="contents"/>
+			</ros2_control>
+		</xacro:if>
+		<xacro:unless value="${rw_rate != ''}">
+			<ros2_control name="${name}" type="system">
+				<xacro:insert_block name="contents"/>
+			</ros2_control>
+		</xacro:unless>
+	</xacro:macro>
+
+</robot>

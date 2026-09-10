@@ -1,6 +1,6 @@
 {side}_hand_controller:
   ros__parameters:
-    update_rate: 100
+    update_rate: 50
     target_command_enabled: true
     movej_interpolation_type: "none"
     home_interpolation_type: "none"

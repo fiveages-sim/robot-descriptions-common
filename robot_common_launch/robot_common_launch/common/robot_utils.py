@@ -20,7 +20,12 @@ from .control_compose import (
     is_compose_asymmetric,
     resolve_compose_type_key,
 )
-from .launch_arg_utils import build_xacro_mappings, resolve_profile_path
+from .launch_arg_utils import (
+    build_xacro_mappings,
+    resolve_profile_path,
+    resolve_robot_arms,
+    robot_xacro_declares_arg,
+)
 
 # 全局缓存字典，避免重复读取配置文件
 _config_cache = {}

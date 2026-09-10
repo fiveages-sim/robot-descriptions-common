@@ -136,7 +136,7 @@ def create_controller_manager_nodes(
     profile = load_robot_profile(robot_profile_path) if robot_profile_path else {}
     control_left, control_right = resolve_control_sides(configs, profile)
     control_patch = resolve_control_patch(profile)
-    robot_variant = resolve_robot_variant(configs, profile)
+    robot_variant = resolve_robot_variant(configs, profile, robot_name=robot_name)
     asymmetric = is_compose_asymmetric(control_left, control_right)
 
     use_gazebo = hardware == "gz"

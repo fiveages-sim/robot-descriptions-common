@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find robot_common_launch)/xacro/ros2_control/side_system.xacro"/>
+  <xacro:include filename="$(find theohand_description)/xacro/ros2_control/std16a.xacro"/>
+
+  <xacro:macro name="theohand_usb_side_system" params="side serial_port baudrate:=115200 slave_id:=auto rw_rate:=''">
+    <xacro:property name="theohand_slave_id" value="${2 if side == 'left' and slave_id == 'auto' else 1 if side == 'right' and slave_id == 'auto' else slave_id}"/>
+    <xacro:side_ros2_control_system name="theohand_${side}_system" rw_rate="${rw_rate}">
+      <contents>
+        <hardware>
+          <plugin>modbus_ros2_control/TheoHandModbusHardware</plugin>
+          <param name="serial_port">${serial_port}</param>
+          <param name="slave_id">${theohand_slave_id}</param>
+          <param name="baudrate">${baudrate}</param>
+          <param name="read_feedback">true</param>
+        </hardware>
+        <xacro:theohand_std16a_interfaces name="${side}_hand"/>
+      </contents>
+    </xacro:side_ros2_control_system>
+  </xacro:macro>
+
+</robot>

@@ -14,7 +14,8 @@
           <param name="serial_port">${serial_port}</param>
           <param name="hand_type">${hand_type}</param>
           <param name="hand_side">${side}</param>
-          <param name="max_speed_ratio">1.0</param>
+          <param name="response_timeout_ms">20</param>
+          <param name="byte_timeout_ms">5</param>
         </hardware>
         <xacro:if value="${hand_type == 'linkerhand_o7'}">
           <xacro:linkerhand_o7_interfaces name="${side}_hand"/>

@@ -42,7 +42,6 @@
                 <xacro:unless value="${'$(arg direction)' == '1'}">
                     <param name="hand_side">right</param>
                 </xacro:unless>
-                <param name="max_speed_ratio">0.8</param>
             </xacro:if>
 
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real_can'}">

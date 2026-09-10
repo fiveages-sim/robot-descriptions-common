@@ -71,7 +71,7 @@ One robot tree with `left_hand_*` / `right_hand_*` prefixes, two HI systems, `le
 
 - Xacro: `xacro/ros2_control/hands2.xacro` (instantiates `WujiHand2` twice)
 - Controllers: `config/ros2_control/hands2.yaml`
-- Launch: `ros2 launch wujihand2_ros2_control hands2.launch.py hardware:=mock_components`
+- Launch: `ros2 launch wuji_ros2_control hands2.launch.py hardware:=mock_components`
 
 ```bash
 ros2 topic pub --once /left_hand_controller/target_command std_msgs/msg/Int32 "data: 1"
@@ -138,18 +138,18 @@ Side controller templates: `config/ros2_control/templates/hand1.side.yaml`, `han
 Hand1 USB / official [wujihandros2](https://github.com/wuji-technology/wujihandros2) is **not** used here.
 
 - Demos: `mock_components` / `gz` / `isaac`
-- `hardware:=real` → plugin `wujihand2_ros2_control/WujiHand2Hardware` (package `wujihand2_ros2_control`, Ethernet + `libwuji_sdk_c`)
+- `hardware:=real` → plugin `wuji_ros2_control/WujiHand2Hardware` (package `wuji_ros2_control`, Ethernet + `libwuji_sdk_c`)
 
 ```bash
 # mock
 ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand2
-# real — SDK vendored in wujihand2_ros2_control/external/; scan or direct IP / SN
-ros2 launch wujihand2_ros2_control hand2.launch.py hardware:=real direction:=1
-ros2 launch wujihand2_ros2_control hand2.launch.py \
+# real — SDK auto-downloaded by wuji_ros2_control at configure time; scan or direct IP / SN
+ros2 launch wuji_ros2_control hand2.launch.py hardware:=real direction:=1
+ros2 launch wuji_ros2_control hand2.launch.py \
   hardware:=real direction:=1 device_address:=192.168.1.110:50001
 ```
 
-Controller YAML: `hand2.yaml` (position command; position+velocity state). See `wujihand2_ros2_control` README for MIT / network params and joint-index calibration.
+Controller YAML: `hand2.yaml` (position command; position+velocity state). See `wuji_ros2_control` README for MIT / network params and joint-index calibration.
 
 ## 7. Package layout
 

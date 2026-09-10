@@ -6,7 +6,7 @@
     <xacro:arg name="gazebo" default="false"/>
     <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
     <xacro:arg name="use_mount" default="false"/>
-    <!-- Real HI (wujihand2_ros2_control) — unused for mock/gz/isaac -->
+    <!-- Real HI (wuji_ros2_control) — unused for mock/gz/isaac -->
     <xacro:arg name="device_address" default=""/>
     <xacro:arg name="serial_number" default=""/>
     <xacro:arg name="mit_kp" default="3.0"/>
@@ -52,9 +52,9 @@
                 <param name="initialize_commands_from_state">true</param>
             </xacro:if>
 
-            <!-- Wuji Hand 2 real hardware (wujihand2_ros2_control). -->
+            <!-- Wuji Hand 2 real hardware (wuji_ros2_control). -->
             <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
-                <plugin>wujihand2_ros2_control/WujiHand2Hardware</plugin>
+                <plugin>wuji_ros2_control/WujiHand2Hardware</plugin>
                 <xacro:if value="${'$(arg direction)' == '1'}">
                     <param name="hand_side">left</param>
                 </xacro:if>

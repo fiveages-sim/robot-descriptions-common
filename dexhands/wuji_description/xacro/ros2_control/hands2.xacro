@@ -52,7 +52,7 @@
           <param name="initialize_commands_from_state">true</param>
         </xacro:if>
         <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
-          <plugin>wujihand2_ros2_control/WujiHand2Hardware</plugin>
+          <plugin>wuji_ros2_control/WujiHand2Hardware</plugin>
           <param name="hand_side">${hand_side}</param>
           <param name="device_address">${device_address}</param>
           <xacro:if value="${serial_number != ''}">

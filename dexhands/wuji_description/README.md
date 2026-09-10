@@ -138,20 +138,18 @@ Side controller templates: `config/ros2_control/templates/hand1.side.yaml`, `han
 Hand1 USB / official [wujihandros2](https://github.com/wuji-technology/wujihandros2) is **not** used here.
 
 - Demos: `mock_components` / `gz` / `isaac`
-- `hardware:=real` → plugin `wuji_ros2_control/WujiHand2Hardware` (package `wuji_ros2_control`, Ethernet + `libwuji_sdk_c`)
+- `hardware:=real` → plugin `wuji_ros2_control/WujiHand2Hardware` (Ethernet + `libwuji_sdk_c`)
+- Description never writes `device_address` / `serial_number`. HI scans and matches `hand_side`. Do **not** put addresses in arm / `robot.local.yaml`.
+- `mit_kp` / `mit_kd` / `effort_limit` are hardcoded URDF activate seeds (`3.0` / `0.05` / `1.5`). After start, hot-tune them on the hardware node (`/wuji_hand_system` or `/wuji_hand2_left_system` / `/wuji_hand2_right_system`); see `wuji_ros2_control` README. Not launch args.
 
 ```bash
 # mock
 ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand2
-# real — omit device_address to scan; or pass this device's IP:port (not a package default)
+# real — scan + hand_side from direction
 ros2 launch wuji_ros2_control hand2.launch.py hardware:=real direction:=1
-ros2 launch wuji_ros2_control hand2.launch.py \
-  hardware:=real direction:=1 device_address:=<IP>:<PORT>
 ```
 
-`device_address` launch default is empty. `192.168.1.110:50001` in Wuji docs is only an example; use the address on the real hand (port is often `50001` or `7447`).
-
-Controller YAML: `hand2.yaml` (position command; position+velocity state). See `wuji_ros2_control` README for MIT / network params and joint-index calibration.
+Controller YAML: `hand2.yaml` (position command; position+velocity state). See `wuji_ros2_control` README for connection, MIT hot-tune, and joint-index calibration.
 
 ## 7. Package layout
 
@@ -162,6 +160,6 @@ wuji_description/
 ├── xacro/hand.xacro             # type + direction dispatcher
 ├── xacro/hand1.xacro            # WujiHand
 ├── xacro/hand2.xacro            # WujiHand2
-├── xacro/ros2_control/
+├── xacro/ros2_control/          # hand.xacro, hands2.xacro, side_systems.xacro, …
 └── config/ros2_control/         # hand1.yaml, hand2.yaml, templates/
 ```

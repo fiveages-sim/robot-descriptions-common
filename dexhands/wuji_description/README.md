@@ -143,11 +143,13 @@ Hand1 USB / official [wujihandros2](https://github.com/wuji-technology/wujihandr
 ```bash
 # mock
 ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand2
-# real — SDK auto-downloaded by wuji_ros2_control at configure time; scan or direct IP / SN
+# real — omit device_address to scan; or pass this device's IP:port (not a package default)
 ros2 launch wuji_ros2_control hand2.launch.py hardware:=real direction:=1
 ros2 launch wuji_ros2_control hand2.launch.py \
-  hardware:=real direction:=1 device_address:=192.168.1.110:50001
+  hardware:=real direction:=1 device_address:=<IP>:<PORT>
 ```
+
+`device_address` launch default is empty. `192.168.1.110:50001` in Wuji docs is only an example; use the address on the real hand (port is often `50001` or `7447`).
 
 Controller YAML: `hand2.yaml` (position command; position+velocity state). See `wuji_ros2_control` README for MIT / network params and joint-index calibration.
 

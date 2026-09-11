@@ -1,0 +1,85 @@
+# Standalone ros2_control config for Wuji Hand 2 (Beta 2).
+controller_manager:
+  ros__parameters:
+    update_rate: 500
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    hand_joint_controller:
+      type: basic_joint_controller/BasicJointController
+
+joint_state_broadcaster:
+  ros__parameters:
+    joints:
+      - thumb_cmc_flex
+      - thumb_cmc_abd
+      - thumb_mcp
+      - thumb_ip
+      - index_finger_mcp_flex
+      - index_finger_mcp_abd
+      - index_finger_pip
+      - index_finger_dip
+      - middle_finger_mcp_flex
+      - middle_finger_mcp_abd
+      - middle_finger_pip
+      - middle_finger_dip
+      - ring_mcp_flex
+      - ring_mcp_abd
+      - ring_pip
+      - ring_dip
+      - pinky_mcp_flex
+      - pinky_mcp_abd
+      - pinky_pip
+      - pinky_dip
+    interfaces:
+      - position
+      - velocity
+      - effort
+
+hand_joint_controller:
+  ros__parameters:
+    update_rate: 500
+    joints:
+      - thumb_cmc_flex
+      - thumb_cmc_abd
+      - thumb_mcp
+      - thumb_ip
+      - index_finger_mcp_flex
+      - index_finger_mcp_abd
+      - index_finger_pip
+      - index_finger_dip
+      - middle_finger_mcp_flex
+      - middle_finger_mcp_abd
+      - middle_finger_pip
+      - middle_finger_dip
+      - ring_mcp_flex
+      - ring_mcp_abd
+      - ring_pip
+      - ring_dip
+      - pinky_mcp_flex
+      - pinky_mcp_abd
+      - pinky_pip
+      - pinky_dip
+
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+    home_1: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    home_2: [0.8699, -0.8612, 0.5374, -0.0639, 0.2454, 0.3009, -0.1015, 0.1439, 0.2881, 0.3036, 0.0400, 0.0373, 0.2295, 0.2123, 0.0316, 0.1991, -0.0101, 0.1476, 0.2841, 0.0565]
+    # Close: viser Left Hand. Open (home_2): viser Right Hand.
+    home_3: [1.0869, -0.4141, 0.6238, -0.1172, 0.7104, 0.4097, 0.7245, 0.5601, 0.5405, 0.4564, 0.8956, 0.2515, 0.5057, 0.4620, 0.7791, 0.5860, 0.3696, 0.4738, 0.6804, 0.5756]
+
+    target_command_enabled: true
+    target_command_close_config: 2
+    target_command_open_config: 1
+
+    home_interpolation_type: "none"
+    movej_interpolation_type: "none"
+
+    home_duration: 3.0
+    movej_duration: 3.0
+    hold_position_threshold: 0.1

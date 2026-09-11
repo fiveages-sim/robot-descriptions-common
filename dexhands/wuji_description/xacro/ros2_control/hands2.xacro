@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<!-- Dual Wuji Hand2 standalone: reuses WujiHand2 + wuji_hand2_interfaces twice. -->
+<robot name="Wuji_hands2" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
+
+  <xacro:include filename="$(find wuji_description)/xacro/hand2.xacro"/>
+  <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand2.xacro"/>
+
+  <link name="world"/>
+
+  <xacro:WujiHand2 name="left_hand" direction="1" use_mount="false"/>
+  <xacro:WujiHand2 name="right_hand" direction="-1" use_mount="false"/>
+
+  <joint name="world_left_hand_fixed" type="fixed">
+    <origin xyz="0 0.15 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="left_hand_hand_base"/>
+  </joint>
+  <joint name="world_right_hand_fixed" type="fixed">
+    <origin xyz="0 -0.15 0" rpy="0 0 0"/>
+    <parent link="world"/>
+    <child link="right_hand_hand_base"/>
+  </joint>
+
+  <xacro:macro name="wuji_hand2_side_system" params="side rw_rate:=200">
+    <ros2_control name="wuji_hand2_${side}_system" type="system" rw_rate="${rw_rate}">
+      <hardware>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'mock_components'}">
+          <plugin>mock_components/GenericSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'isaac'}">
+          <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+          <param name="joint_commands_topic">/isaac/joint_command</param>
+          <param name="joint_states_topic">/isaac/joint_states</param>
+          <param name="sum_wrapped_joint_states">false</param>
+          <param name="initialize_commands_from_state">true</param>
+        </xacro:if>
+        <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
+          <plugin>wuji_ros2_control/WujiHand2Hardware</plugin>
+          <param name="hand_side">${side}</param>
+          <param name="mit_kp">3.0</param>
+          <param name="mit_kd">0.05</param>
+          <param name="effort_limit">1.5</param>
+        </xacro:if>
+      </hardware>
+      <xacro:wuji_hand2_interfaces name="${side}_hand"/>
+    </ros2_control>
+  </xacro:macro>
+
+  <xacro:wuji_hand2_side_system side="left"/>
+  <xacro:wuji_hand2_side_system side="right"/>
+
+</robot>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find robot_common_launch)/xacro/ros2_control/side_system.xacro"/>
+  <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand2.xacro"/>
+
+  <!-- Arm-mounted Hand2: scan + hand_side=${side}.
+       mit_kp / mit_kd / effort_limit are URDF activate seeds (same names as rqt). -->
+  <xacro:macro name="wuji_hand2_ethernet_side_system" params="side rw_rate:=''">
+    <xacro:property name="wuji_effective_rw_rate" value="${rw_rate if rw_rate != '' else 200}"/>
+    <xacro:side_ros2_control_system name="wuji_hand2_${side}_system" rw_rate="${wuji_effective_rw_rate}">
+      <contents>
+        <hardware>
+          <plugin>wuji_ros2_control/WujiHand2Hardware</plugin>
+          <param name="hand_side">${side}</param>
+          <param name="mit_kp">3.0</param>
+          <param name="mit_kd">0.05</param>
+          <param name="effort_limit">1.5</param>
+        </hardware>
+        <xacro:wuji_hand2_interfaces name="${side}_hand"/>
+      </contents>
+    </xacro:side_ros2_control_system>
+  </xacro:macro>
+
+</robot>

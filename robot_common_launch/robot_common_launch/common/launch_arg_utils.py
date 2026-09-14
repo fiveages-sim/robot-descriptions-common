@@ -288,7 +288,7 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
 
     plat = platform if isinstance(platform, dict) else {}
     for key in _PLATFORM_XACRO_KEYS:
-        if key in plat and _mapping_value_ok(plat[key]):
+        if key in plat and (_mapping_value_ok(plat[key]) or (key == "variant" and plat[key] == "")):
             xacro[key] = plat[key]
 
     eef: Dict[str, str] = {}
@@ -600,6 +600,8 @@ def resolve_robot_variant(
     if profile:
         xacro_section = profile.get("xacro") or {}
         if isinstance(xacro_section, dict):
+            if "variant" in xacro_section and xacro_section["variant"] == "":
+                return ""
             profile_variant = _strip_eef_key(str(xacro_section.get("variant", "") or ""))
             if profile_variant:
                 return profile_variant
@@ -676,7 +678,7 @@ def build_xacro_mappings(
     for key, value in profile_xacro.items():
         if str(key) in _EEF_XACRO_KEYS or str(key) in _TCP_OFFSET_XACRO_KEYS:
             continue
-        if _mapping_value_ok(value):
+        if _mapping_value_ok(value) or (key == "variant" and value == ""):
             mappings[str(key)] = str(value).strip()
 
     xacro_overrides = extract_prefixed_args(launch_configurations, XACRO_PREFIX)

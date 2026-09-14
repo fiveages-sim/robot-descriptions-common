@@ -1,6 +1,6 @@
 # Wuji DexHands Description
 
-URDF / xacro for Wuji dexterous hands, adapted for motion control in `robot-descriptions-common/dexhands` (fa_w2 / ROS 2 Jazzy).
+URDF / xacro for Wuji Hand 2 (Beta 2), adapted for motion control in `robot-descriptions-common/dexhands` (fa_w2 / ROS 2 Jazzy).
 
 Official source assets (geometry reference only): [wuji-description](https://github.com/wuji-technology/wuji-description)
 
@@ -9,13 +9,10 @@ Official source assets (geometry reference only): [wuji-description](https://git
 | `type` | Official source | Notes |
 |--------|-----------------|-------|
 | `hand2` (default) | `hand2/hand2_beta2` | 20-DOF anatomical joint names + tip sensor frames |
-| `hand1` | `hand/body` | 20-DOF `finger*_joint*` names |
-
-Do **not** use `type:=hand` (legacy); it will not load the gen1 model or `hand1.yaml`.
 
 Not packaged: `hand_soft`, `hand2_beta1`, `glove`, MJCF/USD/STEP.
 
-Naming: `hand:=wuji` selects this package; `type` selects the hand model. Entry files are still named `hand.xacro`. Generated URDF robot name is `Wuji_<type>` (e.g. `Wuji_hand2`, `Wuji_hand1`; dual standalone uses `Wuji_hands2`).
+Naming: `hand:=wuji` selects this package. Entry files are named `hand.xacro`. Generated URDF robot name is `Wuji_hand2`; dual standalone uses `Wuji_hands2`.
 
 ## 1. Build
 
@@ -27,7 +24,7 @@ source install/setup.bash
 
 ## 2. Visualize the DexHands
 
-### 2.1 Hand2 (Beta 2, default)
+![Wuji Hand2](../.images/wuji_hand2.png)
 
 ```bash
 ros2 launch robot_common_launch hand.launch.py hand:=wuji
@@ -36,27 +33,16 @@ ros2 launch robot_common_launch hand.launch.py hand:=wuji direction:=-1
 # optional: use_mount:=true
 ```
 
-### 2.2 Hand1 (gen1)
-
-```bash
-ros2 launch robot_common_launch hand.launch.py hand:=wuji type:=hand1
-# right:
-ros2 launch robot_common_launch hand.launch.py hand:=wuji type:=hand1 direction:=-1
-```
-
 ## 3. ROS2 Control Demo (mock)
 
-Uses `basic_joint_controller` with `mock_components` by default. Controllers load `config/ros2_control/{type}.yaml`.
+Uses `basic_joint_controller` with `mock_components` by default. Controllers load `config/ros2_control/hand2.yaml`.
 
 ```bash
 ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand2
 ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand2 direction:=-1
-
-ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand1
-ros2 launch basic_joint_controller hand.launch.py hand:=wuji type:=hand1 direction:=-1
 ```
 
-Confirm the log shows `hand2.yaml` / `hand1.yaml` (not a failed progressive match falling back unexpectedly for the wrong type).
+Confirm the log shows `hand2.yaml`.
 
 Open/close (when controller is active):
 
@@ -82,8 +68,6 @@ ros2 topic pub --once /right_hand_controller/target_command std_msgs/msg/Int32 "
 
 Standalone uses empty `name` prefix. On an arm, pass `name:=left_hand` / `right_hand` → `left_hand_<joint>`.
 
-### 4.1 Hand2 (`type:=hand2`)
-
 | Finger | Joints |
 |--------|--------|
 | Thumb | `thumb_cmc_flex`, `thumb_cmc_abd`, `thumb_mcp`, `thumb_ip` |
@@ -96,19 +80,9 @@ Ring names drop the official `finger` token (`ring_finger_*` → `ring_*`) so st
 
 Fixed tip / tip-sensor frames exist for TF but are not commanded.
 
-### 4.2 Hand1 (`type:=hand1`)
-
-| Finger | Joints |
-|--------|--------|
-| Thumb (finger1) | `finger1_joint1` … `finger1_joint4` |
-| Index (finger2) | `finger2_joint1` … `finger2_joint4` |
-| Middle (finger3) | `finger3_joint1` … `finger3_joint4` |
-| Ring (finger4) | `finger4_joint1` … `finger4_joint4` |
-| Pinky (finger5) | `finger5_joint1` … `finger5_joint4` |
-
 ## 5. L/R mirroring and frames
 
-### Hand2 wrist frames
+### Wrist frames
 
 | Link | Role |
 |------|------|
@@ -120,10 +94,8 @@ Joint names, order, and limits are unchanged — simulation controllers and a fu
 
 - `direction:=1` left (default), `direction:=-1` right
 - Single geometric tree + `direction` formulas (joint origins / axes)
-- **Hand1 mesh:** `meshes/hand1/{left,right}/` side STL, **no** Y-scale. Four-finger segments share `digit_*` meshes.
-- **Hand2 mesh:** left `.glb` + `scale="1 ${direction} 1"` (same mesh format family as LinkerHand / BrainCo). Index/middle/ring share `digit_*`; pinky keeps official `l_pinky_proximal` / `proximal_abd` / `middle` (distal + tip_sensor still share `digit_*`).
-- **Hand1** `finger1_joint2` / `finger1_joint3`: **rpy ternary** (official L/R); do not hard-mirror those rpy fields
-- **Hand2** `thumb_mcp` / `pinky_mcp_flex`: forced mirror for joint-space control (~1–3 mm fingertip FK vs official right URDF)
+- **Mesh:** left `.glb` + `scale="1 ${direction} 1"` (same mesh format family as LinkerHand / BrainCo). Index/middle/ring share `digit_*`; pinky keeps official `l_pinky_proximal` / `proximal_abd` / `middle` (distal + tip_sensor still share `digit_*`).
+- `thumb_mcp` / `pinky_mcp_flex`: forced mirror for joint-space control (~1–3 mm fingertip FK vs official right URDF)
 
 Whole-robot attach pattern (same as LinkerHand):
 
@@ -131,11 +103,9 @@ Whole-robot attach pattern (same as LinkerHand):
 <xacro:WujiHand2 name="${side}_hand" direction="${1 if side == 'left' else -1}" use_mount="true"/>
 ```
 
-Side controller templates: `config/ros2_control/templates/hand1.side.yaml`, `hand2.side.yaml`.
+Side controller template: `config/ros2_control/templates/hand2.side.yaml`.
 
-## 6. Real hardware (Hand2)
-
-Hand1 USB / official [wujihandros2](https://github.com/wuji-technology/wujihandros2) is **not** used here.
+## 6. Real hardware
 
 - Demos: `mock_components` / `gz` / `isaac`
 - `hardware:=real` → plugin `wuji_ros2_control/WujiHand2Hardware` (Ethernet + `libwuji_sdk_c`)
@@ -155,11 +125,9 @@ Controller YAML: `hand2.yaml` (position command; position+velocity state). See `
 
 ```
 wuji_description/
-├── meshes/hand1/{left,right}/   # gen1 side STLs + digit_* share
-├── meshes/hand2/left/           # beta2 left .glb + digit_* (+ Y-scale in xacro)
-├── xacro/hand.xacro             # type + direction dispatcher
-├── xacro/hand1.xacro            # WujiHand
+├── meshes/hand2/                # beta2 left .glb + digit_* (+ Y-scale in xacro)
+├── xacro/hand.xacro             # standalone dispatcher
 ├── xacro/hand2.xacro            # WujiHand2
 ├── xacro/ros2_control/          # hand.xacro, hands2.xacro, side_systems.xacro, …
-└── config/ros2_control/         # hand1.yaml, hand2.yaml, templates/
+└── config/ros2_control/         # hand2.yaml, hands2.yaml, templates/
 ```

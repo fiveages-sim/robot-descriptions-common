@@ -11,11 +11,10 @@
 
     <joint name="world_fixed" type="fixed">
         <parent link="world"/>
-        <!-- mount exists only for hand2 -->
-        <xacro:if value="${'$(arg type)' == 'hand2' and '$(arg use_mount)' == 'true'}">
+        <xacro:if value="${'$(arg use_mount)' == 'true'}">
             <child link="mount"/>
         </xacro:if>
-        <xacro:unless value="${'$(arg type)' == 'hand2' and '$(arg use_mount)' == 'true'}">
+        <xacro:unless value="${'$(arg use_mount)' == 'true'}">
             <child link="hand_base"/>
         </xacro:unless>
         <origin/>
@@ -56,15 +55,8 @@
             </xacro:if>
         </hardware>
 
-        <xacro:if value="${'$(arg type)' == 'hand2'}">
-            <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand2.xacro"/>
-            <xacro:wuji_hand2_interfaces name=""/>
-        </xacro:if>
-
-        <xacro:if value="${'$(arg type)' == 'hand1'}">
-            <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand1.xacro"/>
-            <xacro:wuji_hand1_interfaces name=""/>
-        </xacro:if>
+        <xacro:include filename="$(find wuji_description)/xacro/ros2_control/hand2.xacro"/>
+        <xacro:wuji_hand2_interfaces name=""/>
     </ros2_control>
 
     <xacro:if value="$(arg gazebo)">

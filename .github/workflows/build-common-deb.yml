@@ -32,6 +32,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_type == 'tag' && github.ref_name || (github.event_name == 'pull_request' && 'pre-release' || github.ref) }}
@@ -160,10 +161,12 @@ jobs:
           fi
 
       - name: Install build tools
+        timeout-minutes: 10
         shell: bash
         run: |
           set -eo pipefail
-
+          export DEBIAN_FRONTEND=noninteractive
+          bash .github/scripts/configure_ci_apt.sh
           apt-get update
           apt-get install -y \
             python3-rosdep \
@@ -226,11 +229,13 @@ jobs:
           fi
 
       - name: Install common ROS dependencies
+        timeout-minutes: 15
         shell: bash
         env:
           ROS_DISTRO: ${{ steps.meta.outputs.ros_distro }}
         run: |
           set -eo pipefail
+          export DEBIAN_FRONTEND=noninteractive
           source "/opt/ros/${ROS_DISTRO}/setup.bash"
 
           ros_python_path="/opt/ros/${ROS_DISTRO}/lib/python$(python3 -c 'import sys; print(str(sys.version_info.major) + "." + str(sys.version_info.minor))')/site-packages"
@@ -519,11 +524,16 @@ jobs:
           deb_file_version="${VERSION//~/.}"
           echo "deb_file=${DEB_FILE_PREFIX}_${deb_file_version}_${DEB_ARCH}.deb" >> "$GITHUB_OUTPUT"
 
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
       - name: Install verification tools
+        timeout-minutes: 8
         shell: bash
         run: |
           set -eo pipefail
-
+          export DEBIAN_FRONTEND=noninteractive
+          bash .github/scripts/configure_ci_apt.sh
           apt-get update
           apt-get install -y ca-certificates curl cmake build-essential
 
@@ -588,9 +598,11 @@ jobs:
           ls -lh "${deb_file}"
 
       - name: Install deb and verify package discovery
+        timeout-minutes: 10
         shell: bash
         run: |
           set -eo pipefail
+          export DEBIAN_FRONTEND=noninteractive
 
           deb_file="${{ steps.download-deb.outputs.deb_file }}"
           ros_distro="${{ steps.meta.outputs.ros_distro }}"

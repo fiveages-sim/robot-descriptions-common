@@ -253,7 +253,7 @@ def build_visualization_xacro_mappings(robot_name: str, launch_configurations: d
     mappings: dict = {}
     for key in _PLATFORM_XACRO_KEYS:
         value = profile_xacro.get(key)
-        if _mapping_value_ok(value):
+        if _mapping_value_ok(value) or (key == "variant" and value == ""):
             mappings[key] = str(value).strip()
 
     for key in ("collider", "direction", "skin", *_PLATFORM_XACRO_KEYS):

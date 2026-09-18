@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<robot name="BrainCo_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+    <xacro:arg name="type" default="revo2"/>
+    <xacro:arg name="direction" default="1"/>
+    <xacro:arg name="gazebo" default="false"/>
+    <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
+
+    <xacro:property name="hand_type" value="$(arg type)"/>
+    <xacro:property name="use_revo1" value="${hand_type == 'revo1' or hand_type == 'Revo1'}"/>
+    <xacro:property name="use_revo2" value="${hand_type == 'revo2' or hand_type == 'Revo2'}"/>
+
+    <link name="world"/>
+
+    <joint name="world_fixed" type="fixed">
+        <parent link="world"/>
+        <child link="hand_base"/>
+        <origin/>
+    </joint>
+
+    <xacro:if value="${use_revo1}">
+        <xacro:include filename="$(find brainco_description)/xacro/revo1.xacro"/>
+        <xacro:BrainCoHand name="" direction="$(arg direction)"/>
+    </xacro:if>
+    <xacro:if value="${use_revo2}">
+        <xacro:include filename="$(find brainco_description)/xacro/revo2.xacro"/>
+        <xacro:BrainCoHand name="" direction="$(arg direction)"/>
+    </xacro:if>
+
+    <ros2_control name="brainco_hand_system" type="system">
+        <hardware>
+            <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'gz'}">
+                <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+            </xacro:if>
+
+            <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'mock_components'}">
+                <plugin>mock_components/GenericSystem</plugin>
+            </xacro:if>
+
+            <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'isaac'}">
+                <plugin>topic_based_ros2_control/TopicBasedSystem</plugin>
+                <param name="joint_commands_topic">/isaac/joint_command</param>
+                <param name="joint_states_topic">/isaac/joint_states</param>
+                <param name="sum_wrapped_joint_states">false</param>
+                <param name="initialize_commands_from_state">true</param>
+            </xacro:if>
+        </hardware>
+
+        <xacro:if value="${use_revo1}">
+            <xacro:include filename="$(find brainco_description)/xacro/ros2_control/revo1.xacro"/>
+            <xacro:revo1_interfaces name=""/>
+        </xacro:if>
+        <xacro:if value="${use_revo2}">
+            <xacro:include filename="$(find brainco_description)/xacro/ros2_control/revo2.xacro"/>
+            <xacro:revo2_interfaces name=""/>
+        </xacro:if>
+    </ros2_control>
+
+    <xacro:if value="$(arg gazebo)">
+        <gazebo>
+            <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+                <parameters>$(find brainco_description)/config/ros2_control/ros2_controllers.yaml</parameters>
+            </plugin>
+        </gazebo>
+    </xacro:if>
+</robot>

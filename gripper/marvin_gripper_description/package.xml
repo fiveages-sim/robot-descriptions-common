@@ -2,7 +2,7 @@
 <package format="2">
     <name>marvin_gripper_description</name>
     <version>0.0.0</version>
-    <description>Tianji Marvin gripper description package (straight and 45-degree flange variants)</description>
+    <description>Tianji Marvin gripper description package (straight flange, 45-degree flange, and core-only variants)</description>
 
     <maintainer email="biao876990970@hotmail.com">Huang Zhenbiao</maintainer>
     <license>TODO</license>

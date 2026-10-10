@@ -968,7 +968,7 @@ def prepare_arms_target_manager_parameters(
         hand_controllers (list, optional): 手部/夹爪控制器名称列表
         
     Note:
-        enable_head_control is now configured via YAML config file, not via function parameter
+        Head 6D marker is gated by enable_wbc_head_tracking_marker (YAML / full_body launch).
         
     Returns:
         list: 节点参数列表，可以直接传递给 Node 的 parameters 参数

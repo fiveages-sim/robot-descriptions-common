@@ -35,7 +35,7 @@ ros2 launch … robot_profile:=/path/to/profile.yaml  [+ CLI args]
 |---------|----------------------|------|
 | `platform` | 始终 | 底盘 / 双臂套件 / `variant` / `chassis_joints_movable` 等 → xacro |
 | `defaults.end_effectors` | 仅 `use_profile_eef:=true`（默认） | 末端类型；可被 CLI 关掉以改用 `type` / `left_type` / `right_type` |
-| `defaults.ft` | 始终 | 力传感器；**不受** `use_profile_eef` 影响 |
+| `hardware.left_ft/right_ft` | 始终 | 力传感器；**不受** `use_profile_eef` 影响 |
 | `defaults.tcp_offset` | 始终 | 虚拟 tip 偏移；注入前做表达式求值 |
 | `hardware` | 仅 `hardware:=real` | 真机参数（串口、`arm_ctrl_mode`、`*_dyn_param` 等） |
 | `control.patch` | 始终 | 深合并进 ros2_control 配置 |
@@ -140,7 +140,7 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `use_profile_eef` | 是否应用 `defaults.end_effectors`（默认 `true`） |
 | `type` | 对称末端，或臂拓扑 `left`/`right`/`dual`（拓扑不会展开成 `left_type`/`right_type`） |
 | `left_type` / `right_type` | 左右末端键 |
-| `ft` / `left_ft` / `right_ft` | 力传感器（覆盖 profile `defaults.ft`） |
+| `ft` / `left_ft` / `right_ft` | 力传感器（覆盖 profile `hardware.left_ft/right_ft`） |
 | `tcp_offset_xyz` / `tcp_offset_rpy` | 对称 TCP 偏移 |
 | `left_tcp_offset_*` / `right_tcp_offset_*` | 分侧 TCP 偏移 |
 | `chassis` / `arms` / `variant` / `chassis_joints_movable` | 平台 xacro，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |

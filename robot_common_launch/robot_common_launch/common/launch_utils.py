@@ -346,7 +346,7 @@ def create_visualization_launch_description(
         DeclareLaunchArgument(
             "robot_profile",
             default_value="",
-            description="Path to robot.local.yaml (platform / defaults.ft / defaults.tcp_offset for visualization)",
+            description="Path to robot.local.yaml (platform / hardware.left_ft/right_ft / defaults.tcp_offset for visualization)",
         ),
         DeclareLaunchArgument(
             "use_profile_eef",

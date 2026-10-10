@@ -254,12 +254,12 @@ def resolve_pose_triplet(value: str, *, field: str = "tcp_offset") -> str:
 
 def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Normalize robot profile to {xacro, eef, ft, hardware, control} for launch code.
+    Normalize robot profile to {xacro, eef, hardware, control} for launch code.
 
     Schema:
       platform: chassis / arms / skin / variant / chassis_joints_movable — always apply
       defaults.end_effectors: type|left|right — when use_profile_eef
-      defaults.ft: type|left|right — always with profile
+      hardware.left_ft / right_ft: per-side force sensor types
       defaults.tcp_offset: xyz|rpy|left_*|right_* — always with profile → xacro keys
       hardware: applied when hardware:=real
       control.patch: ros2_control overrides
@@ -292,7 +292,6 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
             xacro[key] = plat[key]
 
     eef: Dict[str, str] = {}
-    ft: Dict[str, str] = {}
     if isinstance(defaults, dict):
         raw_eef = defaults.get("end_effectors")
         if isinstance(raw_eef, dict):
@@ -305,17 +304,6 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
                 eef["left"] = left
             if right:
                 eef["right"] = right
-
-        raw_ft = defaults.get("ft")
-        if isinstance(raw_ft, dict):
-            sym = str(raw_ft.get("type", "") or "").strip()
-            left = str(raw_ft.get("left", "") or "").strip()
-            right = str(raw_ft.get("right", "") or "").strip()
-            left, right = _expand_side_pair(sym, left, right)
-            if left:
-                ft["left"] = left
-            if right:
-                ft["right"] = right
 
         raw_tcp = defaults.get("tcp_offset")
         if isinstance(raw_tcp, dict):
@@ -347,7 +335,6 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "xacro": xacro,
         "eef": eef,
-        "ft": ft,
         "hardware": hardware,
         "control": control,
     }
@@ -438,18 +425,18 @@ def resolve_side_ft_types(
     launch_configurations: Dict[str, str],
     profile: Optional[Dict[str, Any]] = None,
 ) -> Tuple[str, str]:
-    """CLI ft/left_ft/right_ft over profile defaults.ft (always, not gated by use_profile_eef)."""
+    """CLI ft/left_ft/right_ft over profile hardware.left_ft/right_ft."""
     left = _strip_eef_key(_cli_launch_value(launch_configurations, "left_ft"))
     right = _strip_eef_key(_cli_launch_value(launch_configurations, "right_ft"))
     sym = _strip_eef_key(_cli_launch_value(launch_configurations, "ft"))
     left, right = _expand_side_pair(sym, left, right)
 
     if profile:
-        pft = profile.get("ft") if isinstance(profile.get("ft"), dict) else {}
+        pft = profile.get("hardware") if isinstance(profile.get("hardware"), dict) else {}
         if not left:
-            left = _strip_eef_key(str(pft.get("left", "") or ""))
+            left = _strip_eef_key(str(pft.get("left_ft", "") or ""))
         if not right:
-            right = _strip_eef_key(str(pft.get("right", "") or ""))
+            right = _strip_eef_key(str(pft.get("right_ft", "") or ""))
     return left, right
 
 
@@ -806,7 +793,7 @@ def create_ft_launch_arguments():
             "ft",
             default_value="",
             description="Symmetric FT sensor key for both arms (none|kwr75_485|kwr75_usb). "
-            "Overrides defaults.ft.type from robot_profile when set.",
+            "Overrides hardware.left_ft/right_ft from robot_profile when set.",
         ),
         DeclareLaunchArgument(
             "left_ft",

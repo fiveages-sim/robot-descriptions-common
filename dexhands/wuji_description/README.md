@@ -89,6 +89,8 @@ Fixed tip / tip-sensor frames exist for TF but are not commanded.
 | `hand_base` | External wrist for fa_w2 / dexhands; **+Z = finger extension** (same idea as LinkerHand O6) |
 | `wrist` | Official beta2 wrist mesh + finger roots; fingers extend in **−Z** of this frame |
 | `wrist_align` | Fixed `R_x(π)` mapping official −Z onto `hand_base` +Z |
+| `eef` | Default tip on `hand_base` +Z at **0.07 m** (finger direction). On-arm: `{side}_eef` → `{side}_hand_eef` |
+| `hand_back` | Dorsal Tracker tip (~**0.035 m** +Z; sibling of `eef`). On-arm: `left_hand_hand_back` / `right_hand_hand_back`. Glove teleop: site overlay [`wuji_hand2_tracker.yaml.example`](../../../../config/robot.profiles/wuji_hand2_tracker.yaml.example) — do not put `ee_frame` in `robot.local.yaml`. Retune `hand_back_joint` in `xacro/hand2.xacro` only if the mount moves. |
 
 Joint names, order, and limits are unchanged — simulation controllers and a future HardwareInterface still use joint-space angles (no sign flip for +Z). When mounting on an arm, calibrate `*_hand_base_joint` against this **+Z** `hand_base`.
 

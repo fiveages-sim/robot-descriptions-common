@@ -10,6 +10,8 @@
     hand_base  — external wrist; +Z = finger extension (like LinkerHand O6)
     wrist      — official beta2 wrist geometry/kinematics (−Z fingers in that frame)
     wrist_align — fixed R_x(pi) maps official −Z onto hand_base +Z
+    eef        — tip on hand_base +Z at 0.07 m (finger direction; default OCS2 tip via alias)
+    hand_back  — dorsal mount / Vive Tracker point (sibling of eef; tune xyz/rpy in RViz)
   Joint angles / ros2_control names are unchanged (HI ↔ SDK still joint-space).
 -->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
@@ -884,6 +886,15 @@
             <origin xyz="0 0 0.07" rpy="0 0 0"/>
             <parent link="${prefix}hand_base"/>
             <child link="${prefix}eef"/>
+        </joint>
+
+        <!-- Dorsal / Tracker mount frame (sibling of eef). xyz/rpy relative to hand_base;
+             calibrated ~0.035 m along +Z; retune in RViz (TF) against wrist mesh + glove seat. -->
+        <link name="${prefix}hand_back"/>
+        <joint name="${prefix}hand_back_joint" type="fixed">
+            <origin xyz="0 0 0.035" rpy="0 0 0"/>
+            <parent link="${prefix}hand_base"/>
+            <child link="${prefix}hand_back"/>
         </joint>
 
     </xacro:macro>

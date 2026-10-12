@@ -4,6 +4,7 @@ Tianji Marvin gripper descriptions extracted from the Marvin Pro robot package:
 
 - `marvin_gripper` — straight flange variant
 - `marvin_gripper45` — 45-degree flange variant
+- `marvin_gripper_core` — gripper only (no flange / camera)
 
 ## Build
 
@@ -32,6 +33,13 @@ ros2 launch robot_common_launch gripper.launch.py gripper:=marvin_gripper type:=
 
 ![marvin_gripper45](../.images/marvin_gripper_45.png)
 
+### Gripper only (no flange / camera)
+
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 launch robot_common_launch gripper.launch.py gripper:=marvin_gripper type:=marvin_gripper_core
+```
+
 ## Usage in robot xacro
 
 ```xml
@@ -43,8 +51,8 @@ ros2 launch robot_common_launch gripper.launch.py gripper:=marvin_gripper type:=
 <xacro:marvin_gripper45 name="right"/>
 
 <!-- gripper core only (no flange / camera) -->
-<xacro:include filename="$(find marvin_gripper_description)/xacro/components/marvin_gripper.xacro"/>
-<xacro:marvin_gripper_component name="left"/>
+<xacro:include filename="$(find marvin_gripper_description)/xacro/marvin_gripper_core.xacro"/>
+<xacro:marvin_gripper_core name="left"/>
 
 <!-- straight flange + camera only (expects gripper_base) -->
 <xacro:include filename="$(find marvin_gripper_description)/xacro/components/flange.xacro"/>
@@ -55,7 +63,7 @@ ros2 launch robot_common_launch gripper.launch.py gripper:=marvin_gripper type:=
 <xacro:marvin_gripper_flange45 name="left"/>
 ```
 
-Attach the arm to `${prefix}flange`. The TCP frame is `${prefix}eef`.
+Attach the arm to `${prefix}flange` (or `${prefix}gripper_base` for `marvin_gripper_core`). The TCP frame is `${prefix}eef`.
 
 The gripper model is already rotated **-90° about Z** relative to the raw Marvin Pro URDF meshes
 (same as the original `flange -> gripper_mount` yaw), so arm attach can use identity:

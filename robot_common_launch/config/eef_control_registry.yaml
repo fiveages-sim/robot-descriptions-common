@@ -68,3 +68,13 @@ erg32:
   package: jodell_description
   template: config/ros2_control/templates/erg32.side.yaml
   category: hand
+
+revo1:
+  package: brainco_description
+  template: config/ros2_control/templates/revo1.side.yaml
+  category: hand
+
+revo2:
+  package: brainco_description
+  template: config/ros2_control/templates/revo2.side.yaml
+  category: hand

@@ -931,13 +931,20 @@ def parse_task_info(task_file_path):
             control_base_frame = base_frame_match.group(1)
             print(f"[INFO] Detected base frame: {control_base_frame}")
 
-        # 轮式底盘模式（manipulatorModelType=1）下，OCS2目标和EE均在world坐标系下
-        # marker也必须锚定在world，否则底盘移动时marker跟着漂移
+        # Mobile-base OCS2 EE/targets live in world (WBC ref_ctx.base_frame="world").
+        # ATM continuous publish transforms marker_fixed_frame -> control_base_frame into
+        # unframed Pose; if control_base_frame stays base_footprint while markers are in
+        # world (full_body WBC), continuous tracking gets a chassis-pose offset vs
+        # single-shot PoseStamped (which uses left_current_target frame_id=world).
+        # Types: 1=WheelBased, 4=OmniWheelBased (Taku/WCE3/Inex). Not only type 1.
         model_type_match = re.search(r'manipulatorModelType\s+(\d+)', content)
-        if model_type_match and int(model_type_match.group(1)) == 1:
+        if model_type_match and int(model_type_match.group(1)) in (1, 4):
             control_base_frame = "world"
             marker_fixed_frame = "world"
-            print(f"[INFO] Wheel-based mode detected, overriding control_base_frame and marker_fixed_frame to 'world'")
+            print(
+                f"[INFO] Mobile base modelType={model_type_match.group(1)}: "
+                f"overriding control_base_frame and marker_fixed_frame to 'world'"
+            )
 
         print(f"[INFO] Parsed task file - dual_arm_mode: {dual_arm_mode}, control_base_frame: {control_base_frame}, marker_fixed_frame: {marker_fixed_frame}")
 
@@ -968,7 +975,7 @@ def prepare_arms_target_manager_parameters(
         hand_controllers (list, optional): 手部/夹爪控制器名称列表
         
     Note:
-        enable_head_control is now configured via YAML config file, not via function parameter
+        Head 6D marker is gated by enable_wbc_head_tracking_marker (YAML / full_body launch).
         
     Returns:
         list: 节点参数列表，可以直接传递给 Node 的 parameters 参数

@@ -42,3 +42,22 @@ colcon build --packages-up-to brainco_description --symlink-install
   source ~/ros2_ws/install/setup.bash
   ros2 launch robot_common_launch hand.launch.py hand:=brainco type:=Revo1 direction:=-1
   ```
+
+## ROS2 Control
+
+Hand controllers live in this package (`config/ros2_control/`). Robots with `type:=revo1` / `revo2` compose `{side}_hand_controller` from `templates/revo1.side.yaml` / `revo2.side.yaml` via `eef_control_registry.yaml`.
+
+Standalone mock:
+
+```bash
+ros2 launch basic_joint_controller hand.launch.py hand:=brainco type:=revo2
+ros2 launch basic_joint_controller hand.launch.py hand:=brainco type:=revo1 direction:=-1
+```
+
+| Home | Pose |
+|------|------|
+| `home_1` | fully open |
+| `home_2` | thumb opposed, fingers open |
+| `home_3` | thumb + fingers closed |
+
+`target_command` 0 = close (`home_3`), 1 = open (`home_2`).

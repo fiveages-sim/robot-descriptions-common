@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="collider" default="convex"/>
+  <xacro:property name="collider_type" value="$(arg collider)"/>
+
+  <xacro:include filename="$(find marvin_gripper_description)/xacro/components/marvin_gripper.xacro"/>
+
+  <!-- Tianji Marvin gripper core only (no flange / camera). -->
+  <xacro:macro name="marvin_gripper_core" params="name kinematic_only:=false">
+    <xacro:marvin_gripper_component name="${name}" kinematic_only="${kinematic_only}"/>
+  </xacro:macro>
+</robot>

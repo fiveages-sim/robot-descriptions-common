@@ -13,4 +13,9 @@
     <xacro:marvin_gripper45 name=""/>
   </xacro:if>
 
+  <xacro:if value="${'$(arg type)' == 'marvin_gripper_core'}">
+    <xacro:include filename="$(find marvin_gripper_description)/xacro/marvin_gripper_core.xacro"/>
+    <xacro:marvin_gripper_core name=""/>
+  </xacro:if>
+
 </robot>

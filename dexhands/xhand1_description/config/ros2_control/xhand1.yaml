@@ -65,4 +65,4 @@ hand_joint_controller:
 
     home_duration: 0.01
     movej_duration: 0.01
-    hold_position_threshold: 0.01
+    hold_position_threshold: 0.1

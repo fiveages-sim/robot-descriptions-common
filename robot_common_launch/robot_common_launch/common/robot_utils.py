@@ -996,6 +996,12 @@ def prepare_arms_target_manager_parameters(
 
     # 确定配置文件路径（优先级：显式指定的config_file > task_file同目录 > 默认配置）
     config_path = None
+    default_config = None
+    try:
+        package_dir = get_package_share_directory('arms_target_manager')
+        default_config = os.path.join(package_dir, 'config', 'default.yaml')
+    except Exception as e:
+        print(f"[WARN] Failed to get default config file: {e}")
     
     # 如果显式指定了配置文件路径，优先使用
     if config_file_path:
@@ -1015,19 +1021,21 @@ def prepare_arms_target_manager_parameters(
     
     # 如果还没有找到，使用默认配置文件
     if not config_path:
-        try:
-            package_dir = get_package_share_directory('arms_target_manager')
-            default_config = os.path.join(package_dir, 'config', 'default.yaml')
-            if os.path.exists(default_config):
-                config_path = default_config
-                print(f"[INFO] Using default config file: {config_path}")
-            else:
-                print(f"[WARN] Default config file not found: {default_config}, using default parameters")
-        except Exception as e:
-            print(f"[WARN] Failed to get default config file: {e}")
+        if default_config and os.path.exists(default_config):
+            config_path = default_config
+            print(f"[INFO] Using default config file: {config_path}")
+        else:
+            print(f"[WARN] Default config file not found: {default_config}, using default parameters")
     
-    # 构建参数列表：先加载 YAML 配置，然后用 launch 参数覆盖
+    # 构建参数列表。注意顺序（ROS 2 后加载的覆盖先加载的）：
+    #   1) arms_target_manager 包内 config/default.yaml 作为【基底】，提供所有可调项的默认值；
+    #   2) task_file 旁的 target_manager.yaml（或显式指定的 config）仅覆盖该机型需要改的项；
+    #   3) 最后是 launch 侧强制覆盖的参数（dual_arm_mode / control_base_frame 等）。
+    # 这样机型 yaml 只写差异、不必重复抄一遍默认值，而包内 default.yaml 的修改对所有机型生效。
     parameters = []
+    if default_config and os.path.exists(default_config) and config_path != default_config:
+        parameters.append(default_config)
+        print(f"[INFO] Using arms_target_manager default config as base: {default_config}")
     if config_path:
         parameters.append(config_path)
     

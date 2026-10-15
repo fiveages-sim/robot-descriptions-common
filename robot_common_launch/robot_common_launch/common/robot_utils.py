@@ -194,11 +194,33 @@ def _deep_merge_dicts(base, override):
     return merged
 
 
+class Ros2ParamSafeDumper(yaml.SafeDumper):
+    """PyYAML dumper that always writes values out in full.
+
+    PyYAML switches to anchors (``&id001``) / aliases (``*id001``) whenever the
+    same list/dict object is referenced from more than one place, which happens
+    naturally here because ``_deep_merge_dicts`` only copies references.
+
+    ``rcl`` refuses such files (``Will not support aliasing``), and it has no
+    option to accept them, so merged params files must never contain aliases.
+    """
+
+    def ignore_aliases(self, data):
+        return True
+
+
+def dump_ros2_params_yaml(data, stream=None, **kwargs):
+    """Dump ROS 2 parameter YAML with anchors/aliases expanded (``rcl``-safe)."""
+    kwargs.setdefault("default_flow_style", False)
+    kwargs.setdefault("sort_keys", False)
+    return yaml.dump(data, stream, Dumper=Ros2ParamSafeDumper, **kwargs)
+
+
 def write_temp_ros2_control_yaml(config_dict, *, quiet: bool = False):
     """Write merged ros2_control config to a temp YAML file for ros2_control_node."""
     fd, path = tempfile.mkstemp(suffix=".yaml", prefix="ros2_control_merged_")
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
-        yaml.safe_dump(config_dict, handle, default_flow_style=False, sort_keys=False)
+        dump_ros2_params_yaml(config_dict, handle)
     if not quiet:
         print(f"[INFO] Wrote merged ros2_control config: {path}")
     return path

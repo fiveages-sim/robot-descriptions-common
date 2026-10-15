@@ -9,7 +9,6 @@ import tempfile
 import xml.etree.ElementTree as ET
 from typing import Any, Dict, Optional
 
-import yaml
 from launch_ros.actions import Node
 
 
@@ -56,8 +55,12 @@ def write_spawner_controller_param_file(
     )
     os.close(fd)
     payload = wrap_spawner_controller_params(controller_name, ros_parameters)
+    # Deferred import: robot_utils pulls in xacro/ament_index and is kept out of
+    # this module's import path.
+    from .robot_utils import dump_ros2_params_yaml
+
     with open(path, "w", encoding="utf-8") as handle:
-        yaml.safe_dump(payload, handle, default_flow_style=False)
+        dump_ros2_params_yaml(payload, handle)
     if not quiet:
         print(f"[INFO] Spawner param file for {controller_name}: {path}")
     return path

@@ -5,6 +5,7 @@ Launch argument utilities: prefixed xacro_/hardware_/control_ routing and robot 
 from __future__ import annotations
 
 import ast
+import copy
 import math
 import os
 import re
@@ -344,6 +345,21 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
     if isinstance(patch, dict) and patch:
         control["patch"] = patch
 
+    # 头部底层模式（csv / csp）以**控制器的配置**为唯一真源，写在
+    # control.patch.ocs2_wbc_controller.ros__parameters.head_control_mode。
+    # 这里把它同步给 xacro，让 URDF 声明的命令接口（真机与仿真都一样）跟着控制器走 ——
+    # 配置里只写这一处，也不会出现「URDF 是 csp、控制器却按 csv 去 claim」的不一致。
+    wbc_params = {}
+    if isinstance(patch, dict):
+        wbc_section = patch.get("ocs2_wbc_controller")
+        if isinstance(wbc_section, dict):
+            raw_params = wbc_section.get("ros__parameters")
+            if isinstance(raw_params, dict):
+                wbc_params = raw_params
+    head_control_mode = str(wbc_params.get("head_control_mode", "") or "").strip()
+    if head_control_mode:
+        xacro["head_control_mode"] = head_control_mode
+
     return {
         "xacro": xacro,
         "eef": eef,
@@ -354,13 +370,20 @@ def normalize_robot_profile(data: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def load_robot_profile(profile_path: str) -> Dict[str, Any]:
-    if not profile_path or not os.path.isfile(profile_path):
-        return {}
-    with open(profile_path, "r", encoding="utf-8") as handle:
-        data = yaml.safe_load(handle) or {}
-    if not isinstance(data, dict):
-        return {}
-    return normalize_robot_profile(data)
+    data: Dict[str, Any] = {}
+    if profile_path and os.path.isfile(profile_path):
+        with open(profile_path, "r", encoding="utf-8") as handle:
+            loaded = yaml.safe_load(handle) or {}
+        if isinstance(loaded, dict):
+            data = normalize_robot_profile(loaded)
+    return data
+
+
+# 腰部电流环（juxie 驱动内部的阻抗层）参数的**默认值随描述包走**，与 common.yaml 同目录：
+#   <robot>_description/config/ros2_control/juxie_joint_impedance.yaml
+# 由描述包自己的 xacro **直接读**（xacro.load_yaml，见 <robot>_description/xacro/ros2_control/
+# robot.xacro）⇒ launch / Python 不参与，改数值只动那一个 yaml。
+# 这里只把 profile 的 hardware 段透传成 xacro 参数（写同名键即覆盖 yaml 里的默认值）。
 
 
 def resolve_profile_path(launch_configurations: Dict[str, str]) -> str:
@@ -502,14 +525,64 @@ def resolve_tcp_offset(
 
 
 def resolve_control_patch(profile: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """ros2_control overrides from robot.local.yaml control.patch (deep-merged after compose)."""
+    """ros2_control overrides from robot.local.yaml control.patch (deep-merged after compose).
+
+    ``hardware.*_dyn_param`` (单一来源) are mirrored into the controllers that consume them —
+    see :func:`_mirror_hardware_dyn_params`.
+    """
     if not profile:
         return {}
     control_section = profile.get("control") or {}
     if not isinstance(control_section, dict):
         return {}
     patch = control_section.get("patch")
-    return dict(patch) if isinstance(patch, dict) else {}
+    patch = copy.deepcopy(patch) if isinstance(patch, dict) else {}
+    _mirror_hardware_dyn_params(patch, profile)
+    return patch
+
+
+# hardware.<key> 只在 hardware:=real 时被 build_xacro_mappings 透传给 xacro（→ Marvin 硬件
+# 插件的 OnSetTool_*），控制器节点**拿不到**。而控制器也要用这两组数：
+#   · ocs2_arm_controller → StateCompliance 工具重力补偿（COMPLIANCE）
+#   · ocs2_wbc_controller → 末端负载折算进腰部重力前馈
+# 以前只能在 control.patch 里手抄一份 ⇒ 换工具时两处容易不一致（数值/类型都可能抄错）。
+# 这里统一把 hardware 段的那份注入，control.patch 里就不用再写。
+_DYN_PARAM_KEYS = ("left_dyn_param", "right_dyn_param")
+_DYN_PARAM_CONSUMERS = ("ocs2_arm_controller", "ocs2_wbc_controller")
+
+
+def _mirror_hardware_dyn_params(patch: Dict[str, Any], profile: Dict[str, Any]) -> None:
+    """hardware.*_dyn_param → 需要它的控制器的 ros__parameters（就地改）。"""
+    hardware = profile.get("hardware") or {}
+    if not isinstance(hardware, dict):
+        return
+    values: Dict[str, List[float]] = {}
+    for key in _DYN_PARAM_KEYS:
+        raw = hardware.get(key)
+        if not _mapping_value_ok(raw):
+            continue  # 空/[] = 不覆盖（xacro 按 eef 类型选默认）
+        items = list(raw) if isinstance(raw, (list, tuple)) else [
+            p for p in re.split(r"[,\s]+", str(raw).strip().strip("[]")) if p
+        ]
+        try:
+            values[key] = [float(v) for v in items]  # 控制器声明的是 double array
+        except (TypeError, ValueError):
+            print(f"[WARN] hardware.{key} 无法解析成数值列表（{raw!r}）；已忽略")
+    if not values:
+        return
+    for controller in _DYN_PARAM_CONSUMERS:
+        section = patch.setdefault(controller, {})
+        if not isinstance(section, dict):
+            continue
+        params = section.setdefault("ros__parameters", {})
+        if not isinstance(params, dict):
+            continue
+        for key, value in values.items():
+            if _mapping_value_ok(params.get(key)) and str(params[key]) != str(value):
+                print(f"[WARN] control.patch.{controller}.{key} 与 hardware.{key} 不一致，以 hardware 段为准")
+            params[key] = value
+        print(f"[INFO] hardware.{'/'.join(values)} → {controller}.ros__parameters（dyn_param 单一来源）")
+
 
 
 def resolve_control_sides(
@@ -694,15 +767,15 @@ def build_xacro_mappings(
     mappings.update(xacro_overrides)
 
     if hardware in REAL_HARDWARE:
-        profile_hardware = profile.get("hardware") or {}
-        if isinstance(profile_hardware, dict):
-            for key, value in profile_hardware.items():
-                if _mapping_value_ok(value):
-                    # Avoid dumping Python list repr; join numeric lists as CSV if needed.
-                    if isinstance(value, (list, tuple)):
-                        mappings[str(key)] = ",".join(str(v) for v in value)
-                    else:
-                        mappings[str(key)] = str(value).strip()
+        # 腰部电流环参数的**默认值由 xacro 自己从描述包里读**（juxie_joint_impedance.yaml），
+        # 这里只透传 profile 的 hardware 段覆盖它（写同名键 = 覆盖，不写 = 用描述包默认值）。
+        for key, value in (profile.get("hardware") or {}).items():
+            if _mapping_value_ok(value):
+                # Avoid dumping Python list repr; join numeric lists as CSV if needed.
+                if isinstance(value, (list, tuple)):
+                    mappings[str(key)] = ",".join(str(v) for v in value)
+                else:
+                    mappings[str(key)] = str(value).strip()
         mappings.update(extract_prefixed_args(launch_configurations, HARDWARE_PREFIX))
 
     _apply_ft_and_tcp_to_mappings(mappings, launch_configurations, profile)

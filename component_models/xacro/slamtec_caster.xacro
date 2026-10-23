@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+	<!-- Slamtec passive support caster (shared by Unitree G1-D / Airbot MMK2 Athena2):
+	     parent -> {prefix}_caster_mount (fixed plate)
+	     -> {prefix}_caster_swivel_joint (yaw Z) -> {prefix}_caster_swivel (fork)
+	     -> {prefix}_caster_wheel_joint (roll Y) -> {prefix}_caster_wheel.
+	     Mount/swivel origin at swivel axis ∩ cut plane; wheel at tire center.
+	     Trail ≈ (-0.02662, 0, -0.05332). Not in ros2_control. -->
+	<xacro:macro name="SlamtecCaster" params="prefix parent xyz movable:=true">
+		<xacro:property name="caster_joint_type" value="${'continuous' if movable else 'fixed'}"/>
+
+		<link name="${prefix}_caster_mount">
+			<inertial>
+				<origin xyz="0 0 0"/>
+				<mass value="0.05"/>
+				<inertia ixx="1e-05" ixy="0" ixz="0" iyy="1e-05" iyz="0" izz="1e-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find component_models)/meshes/slamtec/caster_mount.glb"/>
+				</geometry>
+			</visual>
+		</link>
+		<joint name="${prefix}_caster_mount_joint" type="fixed">
+			<origin xyz="${xyz}"/>
+			<parent link="${parent}"/>
+			<child link="${prefix}_caster_mount"/>
+		</joint>
+
+		<link name="${prefix}_caster_swivel">
+			<inertial>
+				<origin xyz="0 0 0"/>
+				<mass value="0.08"/>
+				<inertia ixx="2e-05" ixy="0" ixz="0" iyy="2e-05" iyz="0" izz="2e-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find component_models)/meshes/slamtec/caster_swivel.glb"/>
+				</geometry>
+			</visual>
+		</link>
+		<joint name="${prefix}_caster_swivel_joint" type="${caster_joint_type}">
+			<origin xyz="0 0 0"/>
+			<parent link="${prefix}_caster_mount"/>
+			<child link="${prefix}_caster_swivel"/>
+			<axis xyz="0 0 1"/>
+		</joint>
+
+		<link name="${prefix}_caster_wheel">
+			<inertial>
+				<origin xyz="0 0 0"/>
+				<mass value="0.12"/>
+				<inertia ixx="5e-05" ixy="0" ixz="0" iyy="8e-05" iyz="0" izz="5e-05"/>
+			</inertial>
+			<visual>
+				<geometry>
+					<mesh filename="file://$(find component_models)/meshes/slamtec/caster_wheel.glb"/>
+				</geometry>
+			</visual>
+			<collision>
+				<geometry>
+					<sphere radius="0.0298"/>
+				</geometry>
+			</collision>
+		</link>
+		<joint name="${prefix}_caster_wheel_joint" type="${caster_joint_type}">
+			<origin xyz="-0.026619 0 -0.053321"/>
+			<parent link="${prefix}_caster_swivel"/>
+			<child link="${prefix}_caster_wheel"/>
+			<axis xyz="0 1 0"/>
+		</joint>
+	</xacro:macro>
+</robot>

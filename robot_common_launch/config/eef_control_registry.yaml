@@ -78,3 +78,11 @@ revo2:
   package: brainco_description
   template: config/ros2_control/templates/revo2.side.yaml
   category: hand
+
+# Unitree Dex3: left_hand_* / right_hand_* (NOT gripper_joint). Without this entry,
+# compose falls back to _defaults.gripper → JSB claims left_gripper_joint → Isaac
+# HW (hand_*) activate fails. dex1 stays on _defaults.gripper (left_gripper_joint).
+dex3:
+  package: unitree_dex_description
+  template: config/ros2_control/templates/dex3.side.yaml
+  category: hand

@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<robot name="DH_Robotics_DH_3_7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:arg name="type" default="dh_3_7"/>
+  <xacro:arg name="direction" default="1"/>
+  <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
+  <xacro:arg name="serial_port" default="/dev/ttyUSB0"/>
+  <xacro:arg name="baudrate" default="115200"/>
+  <xacro:arg name="slave_id" default="1"/>
+  <xacro:arg name="tool_velocity" default="1.0"/>
+  <xacro:arg name="tool_torque" default="1.0"/>
+  <xacro:arg name="background_period_ms" default="20"/>
+  <xacro:arg name="feedback_timeout_ms" default="50"/>
+  <xacro:arg name="homing_timeout_ms" default="90000"/>
+  <xacro:include filename="$(find dh_description)/xacro/dh_3_7.xacro"/>
+  <xacro:include filename="$(find dh_description)/xacro/ros2_control/side_systems.xacro"/>
+  <link name="world"/>
+  <joint name="world_fixed" type="fixed"><parent link="world"/><child link="hand_base"/></joint>
+  <xacro:DH3_7 name="" direction="$(arg direction)"/>
+  <ros2_control name="dh_3_7_system" type="system">
+    <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'real'}">
+      <xacro:dh_3_7_hardware serial_port="$(arg serial_port)" baudrate="$(arg baudrate)"
+        slave_id="$(arg slave_id)" tool_velocity="$(arg tool_velocity)" tool_torque="$(arg tool_torque)"
+        background_period_ms="$(arg background_period_ms)" feedback_timeout_ms="$(arg feedback_timeout_ms)"
+        homing_timeout_ms="$(arg homing_timeout_ms)"/>
+    </xacro:if>
+    <xacro:if value="${'$(arg ros2_control_hardware_type)' == 'mock_components'}">
+      <hardware><plugin>mock_components/GenericSystem</plugin></hardware>
+    </xacro:if>
+    <xacro:dh_3_7_interfaces name="" direction="$(arg direction)"/>
+  </ros2_control>
+</robot>

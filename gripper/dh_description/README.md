@@ -110,8 +110,8 @@ geometry are deferred until visual validation.
 
 ### Confirmed device behavior for later driver integration
 
-The following was verified with the connected right hand. No hardware/control
-interface is added to this asset package yet.
+The following behavior was verified with the connected right hand and is used
+by the `modbus_ros2_control/DH3_7RS485Hardware` plugin described below.
 
 - Position values 0 to 5000 represent normalized travel, with 0 at the end of
   homing and 5000 at maximum travel; do not interpret them as millimeters.
@@ -129,3 +129,110 @@ interface is added to this asset package yet.
 - Target speed is a percentage. Target force is a percentage in the documented
   range 20 to 100, not measured joint torque in N m. Runtime percentages do not
   replace the URDF velocity/effort limits.
+
+
+## 4. DH-3-7 ROS 2 Control
+
+The standalone control entry is `xacro/ros2_control/hand.xacro` with
+`config/ros2_control/dh_3_7.yaml`. It uses the existing BasicJointController,
+with seven position commands in radians. Named open/close switching is disabled
+until suitable grasp presets have been validated. `home_1` is the all-zero
+joint pose; it is a controller pose, not the hardware's power-on initialization.
+
+Build the hardware, asset and controller packages in the workspace:
+
+```bash
+colcon build --packages-select modbus_ros2_control dh_description basic_joint_controller --symlink-install
+source install/setup.bash
+```
+
+Mock right hand (does not connect a serial device):
+
+```bash
+ros2 launch basic_joint_controller hand.launch.py \
+  hand:=dh type:=dh_3_7 direction:=-1 hardware:=mock_components
+```
+
+Real right hand (activation can home the hand if initialization is incomplete):
+
+```bash
+ros2 launch basic_joint_controller hand.launch.py \
+  hand:=dh type:=dh_3_7 direction:=-1 hardware:=real \
+  serial_port:=/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_BG036HL0-if00-port0
+```
+
+For the left hand use `direction:=1`. Default slave ID is **1 for either side**;
+set `slave_id` explicitly if the device has a different ID. The supplied left
+model is supported mathematically; physical communication was validated on the
+right hand only. `use_rviz:=false` supports terminal-only operation.
+
+Activation checks faults and initialization, sends at most one `0x2AAA` homing
+command when needed, waits for completion, reads all seven maximum travel
+values, applies speed and force percentages with readback, then seeds commands
+from measured positions. An already initialized hand is not homed again.
+Startup never sends an enable request or `0x15AA`.
+
+The speed and target force defaults are both **100%**, independently of the
+URDF limits. CLI overrides use ratios:
+
+```bash
+# Add to the real-hand launch above to select 50% speed and 80% target force:
+# tool_velocity:=0.5 tool_torque:=0.8
+```
+
+| Hardware parameter | Default | Meaning |
+|---|---|---|
+| `serial_port` | `/dev/ttyUSB0` | Serial path; stable `/dev/serial/by-id/` paths are supported |
+| `baudrate` | `115200` | 115200 or 921600, 8N1 |
+| `slave_id` | `1` | Device ID, 1 to 254 |
+| `background_period_ms` | `20` | Background polling period; independent of controller-manager rate |
+| `feedback_timeout_ms` | `50` | Whole serial-transaction timeout |
+| `homing_timeout_ms` | `90000` | Startup homing deadline; no automatic retry |
+| `feedback_stale_timeout_ms` | `500` | Reject commands and return an error when feedback is too old; set in hardware Xacro if needed |
+| `tool_velocity` | `1.0` | Speed ratio, 0.01 to 1.0; also a runtime hardware-node parameter |
+| `tool_torque` | `1.0` | Target force ratio, 0.2 to 1.0; also a runtime hardware-node parameter |
+
+After the controller is active, select MoveJ and send angles in this order:
+`thumb_joint1`, `thumb_joint2`, `thumb_joint3`, `index_joint1`, `index_joint2`,
+`middle_joint1`, `middle_joint2`.
+
+```bash
+ros2 topic pub --once /fsm_command std_msgs/msg/Int32 "data: 4"
+ros2 topic pub --once /hand_joint_controller/target_joint_position \
+  std_msgs/msg/Float64MultiArray "data: [1.57, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]"
+```
+
+For the right hand, the example corresponds to raw positions
+`[2500, 0, 0, 0, 0, 0, 0]` when maximum travel is 5000. Left-hand joint angles
+have the opposite sign. Conversion uses `angle_at_max` on each control joint,
+so raw zero always maps to angle zero, including negative-range left joints.
+Joint names are matched by suffix, allowing reordered control declarations
+and `left_hand_` / `right_hand_` prefixes.
+
+The runtime hardware parameters live on its framework-managed node (use
+`ros2 node list` to find the node if launching in a namespace):
+
+```bash
+ros2 param set /dh_3_7_system tool_velocity 0.5
+ros2 param set /dh_3_7_system tool_torque 0.8
+```
+
+Parameter
+updates are sent by the serial worker and read back before changed position
+commands are sent. Accepted ROS parameter updates are requests, not proof of
+successful device application; serial/readback failures are reported by the
+hardware plugin.
+
+The hardware exports position (rad), velocity estimated using feedback timestamps
+(rad/s), and unavailable effort (`NaN`). Target force percentage and current are
+not presented as measured joint torque. A single serial worker owns all traffic:
+`read()` and `write()` only exchange snapshots. Unchanged targets are not resent;
+under load the latest target replaces queued targets. Each position read also
+checks main fault and initialization in the same `0x69` frame. Detailed axis
+faults are polled once per second. Three consecutive failed cycles or stale
+feedback cause the hardware to return an error; no automatic rehoming occurs
+in the motion loop.
+
+`xacro/ros2_control/side_systems.xacro` also provides the reusable
+`dh_3_7_rs485_side_system` macro. Robot mounting, EEF type resolution and W2
+controller-registry wiring are a later integration step.

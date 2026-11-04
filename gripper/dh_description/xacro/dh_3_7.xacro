@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <!--DH-Robotics DH-3-7. Preserve the independent vendor left/right trees and SI units.-->
+    <xacro:macro name="DH3_7" params="name direction:=1 fixed_joints:=false">
+        <xacro:property name="prefix" value="${name + '_' if name else ''}" />
+        <xacro:property name="is_fixed" value="${str(fixed_joints).lower() in ('true', '1')}" />
+        <xacro:property name="joint_type" value="${'fixed' if is_fixed else 'revolute'}" />
+        <xacro:property name="side" value="${dict([(1, 'left'), (-1, 'right')])[int(direction)]}" />
+        <xacro:if value="${side == 'left'}">
+            <!--Source: UDH3_7L_0903/urdf/UDH3_7L_0903.urdf. Keep all original origins, axes, inertias and limits.-->
+            <link name="${prefix}hand_base">
+                <inertial>
+                    <origin xyz="-0.0092196 -0.0084715 0.042003" rpy="0 0 0" />
+                    <mass value="0.52839" />
+                    <inertia ixx="0.0002466" ixy="-3.4559E-06" ixz="1.2499E-05" iyy="0.00026968" iyz="3.9916E-06" izz="0.00035655" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/base_link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/base_link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <link name="${prefix}hand_thumb_link1">
+                <inertial>
+                    <origin xyz="-0.011931 0.025154 0.0074692" rpy="0 0 0" />
+                    <mass value="0.16058" />
+                    <inertia ixx="4.5598E-05" ixy="3.2067E-06" ixz="1.1997E-06" iyy="3.8627E-05" iyz="6.4796E-07" izz="2.647E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF1R_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF1R_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}thumb_joint1" type="${joint_type}">
+                <origin xyz="0.0145 0.0075 0.04815" rpy="0 0 0" />
+                <parent link="${prefix}hand_base" />
+                <child link="${prefix}hand_thumb_link1" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="0 0 1" />
+                    <limit lower="-3.14" upper="0" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_thumb_link2">
+                <inertial>
+                    <origin xyz="-0.00073029 0.033024 -6.3248E-05" rpy="0 0 0" />
+                    <mass value="0.080613" />
+                    <inertia ixx="1.7215E-05" ixy="9.3254E-07" ixz="-1.0736E-08" iyy="6.1613E-06" iyz="-1.0103E-08" izz="1.4722E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF11_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF11_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}thumb_joint2" type="${joint_type}">
+                <origin xyz="-0.01255 0.034 0.0345" rpy="0 0 0" />
+                <parent link="${prefix}hand_thumb_link1" />
+                <child link="${prefix}hand_thumb_link2" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="-1 0 0" />
+                    <limit lower="-3.14" upper="0" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_thumb_link3">
+                <inertial>
+                    <origin xyz="-0.0017654 -0.0047427 -0.025115" rpy="0 0 0" />
+                    <mass value="0.07502" />
+                    <inertia ixx="9.4682E-06" ixy="-3.5169E-07" ixz="-1.2422E-06" iyy="1.1606E-05" iyz="-2.1861E-06" izz="4.9812E-06" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF12_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF12_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}thumb_joint3" type="${joint_type}">
+                <origin xyz="-3E-05 0.057 0" rpy="0 0 0" />
+                <parent link="${prefix}hand_thumb_link2" />
+                <child link="${prefix}hand_thumb_link3" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="-1 0 0" />
+                    <limit lower="-3.51" upper="0" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_index_link1">
+                <inertial>
+                    <origin xyz="0.00073029 -0.033024 -6.3248E-05" rpy="0 0 0" />
+                    <mass value="0.080613" />
+                    <inertia ixx="1.7215E-05" ixy="9.3254E-07" ixz="1.0736E-08" iyy="6.1613E-06" iyz="1.0103E-08" izz="1.4722E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF21_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF21_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}index_joint1" type="${joint_type}">
+                <origin xyz="-0.00195 -0.0265 0.0826" rpy="0 0 0" />
+                <parent link="${prefix}hand_base" />
+                <child link="${prefix}hand_index_link1" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="-3.14" upper="0" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_index_link2">
+                <inertial>
+                    <origin xyz="0.0017654 0.0047427 -0.025115" rpy="0 0 0" />
+                    <mass value="0.07502" />
+                    <inertia ixx="9.4682E-06" ixy="-3.5169E-07" ixz="1.2422E-06" iyy="1.1606E-05" iyz="2.1861E-06" izz="4.9812E-06" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF22_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF22_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}index_joint2" type="${joint_type}">
+                <origin xyz="3E-05 -0.057 0" rpy="0 0 0" />
+                <parent link="${prefix}hand_index_link1" />
+                <child link="${prefix}hand_index_link2" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="-3.51" upper="0" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_middle_link1">
+                <inertial>
+                    <origin xyz="0.00073029 -0.033024 -6.3248E-05" rpy="0 0 0" />
+                    <mass value="0.080613" />
+                    <inertia ixx="1.7215E-05" ixy="9.3254E-07" ixz="1.0736E-08" iyy="6.1613E-06" iyz="1.0103E-08" izz="1.4722E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF31_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF31_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}middle_joint1" type="${joint_type}">
+                <origin xyz="-0.03095 -0.0265 0.0826" rpy="0 0 0" />
+                <parent link="${prefix}hand_base" />
+                <child link="${prefix}hand_middle_link1" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="-3.14" upper="0" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_middle_link2">
+                <inertial>
+                    <origin xyz="0.0017654 0.0047427 -0.025115" rpy="0 0 0" />
+                    <mass value="0.07502" />
+                    <inertia ixx="9.4682E-06" ixy="-3.5169E-07" ixz="1.2422E-06" iyy="1.1606E-05" iyz="2.1861E-06" izz="4.9812E-06" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF32_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF32_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}middle_joint2" type="${joint_type}">
+                <origin xyz="3E-05 -0.057 0" rpy="0 0 0" />
+                <parent link="${prefix}hand_middle_link1" />
+                <child link="${prefix}hand_middle_link2" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="-3.51" upper="0" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+        </xacro:if>
+        <xacro:if value="${side == 'right'}">
+            <!--Source: UDH3_7R_0903/urdf/UDH3_7R_0903.urdf. Keep all original origins, axes, inertias and limits.-->
+            <link name="${prefix}hand_base">
+                <inertial>
+                    <origin xyz="-0.0091221 0.0086256 0.041016" rpy="0 0 0" />
+                    <mass value="0.52804" />
+                    <inertia ixx="0.00024315" ixy="3.4246E-06" ixz="1.311E-05" iyy="0.00027368" iyz="-3.6641E-06" izz="0.00035709" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/base_link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/base_link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <link name="${prefix}hand_thumb_link1">
+                <inertial>
+                    <origin xyz="-0.011931 -0.025174 0.0074692" rpy="0 0 0" />
+                    <mass value="0.16058" />
+                    <inertia ixx="4.5598E-05" ixy="-3.2159E-06" ixz="1.1997E-06" iyy="3.8624E-05" iyz="-5.0939E-07" izz="2.6467E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F1R_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F1R_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}thumb_joint1" type="${joint_type}">
+                <origin xyz="0.0145 -0.0075 0.04715" rpy="0 0 0" />
+                <parent link="${prefix}hand_base" />
+                <child link="${prefix}hand_thumb_link1" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="0 0 1" />
+                    <limit lower="0" upper="3.14" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_thumb_link2">
+                <inertial>
+                    <origin xyz="-0.00073029 -0.033024 6.3248E-05" rpy="0 0 0" />
+                    <mass value="0.080613" />
+                    <inertia ixx="1.7215E-05" ixy="-9.3254E-07" ixz="1.0736E-08" iyy="6.1613E-06" iyz="-1.0103E-08" izz="1.4722E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F11_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F11_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}thumb_joint2" type="${joint_type}">
+                <origin xyz="-0.01255 -0.034 0.0345" rpy="0 0 0" />
+                <parent link="${prefix}hand_thumb_link1" />
+                <child link="${prefix}hand_thumb_link2" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="-1 0 0" />
+                    <limit lower="0" upper="3.14" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_thumb_link3">
+                <inertial>
+                    <origin xyz="-0.0017332 0.0047432 -0.025117" rpy="0 0 0" />
+                    <mass value="0.075001" />
+                    <inertia ixx="9.4652E-06" ixy="3.5151E-07" ixz="-1.2416E-06" iyy="1.1603E-05" iyz="2.1855E-06" izz="4.9806E-06" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F12_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F12_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}thumb_joint3" type="${joint_type}">
+                <origin xyz="-3E-05 -0.057 0" rpy="0 0 0" />
+                <parent link="${prefix}hand_thumb_link2" />
+                <child link="${prefix}hand_thumb_link3" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="-1 0 0" />
+                    <limit lower="0" upper="3.51" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_index_link1">
+                <inertial>
+                    <origin xyz="0.00073029 0.033024 6.3248E-05" rpy="0 0 0" />
+                    <mass value="0.080613" />
+                    <inertia ixx="1.7215E-05" ixy="-9.3254E-07" ixz="-1.0736E-08" iyy="6.1613E-06" iyz="1.0103E-08" izz="1.4722E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F21_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F21_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}index_joint1" type="${joint_type}">
+                <origin xyz="-0.00195 0.0265 0.0816" rpy="0 0 0" />
+                <parent link="${prefix}hand_base" />
+                <child link="${prefix}hand_index_link1" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="0" upper="3.14" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_index_link2">
+                <inertial>
+                    <origin xyz="0.0017332 -0.0047432 -0.025117" rpy="0 0 0" />
+                    <mass value="0.075001" />
+                    <inertia ixx="9.4652E-06" ixy="3.5151E-07" ixz="1.2416E-06" iyy="1.1603E-05" iyz="-2.1855E-06" izz="4.9806E-06" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F22_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F22_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}index_joint2" type="${joint_type}">
+                <origin xyz="3E-05 0.057 0" rpy="0 0 0" />
+                <parent link="${prefix}hand_index_link1" />
+                <child link="${prefix}hand_index_link2" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="0" upper="3.51" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_middle_link1">
+                <inertial>
+                    <origin xyz="0.00073029 0.033024 6.3248E-05" rpy="0 0 0" />
+                    <mass value="0.080613" />
+                    <inertia ixx="1.7215E-05" ixy="-9.3254E-07" ixz="-1.0736E-08" iyy="6.1613E-06" iyz="1.0103E-08" izz="1.4722E-05" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F31_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F31_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}middle_joint1" type="${joint_type}">
+                <origin xyz="-0.03095 0.0265 0.0816" rpy="0 0 0" />
+                <parent link="${prefix}hand_base" />
+                <child link="${prefix}hand_middle_link1" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="0" upper="3.14" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+            <link name="${prefix}hand_middle_link2">
+                <inertial>
+                    <origin xyz="0.0017332 -0.0047432 -0.025117" rpy="0 0 0" />
+                    <mass value="0.075001" />
+                    <inertia ixx="9.4652E-06" ixy="3.5151E-07" ixz="1.2416E-06" iyy="1.1603E-05" iyz="-2.1855E-06" izz="4.9806E-06" />
+                </inertial>
+                <visual>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F32_Link.STL" />
+                    </geometry>
+                    <material name="${prefix}dh_3_7_material">
+                        <color rgba="0.75294 0.75294 0.75294 1" />
+                    </material>
+                </visual>
+                <collision>
+                    <origin xyz="0 0 0" rpy="0 0 0" />
+                    <geometry>
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F32_Link.STL" />
+                    </geometry>
+                </collision>
+            </link>
+            <joint name="${prefix}middle_joint2" type="${joint_type}">
+                <origin xyz="3E-05 0.057 0" rpy="0 0 0" />
+                <parent link="${prefix}hand_middle_link1" />
+                <child link="${prefix}hand_middle_link2" />
+                <xacro:unless value="${is_fixed}">
+                    <axis xyz="1 0 0" />
+                    <limit lower="0" upper="3.51" effort="10" velocity="5" />
+                    <dynamics damping="0.1" friction="10" />
+                </xacro:unless>
+            </joint>
+        </xacro:if>
+    </xacro:macro>
+</robot>

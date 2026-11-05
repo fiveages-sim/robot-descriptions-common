@@ -19,6 +19,25 @@ CONTROL_PREFIX = "control_"
 
 REAL_HARDWARE = frozenset({"real"})
 
+# Controllers / RSP follow /clock for these backends.
+SIM_TIME_HARDWARE = frozenset({"gz", "isaac", "isaac_sim"})
+
+
+def hardware_uses_sim_time(hardware: str) -> bool:
+    """Whether ``hardware`` implies ``use_sim_time:=true``."""
+    return str(hardware or "").strip().lower() in SIM_TIME_HARDWARE
+
+
+def resolve_use_sim_time(hardware: str, use_sim_time_arg: str = "") -> bool:
+    """Explicit true/false wins; empty falls back to ``hardware_uses_sim_time``."""
+    raw = str(use_sim_time_arg or "").strip().lower()
+    if raw in ("true", "1", "yes"):
+        return True
+    if raw in ("false", "0", "no"):
+        return False
+    return hardware_uses_sim_time(hardware)
+
+
 _EEF_XACRO_KEYS = frozenset({"type", "left_type", "right_type"})
 
 _TCP_OFFSET_XACRO_KEYS = (
@@ -674,6 +693,11 @@ def build_xacro_mappings(
         profile_xacro = {}
 
     mappings: Dict[str, str] = {"ros2_control_hardware_type": hardware}
+
+    # IsaacSimSystem ArtRoot (launch_configurations / emit_control).
+    isaac_prim = str(launch_configurations.get("isaac_prim_path") or "").strip()
+    if isaac_prim:
+        mappings["isaac_prim_path"] = isaac_prim
 
     for key, value in profile_xacro.items():
         if str(key) in _EEF_XACRO_KEYS or str(key) in _TCP_OFFSET_XACRO_KEYS:

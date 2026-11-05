@@ -1,7 +1,10 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-	<!-- hardware_type: gz | mock_components | isaac -->
+	<!-- hardware_type: gz | mock_components | isaac | isaac_sim
+	     isaac → TopicBasedSystem; isaac_sim → IsaacSimSystem (+ isaac_prim_path) -->
+	<xacro:arg name="isaac_prim_path" default=""/>
+
 	<xacro:macro name="simulation_hardware_plugin" params="hardware_type">
 		<xacro:if value="${hardware_type == 'gz'}">
 			<plugin>gz_ros2_control/GazeboSimSystem</plugin>
@@ -15,6 +18,10 @@
 			<param name="joint_states_topic">/isaac/joint_states</param>
 			<param name="sum_wrapped_joint_states">false</param>
 			<param name="initialize_commands_from_state">true</param>
+		</xacro:if>
+		<xacro:if value="${hardware_type == 'isaac_sim'}">
+			<plugin>isaacsim_ros2_control/IsaacSimSystem</plugin>
+			<param name="prim_path">$(arg isaac_prim_path)</param>
 		</xacro:if>
 	</xacro:macro>
 

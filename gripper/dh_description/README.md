@@ -1,79 +1,73 @@
 # DH-Robotics Gripper and Dexterous Hand Descriptions
 
-This package contains URDF/Xacro and meshes for DH-Robotics PGC grippers and the
-DH-3-7 three-finger, seven-joint dexterous hand.
+URDF/Xacro, meshes and control configurations for PGC grippers and the DH-3-7
+three-finger, seven-joint dexterous hand.
 
 ## 1. Build
 
-```bash
-cd ~/ros2_ws
-colcon build --packages-up-to dh_description --symlink-install
-```
-
-## 2. Visualize the Gripper
-
-* PGC_140_50 Gripper (default pad)
-  ```bash
-  source ~/ros2_ws/install/setup.bash
-  ros2 launch robot_common_launch gripper.launch.py gripper:=dh type:=PGC_140_50
-  ```
-  ![pgc140](../.images/dh_pgc_140.png)
-
-* PGC_140_50 Gripper (dexforce pad)
-  ```bash
-  source ~/ros2_ws/install/setup.bash
-  ros2 launch robot_common_launch gripper.launch.py gripper:=dh type:=PGC_140_50-dexforce
-  ```
-
-## 3. Visualize the DH-3-7
-
-Build this package in the ROS 2 workspace, then source its environment:
+Run from the ROS 2 workspace root:
 
 ```bash
 colcon build --packages-select dh_description --symlink-install
 source install/setup.bash
 ```
 
-Right hand (`direction:=-1`):
+## 2. Visualize the Gripper
+
+PGC_140_50 with default pads:
+
+```bash
+ros2 launch robot_common_launch gripper.launch.py gripper:=dh type:=PGC_140_50
+```
+
+![PGC_140_50](../.images/dh_pgc_140.png)
+
+PGC_140_50 with Dexforce pads:
+
+```bash
+ros2 launch robot_common_launch gripper.launch.py gripper:=dh type:=PGC_140_50-dexforce
+```
+
+## 3. Visualize the DH-3-7
+
+Right hand:
 
 ```bash
 ros2 launch robot_common_launch hand.launch.py hand:=dh type:=dh_3_7 direction:=-1
 ```
 
-Left hand (`direction:=1`, the default):
+Left hand:
 
 ```bash
 ros2 launch robot_common_launch hand.launch.py hand:=dh type:=dh_3_7 direction:=1
 ```
 
-The shared launch starts RViz and the joint-state publisher GUI. Use its seven
-sliders to check the zero pose, finger axes, joint directions and limits. The
-RViz fixed frame is `hand_base`. This visualization does not communicate with
-the physical hand.
+The launch opens RViz and a seven-joint slider GUI. The fixed frame is
+`hand_base`. It does not connect to the physical hand.
 
-### Reusable model macro
+![DH-3-7 material preview](.images/dh_3_7_color_preview.png)
+
+### Model macro
 
 ```xml
 <xacro:include filename="$(find dh_description)/xacro/dh_3_7.xacro"/>
 <xacro:DH3_7 name="right_hand" direction="-1" fixed_joints="false"/>
 ```
 
-`name` prefixes every link, joint and material; an empty name produces
-`hand_base` and the unprefixed joint names below. A nonempty name produces, for
-example, `right_hand_hand_base` and `right_hand_thumb_joint1`.
-`fixed_joints="true"` replaces all seven revolute joints with fixed joints for
-planning descriptions. Mounting to an arm requires a separately defined fixed
-joint and a verified mounting transform; no flange or mount geometry is invented.
+| Parameter | Default | Meaning |
+|---|---|---|
+| `name` | Required; may be empty | Prefix for link and joint names |
+| `direction` | `1` | `1` selects left; `-1` selects right |
+| `fixed_joints` | `false` | Replace finger revolute joints with fixed joints |
+
+An empty name produces `hand_base` and unprefixed joints. With
+`name="right_hand"`, the root is `right_hand_hand_base` and joints are named
+`right_hand_thumb_joint1`, etc. Links follow `hand_<finger>_linkN` before the
+prefix. Arm integration requires a fixed mounting joint and mounting transform.
 
 ### Joint names and limits
 
-Joints follow the existing `thumb_jointN`, `index_jointN`, `middle_jointN`
-convention used by other dexterous hands (for example XHand1). The vendor
-first, second and third finger chains are named thumb, index and middle.
-Links follow `hand_<finger>_linkN`. With `name="right_hand"`, joints become
-`right_hand_thumb_joint1`, etc.
-
-| Vendor right / left joint | Xacro joint (before name prefix) | Right limits (rad) | Left limits (rad) |
+| Vendor right / left joint | Joint name | Right limits (rad) | Left limits (rad) |
 |---|---|---|---|
 | `F1R_Joint` / `LF1R_Joint` | `thumb_joint1` | 0 to 3.14 | -3.14 to 0 |
 | `F11_Joint` / `LF11_Joint` | `thumb_joint2` | 0 to 3.14 | -3.14 to 0 |
@@ -83,156 +77,125 @@ Links follow `hand_<finger>_linkN`. With `name="right_hand"`, joints become
 | `F31_Joint` / `LF31_Joint` | `middle_joint1` | 0 to 3.14 | -3.14 to 0 |
 | `F32_Joint` / `LF32_Joint` | `middle_joint2` | 0 to 3.51 | -3.51 to 0 |
 
-All joints use a velocity limit of **5 rad/s** and retain the vendor effort limit
-of **10 N m**. The left `LF21_Joint` velocity was corrected from 51 to 5 at the
-user's request. Origins, axes, masses, inertias, damping and friction otherwise
-retain the vendor values. Physical joint directions and limits await visual
-validation; these are the supplied model limits, not new measured limits.
-
-### Asset provenance
-
-- Left: user-provided `UDH3_7L.zip`, URDF
-  `UDH3_7L_0903/urdf/UDH3_7L_0903.urdf`.
-- Right: user-provided `UDH3_7R.zip`, URDF
-  `UDH3_7R_0903/urdf/UDH3_7R_0903.urdf`.
-- Left archive SHA-256:
-  `3d97fb83ad216f2d9c18b90c7aaee0e51f4333df421de12644c5e1f040a16b7f`.
-- Right archive SHA-256:
-  `93fceaff51c00e1b0df721e44b2e616c30f1da4fb1157bdc99f9cb9948927dbd`.
-
-Each side has eight original, unmodified STL files in
-`meshes/dh_3_7/{left,right}/`. Visual and collision geometry use the original
-meshes at scale 1. Left/right geometry and kinematics remain independent,
-including the vendor's small wrist-origin differences. Original `base_link`
-becomes `hand_base` without changing its coordinate frame. The models use the
-original gray material; mesh conversion, repainting and simplified collision
-geometry are deferred until visual validation.
-
-### Confirmed device behavior for later driver integration
-
-The following behavior was verified with the connected right hand and is used
-by the `modbus_ros2_control/DH3_7RS485Hardware` plugin described below.
-
-- Position values 0 to 5000 represent normalized travel, with 0 at the end of
-  homing and 5000 at maximum travel; do not interpret them as millimeters.
-  The planned angle conversion divides each URDF joint range into 5000 parts;
-  zero poses, axis mapping and directions still need model validation.
-- After power-on, first read initialization status. If all seven 2-bit fields
-  of `0x0201` equal 1 (`0x1555`), skip homing. Otherwise, when not already
-  initializing, one `0x0100 = 0x2AAA` command was sufficient. Wait for all seven
-  axes to report initialized and arrived; do not automatically append `0x15AA`
-  or use a fixed delay as the completion condition.
-- Homing can briefly report run state 2 or `0xFFFF`. Neither is completion;
-  continue monitoring initialization, run state and fault codes.
-- A single custom `0x6A` frame can set seven position, speed or target-force
-  parameters. One `0x69` frame reads seven positions; 50 Hz polling was verified.
-- Target speed is a percentage. Target force is a percentage in the documented
-  range 20 to 100, not measured joint torque in N m. Runtime percentages do not
-  replace the URDF velocity/effort limits.
-
+All joints have a velocity limit of **5 rad/s** and an effort limit of
+**10 N m**. These model limits are independent of the device's speed and
+force percentage settings.
 
 ## 4. DH-3-7 ROS 2 Control
 
-The standalone control entry is `xacro/ros2_control/hand.xacro` with
-`config/ros2_control/dh_3_7.yaml`. It uses the existing BasicJointController,
-with seven position commands in radians. Named open/close switching is disabled
-until suitable grasp presets have been validated. `home_1` is the all-zero
-joint pose; it is a controller pose, not the hardware's power-on initialization.
+Plugin: `modbus_ros2_control/DH3_7RS485Hardware`.
 
-Build the hardware, asset and controller packages in the workspace:
+The standalone entry is `xacro/ros2_control/hand.xacro`, using
+`config/ros2_control/dh_3_7.yaml` and BasicJointController. Build the required
+packages:
 
 ```bash
 colcon build --packages-select modbus_ros2_control dh_description basic_joint_controller --symlink-install
 source install/setup.bash
 ```
 
-Mock right hand (does not connect a serial device):
+Mock right hand:
 
 ```bash
 ros2 launch basic_joint_controller hand.launch.py \
   hand:=dh type:=dh_3_7 direction:=-1 hardware:=mock_components
 ```
 
-Real right hand (activation can home the hand if initialization is incomplete):
+Real right hand:
 
 ```bash
 ros2 launch basic_joint_controller hand.launch.py \
-  hand:=dh type:=dh_3_7 direction:=-1 hardware:=real \
-  serial_port:=/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_BG036HL0-if00-port0
+  hand:=dh type:=dh_3_7 direction:=-1 hardware:=real serial_port:=/dev/ttyUSB0
 ```
 
-For the left hand use `direction:=1`. Default slave ID is **1 for either side**;
-set `slave_id` explicitly if the device has a different ID. The supplied left
-model is supported mathematically; physical communication was validated on the
-right hand only. `use_rviz:=false` supports terminal-only operation.
+Use `direction:=1` for the left hand and `use_rviz:=false` for terminal-only
+operation. `serial_port` also accepts stable `/dev/serial/by-id/` paths. The
+default slave ID is **1 for either side**; override it for the device's address.
 
-Activation checks faults and initialization, sends at most one `0x2AAA` homing
-command when needed, waits for completion, reads all seven maximum travel
-values, applies speed and force percentages with readback, then seeds commands
-from measured positions. An already initialized hand is not homed again.
-Startup never sends an enable request or `0x15AA`.
+### Startup and homing
 
-The speed and target force defaults are both **100%**, independently of the
-URDF limits. CLI overrides use ratios:
+Real-hardware activation may move the hand. It checks faults and initialization
+before accepting position commands:
 
-```bash
-# Add to the real-hand launch above to select 50% speed and 80% target force:
-# tool_velocity:=0.5 tool_torque:=0.8
-```
+1. If initialization status `0x0201` is `0x1555`, skip homing.
+2. If homing is already in progress, monitor it without resending.
+3. Otherwise, send one `0x0100 = 0x2AAA` homing command.
+4. Wait for all seven axes to report initialized and arrived, stable for one
+   second, within `homing_timeout_ms`.
+5. Read maximum travel, apply speed and target force with readback, and initialize
+   position commands from measured positions.
 
-| Hardware parameter | Default | Meaning |
+Transient homing run states other than arrived are not completion. Faults or a
+homing timeout fail activation. The motion loop does not automatically rehome.
+
+### Parameters
+
+Speed and target force both default to **100%**. Ratios are used in the hardware
+configuration and runtime parameters.
+
+| Parameter | Default | Meaning |
 |---|---|---|
-| `serial_port` | `/dev/ttyUSB0` | Serial path; stable `/dev/serial/by-id/` paths are supported |
+| `serial_port` | `/dev/ttyUSB0` | Serial device path |
 | `baudrate` | `115200` | 115200 or 921600, 8N1 |
 | `slave_id` | `1` | Device ID, 1 to 254 |
-| `background_period_ms` | `20` | Background polling period; independent of controller-manager rate |
-| `feedback_timeout_ms` | `50` | Whole serial-transaction timeout |
-| `homing_timeout_ms` | `90000` | Startup homing deadline; no automatic retry |
-| `feedback_stale_timeout_ms` | `500` | Reject commands and return an error when feedback is too old; set in hardware Xacro if needed |
-| `tool_velocity` | `1.0` | Speed ratio, 0.01 to 1.0; also a runtime hardware-node parameter |
-| `tool_torque` | `1.0` | Target force ratio, 0.2 to 1.0; also a runtime hardware-node parameter |
+| `background_period_ms` | `20` | Polling period, independent of controller-manager rate |
+| `feedback_timeout_ms` | `50` | Serial-transaction timeout |
+| `homing_timeout_ms` | `90000` | Startup homing timeout |
+| `feedback_stale_timeout_ms` | `500` | Feedback age limit; configured in hardware Xacro |
+| `tool_velocity` | `1.0` | Speed ratio, 0.01 to 1.0; runtime update supported |
+| `tool_torque` | `1.0` | Target force ratio, 0.2 to 1.0; runtime update supported |
 
-After the controller is active, select MoveJ and send angles in this order:
-`thumb_joint1`, `thumb_joint2`, `thumb_joint3`, `index_joint1`, `index_joint2`,
-`middle_joint1`, `middle_joint2`.
-
-```bash
-ros2 topic pub --once /fsm_command std_msgs/msg/Int32 "data: 4"
-ros2 topic pub --once /hand_joint_controller/target_joint_position \
-  std_msgs/msg/Float64MultiArray "data: [1.57, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]"
-```
-
-For the right hand, the example corresponds to raw positions
-`[2500, 0, 0, 0, 0, 0, 0]` when maximum travel is 5000. Left-hand joint angles
-have the opposite sign. Conversion uses `angle_at_max` on each control joint,
-so raw zero always maps to angle zero, including negative-range left joints.
-Joint names are matched by suffix, allowing reordered control declarations
-and `left_hand_` / `right_hand_` prefixes.
-
-The runtime hardware parameters live on its framework-managed node (use
-`ros2 node list` to find the node if launching in a namespace):
+For example, add `tool_velocity:=0.5 tool_torque:=0.8` to the launch command for
+50% speed and 80% target force. To update a running hand:
 
 ```bash
 ros2 param set /dh_3_7_system tool_velocity 0.5
 ros2 param set /dh_3_7_system tool_torque 0.8
 ```
 
-Parameter
-updates are sent by the serial worker and read back before changed position
-commands are sent. Accepted ROS parameter updates are requests, not proof of
-successful device application; serial/readback failures are reported by the
+Use the namespaced hardware node path when applicable. The serial worker applies
+and reads back parameter changes; communication failures are reported by the
 hardware plugin.
 
-The hardware exports position (rad), velocity estimated using feedback timestamps
-(rad/s), and unavailable effort (`NaN`). Target force percentage and current are
-not presented as measured joint torque. A single serial worker owns all traffic:
-`read()` and `write()` only exchange snapshots. Unchanged targets are not resent;
-under load the latest target replaces queued targets. Each position read also
-checks main fault and initialization in the same `0x69` frame. Detailed axis
-faults are polled once per second. Three consecutive failed cycles or stale
-feedback cause the hardware to return an error; no automatic rehoming occurs
-in the motion loop.
+### Position commands and feedback
 
-`xacro/ros2_control/side_systems.xacro` also provides the reusable
-`dh_3_7_rs485_side_system` macro. Robot mounting, EEF type resolution and W2
-controller-registry wiring are a later integration step.
+The joint order is `thumb_joint1`, `thumb_joint2`, `thumb_joint3`, `index_joint1`,
+`index_joint2`, `middle_joint1`, `middle_joint2`. Select MoveJ and send radians:
+
+```bash
+ros2 topic pub --once /fsm_command std_msgs/msg/Int32 "data: 4"
+ros2 topic pub --once /hand_joint_controller/target_joint_position \
+  std_msgs/msg/Float64MultiArray "data: [1.57, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]"
+ros2 topic echo /joint_states
+```
+
+Device positions represent normalized travel: zero is the homed position, and
+maximum travel corresponds to the joint's full angular range. With maximum
+travel 5000, the right-hand example corresponds to raw position 2500 on axis 1.
+Left-hand joint angles have the opposite sign. Conversion uses each control
+joint's signed `angle_at_max` and the maximum travel read from the device.
+
+The hardware exports position (rad), estimated velocity (rad/s), and unavailable
+effort (`NaN`). Target force percentage is not measured torque. A position update
+uses one `0x6A` frame; feedback uses one `0x69` frame, with 50 Hz polling by
+default. Unchanged targets are not resent. Faults, repeated communication failures
+or stale feedback cause a hardware error.
+
+The supplied configuration disables open/close preset switching. `home_1` is an
+all-zero controller pose, separate from hardware power-on initialization.
+`xacro/ros2_control/side_systems.xacro` provides the reusable
+`dh_3_7_rs485_side_system` macro for robot integration.
+
+## 5. Mesh Assets
+
+Each side has eight GLB meshes in `meshes/dh_3_7/{left,right}/`, shared by visual
+and collision geometry. The independent left/right models preserve their
+original coordinate frames and geometry. Sources are the vendor
+`UDH3_7L_0903` and `UDH3_7R_0903` URDF packages.
+
+Visuals use gunmetal housing, steel joints and fasteners, and matte black finger
+pads. GLBs include PBR materials and RViz-compatible specular highlights.
+
+Visual meshes preserve the original triangle geometry and bounding boxes,
+include vertex normals, and contain at most 20000 triangles per submesh for
+RViz compatibility.

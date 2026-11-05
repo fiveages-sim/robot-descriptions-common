@@ -9,5 +9,6 @@ install(
 )
 
 install(FILES README.md DESTINATION share/${PROJECT_NAME})
+install(DIRECTORY .images DESTINATION share/${PROJECT_NAME})
 
 ament_package()

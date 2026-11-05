@@ -17,16 +17,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/base_link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/base_link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/base_link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/base_link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -39,16 +36,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF1R_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF1R_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF1R_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF1R_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -71,16 +65,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF11_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF11_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF11_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF11_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -103,16 +94,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF12_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF12_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF12_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF12_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -135,16 +123,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF21_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF21_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF21_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF21_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -167,16 +152,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF22_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF22_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF22_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF22_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -199,16 +181,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF31_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF31_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF31_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF31_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -231,16 +210,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF32_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF32_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF32_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/left/LF32_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -266,16 +242,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/base_link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/base_link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/base_link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/base_link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -288,16 +261,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F1R_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F1R_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F1R_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F1R_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -320,16 +290,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F11_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F11_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F11_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F11_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -352,16 +319,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F12_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F12_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F12_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F12_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -384,16 +348,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F21_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F21_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F21_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F21_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -416,16 +377,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F22_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F22_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F22_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F22_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -448,16 +406,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F31_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F31_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F31_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F31_Link.glb" />
                     </geometry>
                 </collision>
             </link>
@@ -480,16 +435,13 @@
                 <visual>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F32_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F32_Link.glb" />
                     </geometry>
-                    <material name="${prefix}dh_3_7_material">
-                        <color rgba="0.75294 0.75294 0.75294 1" />
-                    </material>
                 </visual>
                 <collision>
                     <origin xyz="0 0 0" rpy="0 0 0" />
                     <geometry>
-                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F32_Link.STL" />
+                        <mesh filename="file://$(find dh_description)/meshes/dh_3_7/right/F32_Link.glb" />
                     </geometry>
                 </collision>
             </link>

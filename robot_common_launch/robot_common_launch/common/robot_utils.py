@@ -235,8 +235,8 @@ def load_robot_config(
     """
     Load ros2_control config with optional per-side compose and profile patch merge.
 
-    Merge order: common.yaml + type yaml + variant yaml + hardware yaml
-    + compose + control.patch
+    Merge order: common.yaml + type yaml + variant yaml + compose
+    + hardware yaml + control.patch
 
     When yaml_only is True, skip symmetric registry/template compose fallback (used by
     control_compose enrichment to avoid recursion).
@@ -327,19 +327,6 @@ def load_robot_config(
                     f"{os.path.basename(variant_config_path)}"
                 )
 
-        hardware_overlay_applied = False
-        if hardware_key:
-            hardware_config_path = os.path.join(config_dir, f"{hardware_key}.yaml")
-            if os.path.isfile(hardware_config_path):
-                with open(hardware_config_path, "r") as file:
-                    hardware_config = yaml.safe_load(file) or {}
-                config = _deep_merge_dicts(config, hardware_config)
-                hardware_overlay_applied = True
-                print(
-                    f"[INFO] Merged {config_type} hardware overlay: "
-                    f"{os.path.basename(hardware_config_path)}"
-                )
-
         use_compose = asymmetric or (
             not yaml_only
             and not type_yaml_found
@@ -360,6 +347,19 @@ def load_robot_config(
                         f"[INFO] Merged symmetric EEF compose (template fallback) "
                         f"for {effective_type}"
                     )
+
+        hardware_overlay_applied = False
+        if hardware_key:
+            hardware_config_path = os.path.join(config_dir, f"{hardware_key}.yaml")
+            if os.path.isfile(hardware_config_path):
+                with open(hardware_config_path, "r") as file:
+                    hardware_config = yaml.safe_load(file) or {}
+                config = _deep_merge_dicts(config, hardware_config)
+                hardware_overlay_applied = True
+                print(
+                    f"[INFO] Merged {config_type} hardware overlay: "
+                    f"{os.path.basename(hardware_config_path)}"
+                )
 
         patch_applied = bool(patch)
         if patch_applied:

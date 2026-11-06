@@ -10,6 +10,8 @@ import xml.etree.ElementTree as ET
 from typing import Any, Dict, Optional
 
 import yaml
+
+from .parameter_yaml import dump_parameter_yaml
 from launch_ros.actions import Node
 
 
@@ -57,7 +59,7 @@ def write_spawner_controller_param_file(
     os.close(fd)
     payload = wrap_spawner_controller_params(controller_name, ros_parameters)
     with open(path, "w", encoding="utf-8") as handle:
-        yaml.safe_dump(payload, handle, default_flow_style=False)
+        dump_parameter_yaml(payload, handle, default_flow_style=False)
     if not quiet:
         print(f"[INFO] Spawner param file for {controller_name}: {path}")
     return path

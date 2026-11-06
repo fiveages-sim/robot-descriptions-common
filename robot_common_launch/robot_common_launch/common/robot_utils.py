@@ -12,6 +12,8 @@ import tempfile
 from dataclasses import dataclass
 
 import yaml
+
+from .parameter_yaml import dump_parameter_yaml
 import xacro
 from ament_index_python.packages import get_package_share_directory
 
@@ -198,7 +200,7 @@ def write_temp_ros2_control_yaml(config_dict, *, quiet: bool = False):
     """Write merged ros2_control config to a temp YAML file for ros2_control_node."""
     fd, path = tempfile.mkstemp(suffix=".yaml", prefix="ros2_control_merged_")
     with os.fdopen(fd, "w", encoding="utf-8") as handle:
-        yaml.safe_dump(config_dict, handle, default_flow_style=False, sort_keys=False)
+        dump_parameter_yaml(config_dict, handle, default_flow_style=False, sort_keys=False)
     if not quiet:
         print(f"[INFO] Wrote merged ros2_control config: {path}")
     return path

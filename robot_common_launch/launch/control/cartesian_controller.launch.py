@@ -39,7 +39,8 @@ from ament_index_python.packages import get_package_share_directory
 from robot_common_launch import (
     detect_controllers,
     create_controller_spawners,
-    get_ros2_control_robot_description
+    get_ros2_control_robot_description,
+    hardware_uses_sim_time,
 )
 
 
@@ -59,8 +60,7 @@ def launch_setup(context, *args, **kwargs):
     if controller_type not in valid_controller_types:
         raise ValueError(f"Invalid controller_type: {controller_type}. Must be one of {valid_controller_types}")
 
-    # 根据 hardware 参数自动判断是否使用仿真时间
-    use_sim_time = hardware in ['gz', 'isaac']
+    use_sim_time = hardware_uses_sim_time(hardware)
 
     # 构建 remappings 字符串（格式: "from1:to1;from2:to2"）
     # 将控制器话题映射到统一的话题（不带前导斜杠，与 cartesian_controller_simulation 一致）

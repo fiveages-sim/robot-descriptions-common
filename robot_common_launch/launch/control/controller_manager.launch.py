@@ -23,6 +23,7 @@ from robot_common_launch import (
     resolve_control_patch,
     resolve_control_sides,
     resolve_profile_path,
+    resolve_use_sim_time,
 )
 
 
@@ -41,8 +42,8 @@ def generate_launch_description():
 
     use_sim_time_arg = DeclareLaunchArgument(
         "use_sim_time",
-        default_value="false",
-        description="Whether to use simulation time",
+        default_value="",
+        description="Empty → derive from hardware (gz/isaac/isaac_sim → true)",
     )
 
     world_arg = DeclareLaunchArgument(
@@ -60,7 +61,7 @@ def generate_launch_description():
     hardware_arg = DeclareLaunchArgument(
         "hardware",
         default_value="mock_components",
-        description="Hardware type: gz for Gazebo, isaac for Isaac, mock_components for mock",
+        description="mock_components | gz | isaac | isaac_sim | real",
     )
 
     remappings_arg = DeclareLaunchArgument(
@@ -83,13 +84,13 @@ def generate_launch_description():
 
     def launch_setup(context, *args, **kwargs):
         configs = context.launch_configurations
-        _use_sim_raw = configs["use_sim_time"].strip().lower()
-        use_sim_time = _use_sim_raw in ("true", "1", "yes")
+        hardware = configs.get("hardware", "mock_components")
+        use_sim_time = resolve_use_sim_time(hardware, configs.get("use_sim_time", ""))
 
         return create_controller_manager_nodes(
             robot_name=configs["robot"],
             robot_type=configs.get("type", ""),
-            hardware=configs.get("hardware", "mock_components"),
+            hardware=hardware,
             use_sim_time=use_sim_time,
             world=configs.get("world", "dart"),
             world_package=configs.get("world_package", "robot_common_launch"),

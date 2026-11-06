@@ -96,14 +96,30 @@ common.yaml
 ```
 
 - **variant** 来自 launch `variant:=` 或 profile `platform.variant`
-- **hardware** 来自 launch `hardware:=`（如 `mock_components` / `gz` / `isaac` / `real`）
+- **hardware** 来自 launch `hardware:=`（见下表）；并可触发 `{hardware}.yaml` overlay
 - 对应 YAML **仅当文件存在时**才深合并；没有文件则为空操作（不影响未声明 overlay 的机器人）
 - 后写入覆盖先写入的同名键（list / 标量整段替换；dict 递归 merge）
 - 任一 overlay / compose / patch 生效时会写出临时 merged YAML 供 `ros2_control_node` 使用
 
 与上文 profile 段里的 `hardware:`（真机串口、`arm_ctrl_mode` 等 → xacro）**不是同一层**：后者只在 `hardware:=real` 时注入 xacro；此处 `{hardware}.yaml` 改的是 **控制器 claim / 参数**。
 
-### `{hardware}.yaml` 典型用途（Isaac）
+### `hardware` 取值与仿真时钟
+
+`hardware:=` → xacro `ros2_control_hardware_type`，由 [`simulation_hardware.xacro`](xacro/ros2_control/simulation_hardware.xacro) 的 `simulation_hardware_plugin` 选插件。`use_sim_time` 由 `hardware_uses_sim_time` / `resolve_use_sim_time` 推导（显式 `true`/`false` 优先；空则按表）。
+
+| `hardware` | 插件 | `use_sim_time` | 说明 |
+|------------|------|----------------|------|
+| `mock_components` | `GenericSystem` | false | 无仿真 |
+| `gz` | `GazeboSimSystem` | true | Gazebo |
+| `isaac` | `TopicBasedSystem` | true | 话题桥 `/isaac/joint_*` |
+| `isaac_sim` | `IsaacSimSystem` | true | 进程内 CM；需 `isaac_prim_path`（ArtRoot） |
+| `real` | 各机真机块 | false | 不走 simulation macro |
+
+`isaac_sim` 时把 ArtRoot 经 `launch_configurations["isaac_prim_path"]`（或 emit `--isaac-prim-path`）传入 `build_xacro_mappings`，写入 `<param name="prim_path">`。无 prim 时 URDF 仍可生成，但 CM 无法绑定 articulation。
+
+部分机型 xacro 有 `validated_hardware_type` 白名单；新增 backend 须写入该列表，否则 xacro 会故意失败。
+
+### `{hardware}.yaml` 典型用途（Isaac 话题桥）
 
 部分机器人在 Isaac 中不宜 claim velocity/effort（TopicBasedSystem 对 MIX 支持差）。可在该机器人包放置：
 
@@ -118,11 +134,12 @@ common.yaml
 |------|------|
 | Isaac 用 position-only | 提供 `isaac.yaml` 改 claim + xacro 在 isaac 下只导出 position（例：`arx_lift2s`） |
 | Isaac 仍用 MIX / 原配置 | **不要**放会覆盖 IF 的 `isaac.yaml`；URDF 继续导出完整 IF |
+| 进程内 IsaacSimSystem | `hardware:=isaac_sim` + `isaac_prim_path`；YAML overlay 文件名仍可为 `isaac.yaml`（emit 用 `hardware_yaml=isaac`）或另放 `isaac_sim.yaml` |
 | 其它硬件特化 | 同理可放 `gz.yaml` / `real.yaml` 等，文件名 = launch `hardware` 值 |
 
 Variant 与 hardware 可同时生效（先 variant，后 hardware）；hardware 侧通常只改接口能力，不替代机型变体字段。
 
-示例（Lift2S）：
+示例（Lift2S 话题桥）：
 
 ```bash
 ros2 launch ocs2_arm_controller full_body.launch.py \
@@ -144,7 +161,9 @@ ros2 launch ocs2_arm_controller full_body.launch.py \
 | `tcp_offset_xyz` / `tcp_offset_rpy` | 对称 TCP 偏移 |
 | `left_tcp_offset_*` / `right_tcp_offset_*` | 分侧 TCP 偏移 |
 | `chassis` / `arms` / `variant` / `chassis_joints_movable` | 平台 xacro，见下节；`variant` 同时可触发 `{variant}.yaml` 控制器 overlay |
-| `hardware` | 仿真/真机插件（→ xacro `ros2_control_hardware_type`）；并可触发 `{hardware}.yaml` overlay |
+| `hardware` | 仿真/真机插件（→ `ros2_control_hardware_type` / `{hardware}.yaml`）；见上表，含 `isaac_sim` |
+| `use_sim_time` | 空则按 `hardware` 推导（`gz`/`isaac`/`isaac_sim` → true） |
+| `isaac_prim_path` | 仅 `isaac_sim`：ArtRoot prim，写入 IsaacSimSystem `prim_path` |
 | `collider` / `skin` / `direction` | 常用模型 xacro |
 
 ### 平台槽位：`chassis` / `arms` / `variant`

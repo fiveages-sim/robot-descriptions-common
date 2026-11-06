@@ -16,6 +16,7 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
+from robot_common_launch import hardware_uses_sim_time
 
 
 def launch_setup(context, *args, **kwargs):
@@ -24,9 +25,7 @@ def launch_setup(context, *args, **kwargs):
     robot_type = context.launch_configurations.get('type', '')
     hardware = context.launch_configurations.get('hardware', 'gz')
     world = context.launch_configurations.get('world', 'default')
-
-    # 基本参数 - 与demo.launch.py保持一致
-    use_sim_time = hardware in ['gz', 'isaac']
+    use_sim_time = hardware_uses_sim_time(hardware)
 
     # 使用通用的 controller_manager launch 文件
     controller_manager_launch = IncludeLaunchDescription(

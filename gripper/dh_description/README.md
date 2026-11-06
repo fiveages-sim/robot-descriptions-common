@@ -193,9 +193,10 @@ and collision geometry. The independent left/right models preserve their
 original coordinate frames and geometry. Sources are the vendor
 `UDH3_7L_0903` and `UDH3_7R_0903` URDF packages.
 
-Visuals use gunmetal housing, steel joints and fasteners, and matte black finger
-pads. GLBs include PBR materials and RViz-compatible specular highlights.
+Visuals use neutral dark gray metal housing, steel joints and fasteners, and
+matte black finger pads. GLBs include PBR materials and RViz-compatible neutral
+specular highlights.
 
 Visual meshes preserve the original triangle geometry and bounding boxes,
-include vertex normals, and contain at most 20000 triangles per submesh for
-RViz compatibility.
+preserve sharp edges with angle-weighted normals across smooth surfaces, and
+contain at most 20000 triangles per submesh for RViz compatibility.

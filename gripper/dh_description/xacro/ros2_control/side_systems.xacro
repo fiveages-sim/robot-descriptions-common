@@ -87,13 +87,16 @@
       <param name="homing_timeout_ms">${homing_timeout_ms}</param>
     </hardware>
   </xacro:macro>
-  <xacro:macro name="dh_3_7_rs485_side_system" params="side serial_port baudrate:=115200 slave_id:=1 tool_velocity:=1.0 tool_torque:=1.0 rw_rate:=''">
-    <xacro:side_ros2_control_system name="dh_3_7_${side}_system" rw_rate="${rw_rate}">
-      <contents>
-        <xacro:dh_3_7_hardware serial_port="${serial_port}" baudrate="${baudrate}"
-          slave_id="${slave_id}" tool_velocity="${tool_velocity}" tool_torque="${tool_torque}"/>
-        <xacro:dh_3_7_interfaces name="${side}_hand" direction="${1 if side == 'left' else -1}"/>
-      </contents>
-    </xacro:side_ros2_control_system>
+  <xacro:macro name="dh_3_7_rs485_side_system" params="side serial_port baudrate:=115200 slave_id:=1 tool_velocity:=1.0 tool_torque:=1.0 rw_rate:='' drive_type:=usb">
+    <!-- DH-3-7 is supported only through an external USB-RS485 adapter. -->
+    <xacro:if value="${dict([('usb', True), ('usb_rs485', True)])[drive_type]}">
+      <xacro:side_ros2_control_system name="dh_3_7_${side}_system" rw_rate="${rw_rate}">
+        <contents>
+          <xacro:dh_3_7_hardware serial_port="${serial_port}" baudrate="${baudrate}"
+            slave_id="${slave_id}" tool_velocity="${tool_velocity}" tool_torque="${tool_torque}"/>
+          <xacro:dh_3_7_interfaces name="${side}_hand" direction="${1 if side == 'left' else -1}"/>
+        </contents>
+      </xacro:side_ros2_control_system>
+    </xacro:if>
   </xacro:macro>
 </robot>

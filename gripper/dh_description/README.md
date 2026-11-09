@@ -187,7 +187,81 @@ all-zero controller pose, separate from hardware power-on initialization.
 `xacro/ros2_control/side_systems.xacro` provides the reusable
 `dh_3_7_rs485_side_system` macro for robot integration.
 
-## 5. Mesh Assets
+## 5. Robot Integration
+
+Select the hand with `type:=dh_3_7`, or configure each side with
+`left_type:=dh_3_7` / `right_type:=dh_3_7`. Use `none` for a bare arm.
+
+| Robot key | Arm driver |
+|---|---|
+| `fiveages_w2` | Marvin |
+| `fiveages_w2r` | Rokae or INEX |
+| `fiveages_s2` | Marvin |
+| `fiveages_s2r` | Rokae or INEX |
+| `fiveages_wce3` | Rokae |
+
+The hand connects through **USB-RS485 only**, using drive type `usb` or
+`usb_rs485`. Each side has a separate serial device and hardware system.
+Arm-end RS485, CAN and Ethernet are not supported for this hand.
+
+Visualize a W2R with two hands:
+
+```bash
+ros2 launch robot_common_launch humanoid.launch.py \
+  robot:=fiveages_w2r type:=dh_3_7
+```
+
+Mock control:
+
+```bash
+ros2 launch ocs2_arm_controller split_body.launch.py \
+  robot:=fiveages_w2r type:=dh_3_7 hardware:=mock_components
+```
+
+Real W2R with INEX arms and USB-RS485 hands:
+
+```bash
+ros2 launch ocs2_arm_controller split_body.launch.py \
+  robot:=fiveages_w2r type:=dh_3_7 hardware:=real \
+  hardware_arm_hardware_driver:=inex \
+  hardware_left_ee_drive_type:=usb hardware_right_ee_drive_type:=usb
+```
+
+Use `hardware_arm_hardware_driver:=rokae` for Rokae arms on W2R/S2R.
+Serial settings can be stored in `robot.local.yaml` and loaded with
+`robot_profile:=/path/to/robot.local.yaml`:
+
+```yaml
+defaults:
+  end_effectors:
+    type: dh_3_7
+hardware:
+  left_ee_drive_type: usb
+  right_ee_drive_type: usb
+  usb_left_port: /dev/ttyUSB0
+  usb_right_port: /dev/ttyUSB2
+  usb_baudrate: 115200
+  left_ee_modbus_slave_id: 1
+  right_ee_modbus_slave_id: 1
+```
+
+The controller names are `left_hand_controller` and `right_hand_controller`.
+Each controls seven joints prefixed with `left_hand_` or `right_hand_`, in the
+axis order listed in section 4. Right-hand controller poses are
+`home_1: [0.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0]` and
+`home_2: [0.0, 1.87, 1.7, 1.87, 1.7, 1.87, 1.7]`; left-hand poses use
+the opposite sign. Open/close preset switching is disabled. Hardware activation
+performs the initialization checks described in section 4.
+
+On real hardware, the per-hand parameter nodes are `/dh_3_7_left_system` and
+`/dh_3_7_right_system`. Both expose `tool_velocity` and `tool_torque` ratios.
+
+The hand base is mounted directly at the arm TCP with zero translation and
+rotation. `left_eef` / `right_eef` reference the hand base. Set the mount-joint
+origin in the arm package's `xacro/eefs.xacro` for the physical adapter.
+Planning models use `eef_fixed_joints:=true` to freeze the finger joints.
+
+## 6. Mesh Assets
 
 Each side has eight GLB meshes in `meshes/dh_3_7/{left,right}/`, shared by visual
 and collision geometry. The independent left/right models preserve their

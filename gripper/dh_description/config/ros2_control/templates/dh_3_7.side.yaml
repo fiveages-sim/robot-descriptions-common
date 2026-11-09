@@ -1,7 +1,9 @@
 {side}_hand_controller:
   ros__parameters:
     update_rate: 50
-    target_command_enabled: false
+    target_command_enabled: true
+    target_command_open_config: 0
+    target_command_close_config: 1
     joints:
       - {side_}hand_thumb_joint1
       - {side_}hand_thumb_joint2

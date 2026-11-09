@@ -1,4 +1,4 @@
-# DH-3-7 standalone: angles in radians; no unvalidated open/close presets.
+# DH-3-7 standalone: angles in radians.
 controller_manager:
   ros__parameters:
     update_rate: 50
@@ -36,7 +36,9 @@ hand_joint_controller:
     state_interfaces:
     - position
     - velocity
-    target_command_enabled: false
+    target_command_enabled: true
+    target_command_open_config: 0
+    target_command_close_config: 1
     home_1:
     - 0.0
     - 1.0

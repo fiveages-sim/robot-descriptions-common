@@ -182,8 +182,10 @@ uses one `0x6A` frame; feedback uses one `0x69` frame, with 50 Hz polling by
 default. Unchanged targets are not resent. Faults, repeated communication failures
 or stale feedback cause a hardware error.
 
-The supplied configuration disables open/close preset switching. `home_1` is an
-all-zero controller pose, separate from hardware power-on initialization.
+Open/close commands require the controller to be in MOVEJ state. Publish `1` to
+`/<controller_name>/target_command` to select the open pose (`home_1`), or `0` to
+select the close pose (`home_2`). Controller poses are separate from hardware
+power-on initialization.
 `xacro/ros2_control/side_systems.xacro` provides the reusable
 `dh_3_7_rs485_side_system` macro for robot integration.
 
@@ -250,8 +252,9 @@ Each controls seven joints prefixed with `left_hand_` or `right_hand_`, in the
 axis order listed in section 4. Right-hand controller poses are
 `home_1: [0.0, 1.0, 2.0, 1.0, 2.0, 1.0, 2.0]` and
 `home_2: [0.0, 1.87, 1.7, 1.87, 1.7, 1.87, 1.7]`; left-hand poses use
-the opposite sign. Open/close preset switching is disabled. Hardware activation
-performs the initialization checks described in section 4.
+the opposite sign. Open/close commands select `home_1` / `home_2`, respectively,
+while the controller is in MOVEJ state. Hardware activation performs the
+initialization checks described in section 4.
 
 On real hardware, the per-hand parameter nodes are `/dh_3_7_left_system` and
 `/dh_3_7_right_system`. Both expose `tool_velocity` and `tool_torque` ratios.

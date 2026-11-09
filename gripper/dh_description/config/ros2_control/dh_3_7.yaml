@@ -39,20 +39,20 @@ hand_joint_controller:
     target_command_enabled: false
     home_1:
     - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
-    - 0.0
+    - 1.0
+    - 2.0
+    - 1.0
+    - 2.0
+    - 1.0
+    - 2.0
     home_2:
     - 0.0
-    - 1.0
-    - 2.0
-    - 1.0
-    - 2.0
-    - 1.0
-    - 2.0
+    - 1.87
+    - 1.7
+    - 1.87
+    - 1.7
+    - 1.87
+    - 1.7
     home_interpolation_type: none
     movej_interpolation_type: none
     home_duration: 0.01

@@ -105,12 +105,14 @@ Real right hand:
 
 ```bash
 ros2 launch basic_joint_controller hand.launch.py \
-  hand:=dh type:=dh_3_7 direction:=-1 hardware:=real serial_port:=/dev/ttyUSB0
+  hand:=dh type:=dh_3_7 direction:=-1 hardware:=real
 ```
 
 Use `direction:=1` for the left hand and `use_rviz:=false` for terminal-only
-operation. `serial_port` also accepts stable `/dev/serial/by-id/` paths. The
-default slave ID is **1 for either side**; override it for the device's address.
+operation. Configure the serial port, baudrate and slave ID in
+`xacro/ros2_control/hand.xacro` for the connected device;
+`serial_port` also accepts stable `/dev/serial/by-id/` paths. The default slave
+ID is **1 for either side**.
 
 ### Startup and homing
 
@@ -145,8 +147,7 @@ configuration and runtime parameters.
 | `tool_velocity` | `1.0` | Speed ratio, 0.01 to 1.0; runtime update supported |
 | `tool_torque` | `1.0` | Target force ratio, 0.2 to 1.0; runtime update supported |
 
-For example, add `tool_velocity:=0.5 tool_torque:=0.8` to the launch command for
-50% speed and 80% target force. To update a running hand:
+To update a running hand to 50% speed and 80% target force:
 
 ```bash
 ros2 param set /dh_3_7_system tool_velocity 0.5

@@ -171,10 +171,13 @@ def resolve_registry_entry(eef_type: str) -> Optional[Dict[str, Any]]:
 
 
 def _apply_side_placeholders(content: str, side: str) -> str:
+    """Expand side names and an optional numeric sign (- left, + right)."""
     side_prefix = f"{side}_"
+    side_sign = "-" if side == "left" else "+"
     return (
         content.replace("{side_}", side_prefix)
         .replace("{side}", side)
+        .replace("{side_sign}", side_sign)
     )
 
 

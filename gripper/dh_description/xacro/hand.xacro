@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="DH_Robotics_DH_3_7" xmlns:xacro="http://www.ros.org/wiki/xacro">
+    <xacro:arg name="type" default="dh_3_7"/>
+    <xacro:arg name="direction" default="1"/>
+    <xacro:arg name="fixed_joints" default="false"/>
+
+    <xacro:include filename="$(find dh_description)/xacro/dh_3_7.xacro"/>
+    <!-- direction=1 selects the vendor left model; -1 selects the right model. -->
+    <xacro:if value="${'$(arg type)' == 'dh_3_7'}">
+        <xacro:DH3_7 name="" direction="$(arg direction)"
+                     fixed_joints="$(arg fixed_joints)"/>
+    </xacro:if>
+</robot>

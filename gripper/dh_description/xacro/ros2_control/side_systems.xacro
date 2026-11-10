@@ -1,0 +1,102 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <xacro:include filename="$(find robot_common_launch)/xacro/ros2_control/side_system.xacro"/>
+  <xacro:macro name="dh_3_7_interfaces" params="name direction:=1">
+    <xacro:property name="prefix" value="${name + '_' if name else ''}"/>
+    <joint name="${prefix}thumb_joint1">
+      <param name="angle_at_max">${-int(direction) * 3.14}</param>
+      <command_interface name="position">
+        <param name="min">${-3.14 if int(direction) == 1 else 0.0}</param>
+        <param name="max">${0.0 if int(direction) == 1 else 3.14}</param>
+      </command_interface>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="${prefix}thumb_joint2">
+      <param name="angle_at_max">${-int(direction) * 3.14}</param>
+      <command_interface name="position">
+        <param name="min">${-3.14 if int(direction) == 1 else 0.0}</param>
+        <param name="max">${0.0 if int(direction) == 1 else 3.14}</param>
+      </command_interface>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="${prefix}thumb_joint3">
+      <param name="angle_at_max">${-int(direction) * 3.51}</param>
+      <command_interface name="position">
+        <param name="min">${-3.51 if int(direction) == 1 else 0.0}</param>
+        <param name="max">${0.0 if int(direction) == 1 else 3.51}</param>
+      </command_interface>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="${prefix}index_joint1">
+      <param name="angle_at_max">${-int(direction) * 3.14}</param>
+      <command_interface name="position">
+        <param name="min">${-3.14 if int(direction) == 1 else 0.0}</param>
+        <param name="max">${0.0 if int(direction) == 1 else 3.14}</param>
+      </command_interface>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="${prefix}index_joint2">
+      <param name="angle_at_max">${-int(direction) * 3.51}</param>
+      <command_interface name="position">
+        <param name="min">${-3.51 if int(direction) == 1 else 0.0}</param>
+        <param name="max">${0.0 if int(direction) == 1 else 3.51}</param>
+      </command_interface>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="${prefix}middle_joint1">
+      <param name="angle_at_max">${-int(direction) * 3.14}</param>
+      <command_interface name="position">
+        <param name="min">${-3.14 if int(direction) == 1 else 0.0}</param>
+        <param name="max">${0.0 if int(direction) == 1 else 3.14}</param>
+      </command_interface>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="effort"/>
+    </joint>
+    <joint name="${prefix}middle_joint2">
+      <param name="angle_at_max">${-int(direction) * 3.51}</param>
+      <command_interface name="position">
+        <param name="min">${-3.51 if int(direction) == 1 else 0.0}</param>
+        <param name="max">${0.0 if int(direction) == 1 else 3.51}</param>
+      </command_interface>
+      <state_interface name="position"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="velocity"><param name="initial_value">0.0</param></state_interface>
+      <state_interface name="effort"/>
+    </joint>
+  </xacro:macro>
+  <xacro:macro name="dh_3_7_hardware" params="serial_port baudrate:=115200 slave_id:=1 tool_velocity:=1.0 tool_torque:=1.0 background_period_ms:=20 feedback_timeout_ms:=50 homing_timeout_ms:=90000">
+    <hardware>
+      <plugin>modbus_ros2_control/DH3_7RS485Hardware</plugin>
+      <param name="serial_port">${serial_port}</param>
+      <param name="baudrate">${baudrate}</param>
+      <param name="slave_id">${slave_id}</param>
+      <param name="tool_velocity">${tool_velocity}</param>
+      <param name="tool_torque">${tool_torque}</param>
+      <param name="background_period_ms">${background_period_ms}</param>
+      <param name="feedback_timeout_ms">${feedback_timeout_ms}</param>
+      <param name="homing_timeout_ms">${homing_timeout_ms}</param>
+    </hardware>
+  </xacro:macro>
+  <xacro:macro name="dh_3_7_rs485_side_system" params="side serial_port baudrate:=115200 slave_id:=1 tool_velocity:=1.0 tool_torque:=1.0 rw_rate:='' drive_type:=usb">
+    <!-- DH-3-7 is supported only through an external USB-RS485 adapter. -->
+    <xacro:if value="${dict([('usb', True), ('usb_rs485', True)])[drive_type]}">
+      <xacro:side_ros2_control_system name="dh_3_7_${side}_system" rw_rate="${rw_rate}">
+        <contents>
+          <xacro:dh_3_7_hardware serial_port="${serial_port}" baudrate="${baudrate}"
+            slave_id="${slave_id}" tool_velocity="${tool_velocity}" tool_torque="${tool_torque}"/>
+          <xacro:dh_3_7_interfaces name="${side}_hand" direction="${1 if side == 'left' else -1}"/>
+        </contents>
+      </xacro:side_ros2_control_system>
+    </xacro:if>
+  </xacro:macro>
+</robot>

@@ -1,6 +1,6 @@
 {side}_hand_controller:
   ros__parameters:
-    update_rate: 100
+    update_rate: 500
     target_command_enabled: true
     target_command_close_config: 2
     target_command_open_config: 1

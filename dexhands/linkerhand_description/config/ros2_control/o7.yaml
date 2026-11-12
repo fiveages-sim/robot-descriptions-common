@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-    update_rate: 50
+    update_rate: 500
 
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
@@ -24,7 +24,7 @@ joint_state_broadcaster:
 
 hand_joint_controller:
   ros__parameters:
-    update_rate: 50
+    update_rate: 500
     movej_interpolation_type: "none"
     home_interpolation_type: "none"
     joints:

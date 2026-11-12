@@ -1,7 +1,7 @@
 # DH-3-7 standalone: angles in radians.
 controller_manager:
   ros__parameters:
-    update_rate: 50
+    update_rate: 500
     joint_state_broadcaster:
       type: joint_state_broadcaster/JointStateBroadcaster
     hand_joint_controller:
@@ -22,7 +22,7 @@ joint_state_broadcaster:
     - effort
 hand_joint_controller:
   ros__parameters:
-    update_rate: 50
+    update_rate: 500
     joints:
     - thumb_joint1
     - thumb_joint2

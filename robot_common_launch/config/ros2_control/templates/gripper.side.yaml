@@ -3,6 +3,7 @@
 # Convention: actuated joint is always {side_}gripper_joint (see control_compose._is_eef_joint).
 {side}_gripper_controller:
   ros__parameters:
+    update_rate: 50  # Hz
     joint: {side_}gripper_joint
 
 joint_state_extra_joints:

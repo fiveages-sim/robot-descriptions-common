@@ -20,7 +20,8 @@
       <joint name="gripper_joint">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">0.0</param>
+          <!-- 关闭位≈upper(0.8)；adaptive_gripper 据此推断 closed/open，勿写成 0 -->
+          <param name="initial_value">0.8</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>

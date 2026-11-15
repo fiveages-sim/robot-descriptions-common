@@ -16,7 +16,7 @@ Located in `gripper/` directory:
 |--------------------------------------|----------------------|---------|------------------------------------------------------------------------------------------------------------------|
 | [ChangingTek](gripper/changingtek_description) | AG2F90-C<br>AG2F120S | Yes     | <img src="gripper/.images/tek_ag2f90.png" width="150"> <img src="gripper/.images/tek_ag2f120s.png" width="150">  |
 | [DH](gripper/dh_description)                  | PGC_140_50           | Yes     | <img src="gripper/.images/dh_pgc_140.png" width="150">                                                           |
-| [Robotiq](gripper/robotiq_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                           |
+| [Robotiq](gripper/robotiq_gripper_description)         | 2F-85                | Yes     | <img src="gripper/.images/robotiq_85.png" width="150">                                                           |
 | [Inspire](gripper/inspire_description)         | EG2-4C2              | Yes     | <img src="gripper/.images/inspire_eg2.png" width="150">                                                          |
 | [Jodell](gripper/jodell_description)           | RG75-300             | Yes     | <img src="gripper/.images/jodell_rg75.png" width="150">  <img src="gripper/.images/jodell_erg32.png" width="150"> |
 | [Hitbot](gripper/hitbot_description)           | Z-EFG-100            | Yes     | <img src="gripper/.images/hitbot_z_efg_100.png" width="150">                                                     |
@@ -101,14 +101,13 @@ Also includes:
 To use these components in your robot description, you can include them using xacro:
 
 ```xml
-<!-- Example: Adding a gripper to your robot -->
-<xacro:include filename="$(find robotiq_description)/xacro/gripper.xacro"/>
-
-<xacro:robotiq_gripper 
-  parent="arm_link_6" 
-  name="gripper">
-  <origin xyz="0 0 0" rpy="0 0 0"/>
-</xacro:robotiq_gripper>
+<!-- Example: Adding a Robotiq 2F-85 gripper (mount with your own fixed joint) -->
+<xacro:include filename="$(find robotiq_gripper_description)/xacro/2F85.xacro"/>
+<xacro:Robotiq85 name=""/>
+<joint name="gripper_fix" type="fixed">
+  <parent link="arm_link_6"/>
+  <child link="gripper_base"/>
+</joint>
 ```
 
 ### Using Common Launch Files
@@ -145,7 +144,7 @@ common/
 │   ├── hitbot_description/
 │   ├── eincinx_description/
 │   ├── marvin_gripper_description/
-│   └── robotiq_description/
+│   └── robotiq_gripper_description/
 └── robot_common_launch/   # Common launch files and utilities
     ├── config/           # Configuration files (RViz, Nav2, etc.)
     ├── launch/           # Launch files

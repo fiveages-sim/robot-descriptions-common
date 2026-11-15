@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="RobotiqGripper">
+
+  <xacro:arg name="type" default="85"/>
+  <xacro:arg name="hardware" default="mock_components"/>
+
+  <xacro:if value="${'$(arg type)' == '85'}">
+      <xacro:include filename="$(find robotiq_gripper_description)/xacro/2F85.xacro"/>
+      <xacro:Robotiq85 name=""/>
+
+      <xacro:include filename="$(find robotiq_gripper_description)/xacro/ros2_control/2f.ros2_control.xacro"/>
+      <xacro:robotiq_2f_system name="robotiq85System" hardware="$(arg hardware)"/>
+  </xacro:if>
+</robot>

@@ -1,13 +1,17 @@
 <?xml version="1.0"?>
 <package format="2">
-    <name>robotiq_description</name>
+    <name>robotiq_gripper_description</name>
     <version>0.0.0</version>
-    <description>The Robotiq grippers description package</description>
+    <description>
+        FaSim wrapper around the official ROS robotiq_description (2F-85),
+        exposing gripper_base / gripper_joint naming for arm integration.
+    </description>
 
     <maintainer email="biao876990970@hotmail.com">Huang Zhenbiao</maintainer>
     <license>TODO</license>
 
     <exec_depend>robot_common_launch</exec_depend>
+    <exec_depend>robotiq_description</exec_depend>
 
     <export>
         <build_type>ament_cmake</build_type>

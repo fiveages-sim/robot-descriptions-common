@@ -1,12 +1,13 @@
 <?xml version="1.0"?>
 
-<robot name="Robotiq_$(arg type)" xmlns:xacro="http://www.ros.org/wiki/xacro">
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="RobotiqGripper">
 
   <xacro:arg name="type" default="85"/>
+  <xacro:arg name="collider" default="convex"/>
 
   <!-- 根据type参数决定使用哪种夹爪 -->
   <xacro:if value="${'$(arg type)' == '85'}">
-    <xacro:include filename="$(find robotiq_description)/xacro/2F85.xacro"/>
+    <xacro:include filename="$(find robotiq_gripper_description)/xacro/2F85.xacro"/>
     <xacro:Robotiq85 name=""/>
   </xacro:if>
 </robot>

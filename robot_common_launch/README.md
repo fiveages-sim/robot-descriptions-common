@@ -236,7 +236,7 @@ source install/setup.bash
 | 控制器管理 | `controller_manager.launch.py` |
 | 导航 | `navigation*.launch.py` |
 
-机器人专用用法与本机 profile 文件约定，见各部署工作区 / `*_description` 包文档。
+机器人专用用法与本机 profile 文件约定，见各 `*_description` 包文档。
 
 ## 相关代码
 

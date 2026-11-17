@@ -304,7 +304,7 @@ jobs:
             echo "ament index was not generated in the install space." >&2
             exit 1
           fi
-          for required_pkg in robot_common_launch sensor_models component_models jodell_description; do
+          for required_pkg in robot_common_launch sensor_models component_models jodell_description robotiq_gripper_description; do
             if [[ ! -d "${install_root}/share/${required_pkg}" ]]; then
               echo "${required_pkg} was not installed into the package root." >&2
               exit 1
@@ -334,7 +334,7 @@ jobs:
           Section: misc
           Priority: optional
           Architecture: ${DEB_ARCH}
-          Depends: ros-${ROS_DISTRO}-ros-base, ros-${ROS_DISTRO}-ament-index-python, ros-${ROS_DISTRO}-controller-manager, ros-${ROS_DISTRO}-joint-state-publisher-gui, ros-${ROS_DISTRO}-launch, ros-${ROS_DISTRO}-launch-ros, ros-${ROS_DISTRO}-rclpy, ros-${ROS_DISTRO}-robot-state-publisher, ros-${ROS_DISTRO}-xacro
+          Depends: ros-${ROS_DISTRO}-ros-base, ros-${ROS_DISTRO}-ament-index-python, ros-${ROS_DISTRO}-controller-manager, ros-${ROS_DISTRO}-joint-state-publisher-gui, ros-${ROS_DISTRO}-launch, ros-${ROS_DISTRO}-launch-ros, ros-${ROS_DISTRO}-rclpy, ros-${ROS_DISTRO}-robot-state-publisher, ros-${ROS_DISTRO}-robotiq-description, ros-${ROS_DISTRO}-xacro
           Provides: robot-descriptions-jazzy-common
           Maintainer: ${GITHUB_REPOSITORY} maintainers <github-actions[bot]@users.noreply.github.com>
           Installed-Size: ${installed_size}
@@ -623,6 +623,7 @@ jobs:
               "sensor_models",
               "component_models",
               "jodell_description",
+              "robotiq_gripper_description",
           ]:
               print(package_name, get_package_share_directory(package_name))
 
@@ -639,6 +640,7 @@ jobs:
           find_package(sensor_models REQUIRED)
           find_package(component_models REQUIRED)
           find_package(jodell_description REQUIRED)
+          find_package(robotiq_gripper_description REQUIRED)
           EOF
 
           cmake -Wno-dev -S downstream_check -B downstream_check/build
